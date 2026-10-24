@@ -2,7 +2,27 @@
 
 The production target is **`ui.dominicklee.net`**, served by a separate Netlify project for Domino UI in the existing `domogami` team. The component library and visual notebook stay in this repository. The personal website keeps its own application and Netlify project.
 
-This document records the deployment architecture and release procedure. The target hostname, a configured domain, or a successful local build does not by itself establish a working public deployment. The release handoff must verify the published build, public DNS, HTTPS, and the actual website before calling the target live. Git-connected deployment from `main` is the intended ongoing workflow; confirm the repository connection and automatic publishing separately from any initial upload.
+This document records the verified deployment and release procedure. A configured domain or a successful local build does not by itself establish a working public deployment; check the published revision, DNS, HTTPS, and actual website on each release.
+
+## Verified release — October 24, 2026
+
+| Item                        | Verified value                                                                                                                      |
+| --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| Public notebook             | [ui.dominicklee.net](https://ui.dominicklee.net/)                                                                                   |
+| Netlify project             | [domino-ui](https://app.netlify.com/projects/domino-ui) in the `domogami` team                                                      |
+| Project ID                  | `c5800493-f930-4a0c-ae14-a157a751f953`                                                                                              |
+| UI code revision            | [`66dd14289a57d08749368fbbb6614bb2d206ff6a`](https://github.com/domogami/Domino-UI/commit/66dd14289a57d08749368fbbb6614bb2d206ff6a) |
+| Published code deploy       | `6add0c758d7fd629a8fb536d`, published 19:52:37 UTC                                                                                  |
+| Continuous deployment       | GitHub `domogami/Domino-UI`, production branch `main`; verified by the matching automatically published commit                      |
+| DNS                         | Netlify-managed `NETLIFY` and `NETLIFYv6` records for `ui`, pointing to `domino-ui.netlify.app`                                     |
+| HTTPS                       | Valid certificate covering the hostname; HTTPS enforcement enabled and HTTP redirects verified                                      |
+| Canonical token fingerprint | `397198c3b7bf`                                                                                                                      |
+
+The public JavaScript, CSS, cover, favicon, Caveat font, and notebook sketch were fetched and compared byte-for-byte with the local production build. The portfolio's apex and `www` records still point to its existing `domogami` project.
+
+Validation for this UI code revision: 105 development browser cases, 26 compiled mobile Chrome/WebKit cases, four system tests, and the isolated package consumer checks (types, SSR, nested base path, fonts, licenses, and asset copying). Live public-browser acceptance covers paper layers, native switch targets, and page transitions in both mobile engines. These are browser tests; physical phone haptic output remains device acceptance.
+
+Subsequent documentation-only commits can publish another deploy with the same UI assets. Use Netlify's latest published commit when checking the current head; this table identifies the tested UI code release.
 
 ## One source, independent applications
 

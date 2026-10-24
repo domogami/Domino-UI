@@ -10,6 +10,7 @@ Design-system revision: <FULL_DOMINO_UI_COMMIT_SHA>.
 Domino UI is the shared paper-and-ink design system for Dom Lee's personal
 website, Quartz garden, and Obsidian workspace:
 https://github.com/domogami/Domino-UI
+Live visual notebook: https://ui.dominicklee.net/
 
 Inspect the target repository's instructions, framework, current UI, routes,
 theme controller, asset pipeline, and tests first. Implement the integration
@@ -23,6 +24,8 @@ Read these source documents at the chosen revision before implementation:
 - docs/COMPONENTS.md: available component scope.
 - docs/SHARED-SYSTEM.md: ownership, manifest, adapters, and rollback.
 - docs/ACCESSIBILITY.md: interaction and readable-state requirements.
+- docs/LAYERS.md for popovers, notifications, modals, drawers, and focus return.
+- docs/ROUTING.md for content-only View Transitions and progressive page flow.
 - docs/HAPTICS.md if adopting interactive touch feedback.
 - docs/SKETCHES.md if using drawings.
 - docs/QUARTZ.md or docs/OBSIDIAN.md for those native destinations.
@@ -65,6 +68,14 @@ Keep these design decisions consistent:
   duplicating them or substituting a generic handwritten aesthetic.
 - Reuse TaskCheckbox for the garden's drawn check and text strike in React.
   Preserve the native checkbox state, label, and keyboard behavior.
+- Use Popover for short contextual details, Dialog/Drawer for a modal task,
+  and NotificationCard for an application-owned queue. Give each layer a clear
+  title and actions; pass Dialog returnFocusRef for an explicit touch opener.
+  Keep surfaces mounted through exit and preserve native top-layer behavior.
+- Keep navigation stationary during page changes. If the framework does not
+  already own View Transitions, use createPageTransition around a synchronous
+  route commit and one dm-page-transition content wrapper. Preserve history,
+  scroll and focus, guard obsolete callbacks, and honor reduced motion.
 - NotebookSketch offers notebook, flight, garden, camera, keyboard, compass.
   HairlineSketch offers riffle, branches, loupe, with upstream attribution.
   Use replayOnClick for click/tap/Enter/Space replay. Quiet and reduced

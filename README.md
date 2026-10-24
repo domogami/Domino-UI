@@ -226,7 +226,7 @@ npm run build:lib         # Reusable ESM, CSS, declarations, fonts → lib/
 npm run export:sketches   # Regenerate the 18 static SVG companions
 ```
 
-Install browser runtimes with `npx playwright install chromium webkit` when needed. The development and production suites keep separate artifacts. The root `netlify.toml` prepares a static deployment; domain assignment and a public notebook URL remain a separate hosting step. [Hosting guide](docs/HOSTING.md).
+Install browser runtimes with `npx playwright install chromium webkit` when needed. The development and production suites keep separate artifacts. Netlify publishes `main` to [ui.dominicklee.net](https://ui.dominicklee.net/) as a separate project. [Deployment, verification, and rollback](docs/DEPLOYMENT.md).
 
 ## Design notes and provenance
 
