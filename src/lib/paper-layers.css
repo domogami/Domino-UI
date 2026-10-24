@@ -50,45 +50,44 @@ body:has(.dm-dialog:modal) {
 /* Each section has its own hinge. Perspective lives in the transient transform
    so an open, flat dialog does not become a containing block for popovers. */
 .dm-dialog--fold {
-  transform: perspective(1200px) translateY(18px) rotateX(-9deg)
-    scale(0.97, 0.9);
+  opacity: 1;
+  transform: perspective(1200px) translateY(10px) rotateX(-5deg)
+    scale(0.985, 0.94);
   transform-origin: 50% 30%;
   transition-duration:
-    calc(var(--dm-dialog-duration, 480ms) * 0.25),
-    var(--dm-dialog-duration, 480ms);
+    calc(var(--dm-dialog-duration, 320ms) * 0.25),
+    var(--dm-dialog-duration, 320ms);
 }
 .dm-dialog--fold::backdrop {
-  transition-duration: var(--dm-dialog-duration, 480ms);
+  transition-duration: calc(var(--dm-dialog-duration, 320ms) * 0.5);
 }
 .dm-dialog--fold
   > :is(.dm-dialog__header, .dm-dialog__body, .dm-dialog__footer) {
   backface-visibility: hidden;
-  transition:
-    transform var(--dm-dialog-duration, 480ms)
-      var(--dm-layer-easing, cubic-bezier(0.22, 1, 0.36, 1)),
-    opacity var(--dm-dialog-duration, 480ms) ease;
+  transition: transform var(--dm-dialog-duration, 320ms)
+    var(--dm-layer-easing, cubic-bezier(0.22, 1, 0.36, 1));
 }
 .dm-dialog--fold > .dm-dialog__header {
   transform-origin: 50% 100%;
-  transform: perspective(900px) rotateX(-58deg);
-  opacity: 0.85;
-  transition-duration: calc(var(--dm-dialog-duration, 480ms) * 0.72);
+  transform: perspective(900px) rotateX(-18deg);
+  opacity: 1;
+  transition-duration: calc(var(--dm-dialog-duration, 320ms) * 0.4);
 }
 .dm-dialog--fold > .dm-dialog__body {
   position: relative;
   transform-origin: 50% 0;
-  transform: perspective(900px) rotateX(68deg);
-  opacity: 0.45;
-  transition-duration: calc(var(--dm-dialog-duration, 480ms) * 0.8);
-  transition-delay: calc(var(--dm-dialog-duration, 480ms) * 0.13);
+  transform: perspective(900px) rotateX(56deg);
+  opacity: 1;
+  transition-duration: calc(var(--dm-dialog-duration, 320ms) * 0.7);
+  transition-delay: calc(var(--dm-dialog-duration, 320ms) * 0.08);
 }
 .dm-dialog--fold > .dm-dialog__footer {
   position: relative;
   transform-origin: 50% 0;
-  transform: perspective(900px) rotateX(-76deg);
-  opacity: 0.4;
-  transition-duration: calc(var(--dm-dialog-duration, 480ms) * 0.65);
-  transition-delay: calc(var(--dm-dialog-duration, 480ms) * 0.25);
+  transform: perspective(900px) rotateX(-66deg);
+  opacity: 1;
+  transition-duration: calc(var(--dm-dialog-duration, 320ms) * 0.58);
+  transition-delay: calc(var(--dm-dialog-duration, 320ms) * 0.18);
 }
 .dm-dialog--fold[data-state="open"]
   > :is(.dm-dialog__header, .dm-dialog__body, .dm-dialog__footer) {
@@ -112,8 +111,8 @@ body:has(.dm-dialog:modal) {
   transform: scaleY(1);
   transform-origin: top;
   transition:
-    opacity var(--dm-dialog-duration, 480ms) ease,
-    transform var(--dm-dialog-duration, 480ms)
+    opacity calc(var(--dm-dialog-duration, 320ms) * 0.5) ease,
+    transform calc(var(--dm-dialog-duration, 320ms) * 0.5)
       var(--dm-layer-easing, cubic-bezier(0.22, 1, 0.36, 1));
 }
 .dm-dialog--fold[data-state="open"]
@@ -123,23 +122,29 @@ body:has(.dm-dialog:modal) {
 }
 .dm-dialog--fold[data-state="closing"],
 .dm-dialog--fold[data-state="closing"]::backdrop {
-  transition-duration: var(--dm-dialog-exit-duration, 280ms);
+  transition-duration: var(--dm-dialog-exit-duration, 160ms);
+}
+.dm-dialog--fold[data-state="closing"] {
+  opacity: 0;
+  transition-duration:
+    calc(var(--dm-dialog-exit-duration, 160ms) * 0.5),
+    var(--dm-dialog-exit-duration, 160ms);
 }
 .dm-dialog--fold[data-state="closing"] > .dm-dialog__header {
-  transition-duration: calc(var(--dm-dialog-exit-duration, 280ms) * 0.7);
-  transition-delay: calc(var(--dm-dialog-exit-duration, 280ms) * 0.3);
+  transition-duration: calc(var(--dm-dialog-exit-duration, 160ms) * 0.6);
+  transition-delay: 0s;
 }
 .dm-dialog--fold[data-state="closing"] > .dm-dialog__body {
-  transition-duration: calc(var(--dm-dialog-exit-duration, 280ms) * 0.7);
-  transition-delay: calc(var(--dm-dialog-exit-duration, 280ms) * 0.13);
+  transition-duration: calc(var(--dm-dialog-exit-duration, 160ms) * 0.7);
+  transition-delay: calc(var(--dm-dialog-exit-duration, 160ms) * 0.06);
 }
 .dm-dialog--fold[data-state="closing"] > .dm-dialog__footer {
-  transition-duration: calc(var(--dm-dialog-exit-duration, 280ms) * 0.6);
+  transition-duration: calc(var(--dm-dialog-exit-duration, 160ms) * 0.6);
   transition-delay: 0s;
 }
 .dm-dialog--fold[data-state="closing"]
   > :is(.dm-dialog__body, .dm-dialog__footer)::before {
-  transition-duration: var(--dm-dialog-exit-duration, 280ms);
+  transition-duration: var(--dm-dialog-exit-duration, 160ms);
 }
 .dm-dialog__header {
   display: flex;

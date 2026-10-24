@@ -233,6 +233,12 @@ test("production paper layers retain their styles, viewport fit and nested focus
   });
   await expect(dialog).toHaveAttribute("data-state", "open");
   await expect(dialog).toHaveCSS("border-top-width", "2px");
+  await expect(dialog).toHaveCSS("opacity", "1");
+  const header = dialog.locator(".dm-dialog__header");
+  await expect(header).toHaveCSS("opacity", "1");
+  await expect(header).toHaveCSS("transition-property", "transform");
+  await expect(header).toHaveCSS("transition-delay", "0s");
+  await expect(header).toHaveCSS("transition-duration", "0.128s");
   expect(await dialog.evaluate((element) => element.matches(":modal"))).toBe(
     true,
   );

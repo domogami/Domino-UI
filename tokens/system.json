@@ -87,8 +87,8 @@
     "banner-label-duration": "300ms",
     "banner-label-delay": "1100ms",
     "layer-duration": "240ms",
-    "dialog-duration": "480ms",
-    "dialog-exit-duration": "280ms",
+    "dialog-duration": "320ms",
+    "dialog-exit-duration": "160ms",
     "layer-exit-duration": "160ms",
     "layer-easing": "cubic-bezier(0.22, 1, 0.36, 1)",
     "shadow-layer": "2px 3px 0 color-mix(in srgb, var(--dm-ink) 16%, transparent)"

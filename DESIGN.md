@@ -140,7 +140,7 @@ Contextual popovers, modal decisions, and notification cards use opaque paper wi
 
 The [Paper layers guide](docs/LAYERS.md) records inspiration from Pebble's published interaction guidance: prominent information, limited meaningful color, self-contained cards, visible actions, and short motion that explains change. Single paper surfaces, folding motion, handwritten annotations, and teal are Domino's adaptation, not Pebble specifications. Do not copy Pebble artwork, fonts, or icons to express that influence.
 
-Use a nonmodal `Popover` for a small contextual task, a native `Dialog` or `Drawer` for a focused decision, a static `NotificationCard` for a complete message, and a `Toast` for operation feedback. Keep the actual message and queue count readable. Shared settle motion enters over 240ms and exits over 160ms. `Dialog` defaults to `motion="fold"`: the header, body, and footer unfold in sequence over the dedicated 480ms dialog duration and close in reverse over 280ms. `motion="settle"` is available for utility dialogs; `Drawer` and the command palette always settle. Reduced motion removes movement, and focus/dismissal contracts remain part of the component rather than decorative polish. The notebook's `/#layers` composition demonstrates those choices together.
+Use a nonmodal `Popover` for a small contextual task, a native `Dialog` or `Drawer` for a focused decision, a static `NotificationCard` for a complete message, and a `Toast` for operation feedback. Keep the actual message and queue count readable. Shared settle motion enters over 240ms and exits over 160ms. `Dialog` defaults to `motion="fold"`: the header, body, and footer unfold in sequence over the dedicated 320ms dialog duration and close over 160ms. `motion="settle"` is available for utility dialogs; `Drawer` and the command palette always settle. Reduced motion removes movement, and focus/dismissal contracts remain part of the component rather than decorative polish. The notebook's `/#layers` composition demonstrates those choices together.
 
 ## Handwriting, banners, and journal marks
 
@@ -191,7 +191,7 @@ Motion describes a drawing becoming ink on paper. Avoid unrelated bounce, contin
 | Plant                        | Staggered stem, leaves, and pot outlines with soft fills; full source sequence about 2.4s                                      |
 | Garden task                  | 220ms check drawing; 280ms wrapped strike                                                                                      |
 | Standard UI                  | Library extension: 160ms fast and 240ms base feedback                                                                          |
-| Folding dialog               | Library extension: header/body/footer unfold over 480ms; reverse close over 280ms; settle alternative for utility surfaces |
+| Folding dialog               | Library extension: header/body/footer unfold over 320ms; compact close over 160ms; settle alternative for utility surfaces |
 
 The wordmark's period is part of the requested identity. The garden header intentionally omits it; use the portfolio's period-bearing variant for the library's main brand example. Use instance-specific SVG identifiers so several wordmarks can coexist on one page. Do not replace its geometry with live text in an approximately similar font.
 

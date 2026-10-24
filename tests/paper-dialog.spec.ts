@@ -336,6 +336,8 @@ test("paper folds through coordinated hinges and crease shading on the same dial
     const footer = dialog.querySelector<HTMLElement>(".dm-dialog__footer")!;
     const sample = () => ({
       shell: getComputedStyle(dialog).transform,
+      shellOpacity: Number(getComputedStyle(dialog).opacity),
+      headerDelay: getComputedStyle(header).transitionDelay,
       header: getComputedStyle(header).transform,
       body: getComputedStyle(body).transform,
       bodyFlat:
@@ -407,8 +409,8 @@ test("paper folds through coordinated hinges and crease shading on the same dial
   });
   await expect(dialog).toHaveClass(/dm-dialog--fold/);
   const opening = await page.evaluate(() => (window as any).foldProbe.opening);
-  expect(opening.duration).toBeGreaterThanOrEqual(420);
-  expect(opening.duration).toBeLessThanOrEqual(500);
+  expect(opening.duration).toBeGreaterThanOrEqual(300);
+  expect(opening.duration).toBeLessThanOrEqual(340);
   expect(opening.regionsPersist).toBe(true);
   expect(opening.modal).toBe(true);
   for (const region of ["shell", "header", "body", "footer"] as const) {
@@ -416,12 +418,15 @@ test("paper folds through coordinated hinges and crease shading on the same dial
     expect(opening.middle[region]).not.toBe(opening.start[region]);
     expect(opening.end[region]).toBe("none");
   }
-  expect(opening.start.headerOpacity).toBeGreaterThan(
-    opening.start.bodyOpacity,
-  );
-  expect(opening.middle.bodyOpacity).toBeGreaterThan(
-    opening.middle.footerOpacity,
-  );
+  // The paper and lettering stay opaque; only the hinges and crease move.
+  expect(opening.start.shellOpacity).toBe(1);
+  for (const phase of [opening.start, opening.middle, opening.end]) {
+    expect(phase.headerOpacity).toBe(1);
+    expect(phase.bodyOpacity).toBe(1);
+    expect(phase.footerOpacity).toBe(1);
+    expect(phase.headerDelay).toBe("0s");
+  }
+  expect(opening.middle.header).toBe("none");
   expect(opening.middle.crease).toBeLessThan(opening.start.crease);
   expect(opening.end.crease).toBe(0);
   expect(opening.end.bodyOpacity).toBe(1);
@@ -429,14 +434,17 @@ test("paper folds through coordinated hinges and crease shading on the same dial
     .getByRole("button", { name: "Close dialog", exact: true })
     .click();
   const closing = await page.evaluate(() => (window as any).foldProbe.closing);
-  expect(closing.duration).toBeGreaterThanOrEqual(240);
-  expect(closing.duration).toBeLessThanOrEqual(300);
+  expect(closing.duration).toBeGreaterThanOrEqual(150);
+  expect(closing.duration).toBeLessThanOrEqual(180);
   expect(closing.regionsPersist).toBe(true);
   expect(closing.modal).toBe(true);
   expect(closing.start.bodyFlat).toBe(true);
   expect(closing.middle.body).toContain("matrix3d");
-  expect(closing.middle.footerOpacity).toBeLessThan(closing.middle.bodyOpacity);
-  expect(closing.middle.bodyOpacity).toBeLessThan(closing.middle.headerOpacity);
+  expect(closing.start.headerDelay).toBe("0s");
+  expect(closing.middle.shellOpacity).toBeLessThanOrEqual(0.01);
+  expect(closing.middle.headerOpacity).toBe(1);
+  expect(closing.middle.bodyOpacity).toBe(1);
+  expect(closing.middle.footerOpacity).toBe(1);
   expect(closing.end.crease).toBeGreaterThan(closing.start.crease);
   await expect(dialog).toBeHidden();
   await expect(opener).toBeFocused();

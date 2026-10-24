@@ -661,7 +661,7 @@ export const entries: Entry[] = [
       ],
     ],
     guidance:
-      'The native modal contains focus, supports Escape and returns focus when closed. A single sheet unfolds through its header, body, and footer in 480ms, then folds away in 280ms. Use motion="settle" for a utility such as search. Keep it mounted while open changes so motion can reverse; modality persists until the exit finishes. Reduced motion skips movement. onClose must update open state. Supply a concise title and a visible close action.',
+      'The native modal contains focus, supports Escape and returns focus when closed. A single opaque sheet unfolds in 320ms, with its header settling first. Closing starts immediately and finishes in 160ms, without a lingering text fade. Use motion="settle" for a utility such as search. Keep it mounted while open changes so motion can reverse; modality persists until the exit finishes. Reduced motion skips movement. onClose must update open state. Supply a concise title and a visible close action.',
     origin: "Extended",
     usage:
       "Import Dialog and Button from @domlee/ui. The example defines open state and its opener. Native dialog attributes are supported; the component owns its DOM ref and open/showModal synchronization.",
@@ -946,7 +946,11 @@ export const entries: Entry[] = [
         "boolean; stable native replay button (requires animate)",
         "false",
       ],
-      ["label", "string; replay button name", "plain text lines, otherwise triple banner"],
+      [
+        "label",
+        "string; replay button name",
+        "plain text lines, otherwise triple banner",
+      ],
       ["native div attributes", "HTMLAttributes except children", "—"],
     ],
     guidance:
