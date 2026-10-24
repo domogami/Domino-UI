@@ -1,0 +1,108 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Domino UI canonical design tokens",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "name",
+    "version",
+    "defaultTheme",
+    "palette",
+    "shared",
+    "themes",
+    "fonts"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "schemaVersion": {
+      "const": 1
+    },
+    "name": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "defaultTheme": {
+      "const": "hybrid"
+    },
+    "palette": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "shared": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "themes": {
+      "type": "object",
+      "required": ["light", "dark", "hybrid"],
+      "additionalProperties": false,
+      "properties": {
+        "light": {
+          "$ref": "#/$defs/theme"
+        },
+        "dark": {
+          "$ref": "#/$defs/theme"
+        },
+        "hybrid": {
+          "$ref": "#/$defs/theme"
+        }
+      }
+    },
+    "fonts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["family", "weight", "file", "license", "format", "mime"],
+        "properties": {
+          "family": {
+            "type": "string"
+          },
+          "weight": {
+            "type": "string"
+          },
+          "file": {
+            "type": "string"
+          },
+          "license": {
+            "type": "string"
+          },
+          "format": {
+            "enum": ["woff2", "truetype"]
+          },
+          "mime": {
+            "enum": ["font/woff2", "font/ttf"]
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "theme": {
+      "type": "object",
+      "required": ["tokens"],
+      "additionalProperties": false,
+      "properties": {
+        "extends": {
+          "enum": ["light", "dark", "hybrid"]
+        },
+        "tokens": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

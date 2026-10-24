@@ -1,0 +1,29 @@
+name: Build and tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      CI: true
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run check
+      - run: npm run test:system
+      - run: npm run test:package
+      - run: npx playwright install --with-deps chromium webkit
+      - run: npm test
+      - run: npm run test:production

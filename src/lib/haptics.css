@@ -1,0 +1,97 @@
+/* Explicit provider scopes do not add a layout box to a host application. */
+.dm-touch-feedback {
+  display: contents;
+}
+.dm-native-tap-layer {
+  display: contents;
+  pointer-events: none;
+}
+input.dm-native-tap-target {
+  position: fixed;
+  z-index: 10000;
+  appearance: auto;
+  opacity: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  box-sizing: border-box;
+  pointer-events: auto;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+[data-domino-haptics] [data-native-tap-pressed] {
+  filter: brightness(0.96);
+}
+.dm-touch-feedback-setting {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding-block: 12px;
+  color: var(--dm-ink);
+  font-family: var(--dm-font-body);
+  font-size: 13px;
+}
+.dm-touch-feedback-setting small {
+  display: block;
+  margin-top: 5px;
+  color: var(--dm-muted);
+  font-size: 11px;
+}
+.dm-touch-feedback-setting.is-compact {
+  display: inline-flex;
+  padding: 0;
+  gap: 8px;
+  font-size: inherit;
+}
+input.dm-ink-switch {
+  appearance: none;
+  position: relative;
+  flex-shrink: 0;
+  width: 40px;
+  height: 24px;
+  margin: 0;
+  border: 1.5px solid currentColor;
+  border-radius: 48% 44% 45% 43% / 70% 62% 68% 62%;
+  background: transparent;
+  color: var(--dm-accent, #0e7c79);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+input.dm-ink-switch::after {
+  content: "";
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  top: 3.5px;
+  left: 4px;
+  border-radius: 47% 52% 44% 49%;
+  background: currentColor;
+  opacity: 0.5;
+  transition: transform 140ms ease-out, opacity 140ms ease-out;
+}
+input.dm-ink-switch:checked::after {
+  transform: translateX(15px);
+  opacity: 1;
+}
+input.dm-ink-switch:focus-visible {
+  outline: 2px dashed var(--dm-focus, currentColor);
+  outline-offset: 4px;
+}
+input.dm-ink-switch:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+input.dm-ink-switch--native[switch] {
+  appearance: auto;
+  accent-color: var(--dm-accent, #0e7c79);
+  border: 0;
+}
+input.dm-ink-switch--native[switch]::after {
+  content: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  input.dm-ink-switch::after {
+    transition: none;
+  }
+}

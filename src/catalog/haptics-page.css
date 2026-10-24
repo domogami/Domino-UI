@@ -1,0 +1,356 @@
+.haptics-playground {
+  margin-top: 25px;
+  border: 1px solid var(--dm-border);
+  border-radius: var(--dm-radius);
+  background: var(--dm-surface);
+}
+.haptics-device {
+  display: flex;
+  gap: 20px;
+  padding: 26px;
+  border-bottom: 1px solid var(--dm-border);
+}
+.haptics-device-mark {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  background: var(--dm-sage);
+  border: 1px solid var(--dm-border);
+  border-radius: var(--dm-radius);
+  color: var(--dm-accent);
+  flex-shrink: 0;
+}
+.haptics-device h2 {
+  font-size: 20px;
+  margin: 7px 0 9px;
+}
+.haptics-device p {
+  color: var(--dm-muted);
+  font-size: 11px;
+  max-width: 650px;
+}
+.haptics-preference {
+  padding: 21px 26px;
+  border-bottom: 1px dashed var(--dm-border);
+}
+.haptics-preference > span {
+  display: block;
+  color: var(--dm-muted);
+  font-size: 9px;
+  margin-top: 10px;
+}
+.haptics-demo-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+}
+.haptics-demo-grid > section {
+  min-width: 0;
+  padding: 26px;
+}
+.haptics-demo-grid > section + section {
+  border-left: 1px solid var(--dm-border);
+}
+.haptics-demo-grid h3 {
+  font-size: 15px;
+}
+.haptics-demo-grid p {
+  font-size: 11px;
+  color: var(--dm-muted);
+  margin: 12px 0 20px;
+}
+.haptics-demo-grid .demo-row {
+  justify-content: flex-start;
+  gap: 10px;
+}
+.haptics-demo-grid .dm-button {
+  font-size: 10px;
+}
+.haptics-demo-grid code {
+  font-size: 10px;
+}
+.haptics-action-log {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  margin-top: 20px;
+  padding: 13px 0;
+  border-top: 1px dashed var(--dm-border);
+  font-size: 10px;
+}
+.haptics-action-log b {
+  font: 500 26px var(--dm-font-heading);
+  color: var(--dm-accent);
+}
+.haptics-action-log small {
+  display: block;
+  font-size: 8px;
+  color: var(--dm-muted);
+  margin-top: 4px;
+}
+.haptics-switch-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  padding: 18px 15px;
+  background: var(--dm-paper);
+  border: 1px solid var(--dm-border);
+  border-radius: var(--dm-radius);
+  font-size: 11px;
+}
+.haptics-native > small {
+  display: block;
+  font-size: 9px;
+  color: var(--dm-muted);
+  margin-top: 15px;
+}
+.haptics-drawing {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  border-top: 1px solid var(--dm-border);
+  padding: 26px;
+  gap: 30px;
+  background-image: radial-gradient(
+    circle,
+    var(--dm-grid-color) 0.8px,
+    transparent 1px
+  );
+  background-size: var(--dm-grid-size) var(--dm-grid-size);
+}
+.haptics-drawing h3 {
+  font-size: 18px;
+  margin: 7px 0 10px;
+}
+.haptics-drawing p {
+  font-size: 11px;
+  color: var(--dm-muted);
+  margin-bottom: 20px;
+}
+.haptics-ink-preview {
+  min-width: 0;
+  align-self: center;
+  text-align: center;
+  color: var(--dm-accent);
+}
+.haptics-ink-preview svg {
+  display: block;
+  width: 100%;
+  max-width: 220px;
+  margin: auto;
+}
+.haptics-ink-preview > span {
+  font: 400 8px var(--dm-font-mono);
+  color: var(--dm-muted);
+}
+.haptics-ink-draw {
+  stroke-dasharray: 1;
+  animation: dm-haptic-ink 900ms ease both;
+}
+@keyframes dm-haptic-ink {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+.haptics-patterns {
+  border: 1px solid var(--dm-border);
+  background: var(--dm-surface);
+  border-radius: var(--dm-radius);
+}
+.haptics-patterns article {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  padding: 20px 23px;
+}
+.haptics-patterns article + article {
+  border-top: 1px dashed var(--dm-border);
+}
+.haptics-patterns article > div:first-child > code {
+  font-size: 9px;
+  color: var(--dm-accent);
+  display: block;
+  margin-bottom: 5px;
+}
+.haptics-patterns strong {
+  font-family: var(--dm-font-heading);
+  font-size: 13px;
+  font-weight: 500;
+}
+.haptics-patterns p {
+  font-size: 10px;
+  color: var(--dm-muted);
+  margin-top: 6px;
+}
+.haptics-pattern-visual {
+  min-width: 170px;
+  text-align: right;
+}
+.haptics-pattern-visual > div {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0;
+  height: 24px;
+  margin-bottom: 8px;
+}
+.haptics-pattern-visual i {
+  height: 22px;
+  display: block;
+  background: var(--dm-accent);
+  border-radius: 2px;
+}
+.haptics-pattern-visual i.is-gap {
+  height: 1px;
+  background: var(--dm-border);
+}
+.haptics-pattern-visual > code {
+  font-size: 10px;
+  color: var(--dm-muted);
+}
+.haptics-timing {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-top: 20px;
+}
+.haptics-timing > div {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 15px;
+  border: 1px solid var(--dm-border);
+  background: var(--dm-surface);
+  border-radius: var(--dm-radius);
+}
+.haptics-timing b {
+  font: 500 19px var(--dm-font-heading);
+  letter-spacing: -0.5px;
+  color: var(--dm-accent);
+}
+.haptics-timing span {
+  font-size: 9px;
+  color: var(--dm-muted);
+  line-height: 1.7;
+}
+.haptics-steps {
+  padding-left: 20px;
+  margin: 20px 0 26px;
+}
+.haptics-steps li {
+  font-size: 12px;
+  line-height: 1.9;
+  padding: 0 0 15px 7px;
+  color: var(--dm-muted);
+}
+.haptics-steps b {
+  color: var(--dm-ink);
+  font-weight: 500;
+}
+.haptics-steps code {
+  font-size: 10px;
+  overflow-wrap: anywhere;
+}
+.haptics-source-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 22px;
+  margin-top: 20px;
+}
+.haptics-source-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 10px;
+  color: var(--dm-accent);
+}
+.haptics-source-links a:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+@media (max-width: 1050px) {
+  .haptics-demo-grid,
+  .haptics-drawing {
+    grid-template-columns: 1fr;
+  }
+  .haptics-demo-grid > section + section {
+    border-left: 0;
+    border-top: 1px dashed var(--dm-border);
+  }
+  .haptics-ink-preview svg {
+    max-width: 180px;
+  }
+  .haptics-timing {
+    gap: 10px;
+  }
+  .haptics-timing > div {
+    display: block;
+  }
+  .haptics-timing span {
+    display: block;
+    margin-top: 8px;
+  }
+}
+@media (max-width: 700px) {
+  .haptics-device {
+    padding: 22px;
+    gap: 15px;
+  }
+  .haptics-device-mark {
+    width: 36px;
+    height: 36px;
+  }
+  .haptics-device h2 {
+    font-size: 17px;
+  }
+  .haptics-preference,
+  .haptics-demo-grid > section,
+  .haptics-drawing {
+    padding: 22px;
+  }
+  .haptics-patterns article {
+    align-items: flex-start;
+    padding: 18px;
+    gap: 16px;
+  }
+  .haptics-pattern-visual {
+    min-width: 110px;
+  }
+  .haptics-pattern-visual i.is-gap {
+    max-width: 40px;
+  }
+  .haptics-patterns p {
+    font-size: 9px;
+  }
+  .haptics-timing {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .haptics-timing > div {
+    display: flex;
+    gap: 16px;
+  }
+  .haptics-timing b {
+    min-width: 83px;
+  }
+  .haptics-timing span {
+    margin: 0;
+  }
+  .haptics-steps li {
+    font-size: 11px;
+  }
+  .haptics-native .haptics-switch-label {
+    gap: 10px;
+    padding: 15px 12px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .haptics-ink-draw {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+}

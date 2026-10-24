@@ -1,0 +1,59 @@
+/* Opt-in bridge for the existing personal notebook. Load after notebook.css. */
+html.domino-ui {
+  background: var(--dm-sidebar);
+}
+html.domino-ui .notebook {
+  --paper: var(--dm-paper);
+  --ink: var(--dm-ink);
+  --teal: var(--dm-accent);
+  --mint: var(--dm-mint);
+  --grid: var(--dm-grid-size);
+  color: var(--dm-ink);
+  background-color: var(--dm-paper);
+  font-family: var(--dm-font-body);
+}
+html.domino-ui
+  .notebook
+  :is(.masthead-dock, .masthead, .mobile-menu, .contact) {
+  background-color: var(--dm-sidebar);
+  color: var(--dm-sidebar-ink);
+  --mint: var(--dm-sidebar-accent);
+  --dm-focus: var(--dm-sidebar-accent);
+}
+html.domino-ui .notebook :is(.desktop-nav, .mobile-menu) :is(a, button) {
+  color: var(--dm-sidebar-ink);
+}
+html.domino-ui .notebook .desktop-nav span {
+  color: var(--dm-sidebar-muted);
+}
+html.domino-ui .notebook .brand .crane {
+  color: var(--dm-sidebar-ink);
+}
+html.domino-ui .notebook .dot-paper {
+  background-image: radial-gradient(
+    circle,
+    var(--dm-grid-color) 0.8px,
+    transparent 1px
+  );
+  background-size: var(--dm-grid-size) var(--dm-grid-size);
+}
+html.domino-ui .notebook :is(.hero-paper, .garden) {
+  background-color: var(--dm-paper);
+  color: var(--dm-ink);
+}
+html.domino-ui .notebook :is(h1, .brand) {
+  font-family: var(--dm-font-heading);
+}
+html.domino-ui .notebook :is(.index-note, .tagline, .annotation, .crane-hint) {
+  font-family: var(--dm-font-hand);
+}
+html.domino-ui .notebook :is(.banner-label, .written-heading) {
+  font-family: var(--dm-font-lettered);
+}
+html.domino-ui .notebook :is(.desktop-nav, .eyebrow, .folio, code, pre) {
+  font-family: var(--dm-font-mono);
+}
+html.domino-ui .notebook :focus-visible {
+  outline: 2px dashed var(--dm-focus);
+  outline-offset: 4px;
+}

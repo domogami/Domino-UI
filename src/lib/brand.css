@@ -1,0 +1,330 @@
+/* Source geometry and Shared sketch timings: dominicklee.net notebook system. */
+.dm-hero-name {
+  display: inline-block;
+  width: 4.39933em;
+  height: 1.08em;
+  max-width: 100%;
+  vertical-align: -0.2em;
+  overflow: visible;
+  color: var(--dm-ink, #252b2e);
+}
+.dm-hero-name-outline {
+  opacity: 0;
+}
+.dm-hero-name-period {
+  fill: var(--dm-accent, #0e7c79);
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.dm-crane {
+  display: block;
+  width: 100%;
+  max-width: 420px;
+  overflow: visible;
+  color: var(--dm-paper, #efe7d7);
+}
+.dm-crane path {
+  fill: currentColor;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+}
+.dm-crane path:nth-of-type(3) {
+  fill: var(--dm-crane-facet-1, #d6e2d5);
+}
+.dm-crane path:nth-of-type(4) {
+  fill: var(--dm-crane-facet-2, #c6d9d0);
+}
+.dm-sketch-arrow {
+  display: inline-block;
+  flex: none;
+  width: 1.15em;
+  height: 1.15em;
+  vertical-align: -0.15em;
+}
+.dm-sketch-arrow path {
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.dm-handwritten-note {
+  font-family: var(--dm-font-hand, "Caveat", cursive);
+  font-size: 1.65em;
+  font-weight: 400;
+  line-height: 1.15;
+  color: var(--dm-accent, #0e7c79);
+}
+.dm-handwritten-note[data-tone="ink"] {
+  color: var(--dm-ink, #252b2e);
+}
+.dm-handwritten-note[data-tone="muted"] {
+  color: var(--dm-muted, #62675f);
+}
+.dm-handwritten-note[data-tone="terracotta"] {
+  color: var(--dm-terracotta, var(--dm-danger, #a34e36));
+}
+.dm-ink-word {
+  display: inline-block;
+  white-space: nowrap;
+}
+.dm-ink-letter {
+  display: inline-block;
+  white-space: pre;
+}
+.dm-brand-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+.dm-garden-plant {
+  display: block;
+  width: 120px;
+  max-width: 100%;
+  overflow: visible;
+  color: var(--dm-accent, #0e7c79);
+}
+.dm-garden-plant path {
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.dm-garden-plant .dm-plant-leaf {
+  fill: var(--dm-plant-fill, #b6cf8e);
+  fill-opacity: 0.42;
+}
+.dm-garden-plant .dm-plant-pot {
+  stroke: var(--dm-terracotta, var(--dm-danger, #a34e36));
+  fill: var(--dm-plant-pot, #a34e3618);
+}
+.dm-garden-plant .dm-plant-detail {
+  stroke: var(--dm-terracotta, var(--dm-danger, #a34e36));
+}
+.dm-brand-banner {
+  --dm-banner-paper: var(--dm-accent, #0e7c79);
+  --dm-banner-ink: var(--dm-accent-ink, #fff);
+  position: relative;
+  display: inline-grid;
+  /* Flexible tracks grow from the label's intrinsic size. Unlike percentage
+     padding, these proportions also stay relative to the ribbon itself. */
+  grid-template-columns: minmax(0, 0.071429fr) minmax(0, 1fr) minmax(
+      0,
+      0.071429fr
+    );
+  grid-template-rows: minmax(0, 0.055556fr) minmax(0, 1fr) minmax(0, 0.055556fr);
+  width: fit-content;
+  max-width: 100%;
+  min-width: min(180px, 100%);
+  min-height: 56px;
+  box-sizing: border-box;
+  padding: 0;
+  color: var(--dm-banner-ink);
+  font-family: var(--dm-font-lettered, "Kalam", cursive);
+  font-size: 1.35rem;
+  font-weight: 700;
+  line-height: 1.3;
+  text-align: center;
+}
+.dm-brand-banner > svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.dm-brand-banner path {
+  stroke: var(--dm-banner-paper);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+  fill: var(--dm-banner-paper);
+}
+.dm-brand-banner .dm-banner-fold {
+  fill: var(--dm-banner-ink);
+  fill-opacity: 0.3;
+}
+.dm-brand-banner-label {
+  position: relative;
+  grid-area: 2 / 2;
+  min-width: 0;
+  padding: 0.3em 0.65em 0.35em;
+  align-self: center;
+  overflow-wrap: anywhere;
+}
+.dm-brand-banner--folded {
+  /* The original face spans x=57..263 and y=8..52 in a 320 by 80
+     drawing. Reserve those proportional margins even after text wraps. */
+  grid-template-columns: minmax(0, 0.276699fr) minmax(0, 1fr) minmax(
+      0,
+      0.276699fr
+    );
+  grid-template-rows: minmax(0, 0.181818fr) minmax(0, 1fr) minmax(0, 0.636364fr);
+  min-height: 76px;
+  min-width: min(260px, 100%);
+}
+.dm-brand-banner--folded .dm-banner-face {
+  filter: drop-shadow(0 2px 1.5px #004b4840);
+}
+
+/* Completed artwork is the base. Quiet and reduced motion need no overrides. */
+@media (prefers-reduced-motion: no-preference) {
+  .dm-hero-name[data-animate="true"] .dm-hero-name-outline {
+    stroke-dasharray: 1;
+    animation: dm-name-outline
+      calc(var(--dm-name-outline-duration) * var(--dm-drawing-rate, 1)) linear
+      both;
+  }
+  .dm-hero-name[data-animate="true"] .dm-hero-name-sweep {
+    animation: dm-name-sweep
+      calc(var(--dm-name-fill-duration) * var(--dm-drawing-rate, 1))
+      cubic-bezier(0.4, 0, 0.2, 1)
+      calc(var(--dm-name-fill-delay) * var(--dm-drawing-rate, 1)) backwards;
+  }
+  .dm-hero-name[data-animate="true"] .dm-hero-name-period {
+    animation: dm-name-dot
+      calc(var(--dm-name-period-duration) * var(--dm-drawing-rate, 1)) ease-out
+      calc(var(--dm-name-period-delay) * var(--dm-drawing-rate, 1)) backwards;
+  }
+  .dm-crane[data-animate="true"] path {
+    stroke-dasharray: 1;
+    animation: dm-crane-draw
+      calc(var(--dm-crane-duration) * var(--dm-drawing-rate, 1)) both;
+    animation-delay: calc(
+      var(--dm-fold) * var(--dm-crane-stagger) * var(--dm-drawing-rate, 1)
+    );
+  }
+  .dm-handwritten-note[data-animate="true"] .dm-ink-letter {
+    animation: dm-letter-ink
+      calc(var(--dm-letter-duration) * var(--dm-drawing-rate, 1)) linear both;
+    animation-delay: calc(
+      var(--dm-letter) * var(--dm-letter-stagger) * var(--dm-drawing-rate, 1)
+    );
+  }
+  .dm-garden-plant[data-animate="true"] path {
+    stroke-dasharray: 1;
+    animation: dm-plant-draw
+      calc(var(--dm-plant-duration) * var(--dm-drawing-rate, 1)) ease-out both;
+  }
+  .dm-garden-plant[data-animate="true"] .dm-plant-leaf {
+    animation-delay: calc(
+      var(--dm-plant-leaf-delay) * var(--dm-drawing-rate, 1)
+    );
+  }
+  .dm-garden-plant[data-animate="true"] .dm-plant-pot,
+  .dm-garden-plant[data-animate="true"] .dm-plant-detail {
+    animation-delay: calc(
+      var(--dm-plant-pot-delay) * var(--dm-drawing-rate, 1)
+    );
+  }
+  .dm-brand-banner[data-animate="true"] path {
+    stroke-dasharray: 1;
+    animation:
+      dm-banner-draw
+        calc(var(--dm-banner-outline-duration) * var(--dm-drawing-rate, 1))
+        ease-out both,
+      dm-banner-fill
+        calc(var(--dm-banner-fill-duration) * var(--dm-drawing-rate, 1))
+        ease-out calc(var(--dm-banner-fill-delay) * var(--dm-drawing-rate, 1))
+        backwards;
+  }
+  .dm-brand-banner[data-animate="true"] .dm-brand-banner-label {
+    animation: dm-letter-ink
+      calc(var(--dm-banner-label-duration) * var(--dm-drawing-rate, 1)) ease-out
+      calc(var(--dm-banner-label-delay) * var(--dm-drawing-rate, 1)) backwards;
+  }
+}
+@keyframes dm-name-outline {
+  0%,
+  7.547% {
+    stroke-dashoffset: 1;
+    opacity: 1;
+  }
+  7.547% {
+    animation-timing-function: ease-in-out;
+  }
+  55.66%,
+  93.396% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+}
+@keyframes dm-name-sweep {
+  from {
+    transform: translateX(-560px);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+@keyframes dm-name-dot {
+  from {
+    opacity: 0;
+    transform: scale(0.25);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes dm-crane-draw {
+  0% {
+    stroke-dashoffset: 1;
+    fill-opacity: 0;
+    transform: translateY(8px);
+  }
+  65% {
+    stroke-dashoffset: 0;
+    fill-opacity: 0;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    fill-opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes dm-letter-ink {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 -3px 0 0);
+  }
+}
+@keyframes dm-plant-draw {
+  from {
+    stroke-dashoffset: 1;
+    fill-opacity: 0;
+  }
+  65% {
+    stroke-dashoffset: 0;
+    fill-opacity: 0;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes dm-banner-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes dm-banner-fill {
+  from {
+    fill-opacity: 0;
+  }
+}

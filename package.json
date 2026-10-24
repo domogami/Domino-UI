@@ -1,0 +1,84 @@
+{
+  "name": "@domlee/ui",
+  "version": "0.1.0",
+  "description": "A paper, ink and curiosity design system. React components and a living field guide inspired by Dom Lee's notebook and digital garden.",
+  "type": "module",
+  "private": true,
+  "license": "UNLICENSED",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/domogami/Domino-UI.git"
+  },
+  "bin": {
+    "domino-ui-assets": "./scripts/copy-assets.mjs"
+  },
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "main": "./lib/domino-ui.js",
+  "module": "./lib/domino-ui.js",
+  "types": "./lib/lib/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/lib/index.d.ts",
+      "import": "./lib/domino-ui.js"
+    },
+    "./styles.css": "./lib/domino-ui.css",
+    "./tokens.css": "./src/styles/tokens.css",
+    "./fonts.css": "./lib/fonts.css",
+    "./fonts/*": "./public/fonts/*",
+    "./sketches/*": "./public/sketches/*",
+    "./licenses/*": "./docs/licenses/*",
+    "./tokens.json": "./tokens/resolved.json",
+    "./adapters/portfolio.css": "./platforms/portfolio/domino-ui.css",
+    "./adapters/quartz.css": "./platforms/quartz/domino-ui.css",
+    "./adapters/obsidian.css": "./platforms/obsidian/domino-ui.css",
+    "./system-manifest.json": "./platforms/manifest.json"
+  },
+  "files": [
+    "lib",
+    "src/styles/tokens.css",
+    "public/fonts",
+    "public/sketches",
+    "DESIGN.md",
+    "docs",
+    "tokens",
+    "platforms",
+    "scripts/copy-assets.mjs"
+  ],
+  "scripts": {
+    "dev": "vite --host 127.0.0.1 --port 5173",
+    "build": "tsc --noEmit && vite build",
+    "build:lib": "vite build --config vite.lib.config.ts && tsc -p tsconfig.lib.json && node scripts/finalize-library.mjs",
+    "export:sketches": "npm run build:lib && node scripts/export-sketches.mjs",
+    "check": "npm run check:system && tsc --noEmit",
+    "test": "playwright test",
+    "test:production": "npm run build && playwright test --config playwright.production.config.ts",
+    "preview": "vite preview --host 127.0.0.1 --port 4173",
+    "build:system": "node scripts/build-system.mjs",
+    "check:system": "node scripts/build-system.mjs --check --tokens-only",
+    "test:system": "npm run build:system && node --test tests/system.test.mjs",
+    "test:package": "node scripts/test-consumer.mjs",
+    "prebuild": "npm run build:system",
+    "prebuild:lib": "npm run build:system",
+    "prepare": "npm run build:lib",
+    "pretest": "npm run build:system"
+  },
+  "peerDependencies": {
+    "react": ">=18",
+    "react-dom": ">=18"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.58.0",
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "typescript": "^5.9.3",
+    "vite": "^8.3.0"
+  },
+  "dependencies": {
+    "@lucasmarkes/hairline": "0.5.1"
+  }
+}

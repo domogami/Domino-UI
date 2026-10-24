@@ -1,0 +1,109 @@
+.dm-task-checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  min-height: 44px;
+  padding-block: 10px;
+  color: var(--dm-ink);
+  font: inherit;
+  line-height: 1.65;
+  cursor: pointer;
+}
+.dm-task-checkbox__input {
+  appearance: none;
+  position: relative;
+  flex: 0 0 auto;
+  box-sizing: border-box;
+  font: inherit;
+  width: 1.05em;
+  height: 1.05em;
+  margin: 0.2em 0 0;
+  border: 1.5px solid var(--dm-muted);
+  border-radius: 3px 5px 2px 4px;
+  background: transparent;
+  transform: translateY(2px) rotate(-3deg);
+  color: var(--dm-accent);
+  cursor: inherit;
+}
+.dm-task-checkbox__input:focus-visible {
+  outline: 2px solid var(--dm-focus);
+  outline-offset: 3px;
+}
+.dm-task-checkbox__input:checked {
+  border-color: var(--dm-accent);
+  background: color-mix(in srgb, var(--dm-accent) 8%, transparent);
+}
+.dm-task-checkbox__input:checked::after {
+  content: "";
+  position: absolute;
+  inset: -4px -3px -1px 0;
+  transform: rotate(3deg);
+  background: currentColor;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 12Q6 15 9 19Q14 10 22 3' fill='none' stroke='black' stroke-width='2.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+  animation: dm-task-check var(--dm-task-check-duration, 220ms) ease-out;
+}
+.dm-task-checkbox__copy {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.dm-task-checkbox__text {
+  background-image: linear-gradient(var(--dm-muted), var(--dm-muted));
+  background-position: 0 55%;
+  background-size: 0% 1.5px;
+  background-repeat: no-repeat;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  transition:
+    background-size var(--dm-task-strike-duration, 280ms) ease-out,
+    color var(--dm-task-strike-duration, 280ms) ease-out;
+}
+.dm-task-checkbox__input:checked
+  + .dm-task-checkbox__copy
+  .dm-task-checkbox__text {
+  color: var(--dm-muted);
+  background-size: 100% 1.5px;
+}
+.dm-task-checkbox__description {
+  display: block;
+  margin-top: 3px;
+  color: var(--dm-muted);
+  font-size: 0.85em;
+}
+.dm-task-checkbox--disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+@keyframes dm-task-check {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0);
+  }
+}
+@media (prefers-reduced-motion: reduce), print {
+  .dm-task-checkbox__text {
+    transition: none;
+  }
+  .dm-task-checkbox__input:checked::after {
+    animation: none;
+  }
+}
+@media print, (forced-colors: active) {
+  .dm-task-checkbox__input:checked
+    + .dm-task-checkbox__copy
+    .dm-task-checkbox__text {
+    text-decoration: line-through;
+    background: none;
+  }
+}
+@media (forced-colors: active) {
+  .dm-task-checkbox__input {
+    appearance: auto;
+    transform: none;
+  }
+  .dm-task-checkbox__input::after {
+    display: none;
+  }
+}

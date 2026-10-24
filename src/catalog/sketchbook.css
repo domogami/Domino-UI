@@ -1,0 +1,310 @@
+.sketchbook-page {
+  min-width: 0;
+}
+.sketchbook-page .page-intro {
+  margin-bottom: 28px;
+}
+.sketchbook-intro-note {
+  display: block;
+  margin-top: 20px;
+  font-size: 1.6rem;
+}
+.sketchbook-controls {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  padding: 16px 0 24px;
+  border-bottom: 1px solid var(--dm-border);
+  margin-bottom: 42px;
+}
+.sketchbook-control-note {
+  margin-left: auto;
+  color: var(--dm-muted);
+  font-size: 0.76rem;
+}
+.sketchbook-section-heading {
+  align-items: flex-end;
+  gap: 16px;
+}
+.sketchbook-section-heading h2 {
+  margin: 8px 0 0;
+}
+.sketchbook-kicker,
+.sketchbook-card-top,
+.sketchbook-style-swatch > span:last-child {
+  font-family: var(--dm-font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.09em;
+  color: var(--dm-muted);
+}
+.sketchbook-component-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--dm-accent);
+  font-size: 0.74rem;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.sketchbook-component-link:hover {
+  text-decoration: underline;
+}
+.sketchbook-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+}
+.sketchbook-card {
+  min-width: 0;
+  margin: 0;
+  border: 1px solid var(--dm-border);
+  border-radius: 3px 7px 4px 5px;
+  background: var(--dm-surface);
+  overflow: hidden;
+}
+.sketchbook-card-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 16px 16px 0;
+  font-size: 0.56rem;
+}
+.sketchbook-stage {
+  position: relative;
+  min-width: 0;
+  padding: 4px 12px 0;
+}
+.sketchbook-stage .dm-notebook-sketch,
+.sketchbook-stage .dm-hairline {
+  display: block;
+  width: 100%;
+  max-width: none;
+}
+.sketchbook-stage .dm-sketch-replay {
+  max-width: none;
+}
+.sketchbook-card figcaption {
+  min-width: 0;
+  padding: 0 20px 22px;
+}
+.sketchbook-card h3 {
+  font-family: var(--dm-font-heading);
+  font-size: 0.88rem;
+  font-weight: 600;
+  margin: 0 0 6px;
+}
+.sketchbook-hand {
+  display: block;
+  font-family: var(--dm-font-hand);
+  font-size: 1.4rem;
+  line-height: 1.15;
+  color: var(--dm-accent);
+}
+.sketchbook-download {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+  font-family: var(--dm-font-mono);
+  color: var(--dm-muted);
+  font-size: 0.6rem;
+  text-decoration: none;
+  text-underline-offset: 3px;
+}
+.sketchbook-download:hover {
+  color: var(--dm-accent);
+  text-decoration: underline;
+}
+.sketchbook-section-note {
+  max-width: 820px;
+  color: var(--dm-muted);
+  font-size: 0.78rem;
+  line-height: 1.85;
+  margin: 20px 0 0;
+}
+.sketchbook-section-note a {
+  color: var(--dm-accent);
+  text-underline-offset: 3px;
+}
+.sketchbook-margin {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 24px;
+  padding: 26px 16px;
+  margin: 30px 0 44px;
+  border-top: 1px dashed var(--dm-border);
+  border-bottom: 1px dashed var(--dm-border);
+}
+.sketchbook-margin > div {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--dm-muted);
+  font-size: 0.72rem;
+}
+.sketchbook-line-sample {
+  display: block;
+  width: 32px;
+  height: 5px;
+  border-bottom: 1px solid var(--dm-ink);
+  border-radius: 50%;
+  transform: rotate(-5deg);
+}
+.sketchbook-color-sample {
+  display: block;
+  width: 12px;
+  height: 12px;
+  border: 1px solid var(--dm-accent);
+  border-radius: 50% 45% 49% 42%;
+  background: color-mix(in srgb, var(--dm-accent) 12%, transparent);
+}
+.sketchbook-hatch-sample {
+  color: var(--dm-ink);
+  font-family: var(--dm-font-hand);
+  font-size: 1.6rem;
+  letter-spacing: 0.12em;
+}
+.sketchbook-hairline-tools {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin: 0 0 20px;
+}
+.sketchbook-hairline-tools > p {
+  color: var(--dm-muted);
+  font-size: 0.8rem;
+  line-height: 1.8;
+  margin: 0;
+  max-width: 460px;
+}
+.sketchbook-guidance {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
+  gap: 40px;
+  margin: 52px 0 32px;
+  padding-top: 32px;
+  border-top: 1px solid var(--dm-border);
+}
+.sketchbook-guidance h2 {
+  margin: 10px 0 16px;
+}
+.sketchbook-guidance p {
+  color: var(--dm-muted);
+  font-size: 0.84rem;
+  line-height: 1.9;
+}
+.sketchbook-style-swatch {
+  align-self: center;
+  min-width: 0;
+  text-align: center;
+  padding: 24px;
+  transform: rotate(-2deg);
+}
+.sketchbook-style-swatch > svg {
+  margin: 14px 0;
+  width: 30px;
+  height: 30px;
+  color: var(--dm-accent);
+}
+.sketchbook-style-rule {
+  margin: 0 auto 20px;
+  width: 80%;
+  height: 4px;
+  border-bottom: 1px solid var(--dm-ink);
+  border-radius: 45%;
+}
+.sketchbook-component-demo {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+  width: 100%;
+}
+.sketchbook-component-demo > figure {
+  min-width: 0;
+  margin: 0;
+  text-align: center;
+}
+.sketchbook-component-demo figcaption {
+  font-family: var(--dm-font-hand);
+  color: var(--dm-accent);
+  font-size: 1.5rem;
+  margin-top: 12px;
+}
+.component-tile .sketchbook-component-demo {
+  display: block;
+  max-width: 220px;
+}
+@media (max-width: 1100px) and (min-width: 701px) {
+  .sketchbook-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .sketchbook-card {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+    align-items: center;
+  }
+  .sketchbook-card-top {
+    grid-column: 1 / -1;
+  }
+  .sketchbook-card figcaption {
+    padding-top: 20px;
+  }
+}
+@media (max-width: 700px) {
+  .sketchbook-grid,
+  .sketchbook-component-demo {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .sketchbook-stage {
+    max-width: 360px;
+    margin: 0 auto;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .sketchbook-card figcaption {
+    text-align: center;
+  }
+  .sketchbook-controls {
+    gap: 16px;
+  }
+  .sketchbook-control-note {
+    margin: 0;
+    flex-basis: 100%;
+  }
+  .sketchbook-section-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .sketchbook-margin {
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 16px 24px;
+  }
+  .sketchbook-margin > .sketchbook-hand {
+    width: 100%;
+  }
+  .sketchbook-guidance {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+  }
+  .sketchbook-component-demo > figure {
+    max-width: 360px;
+    width: 100%;
+    margin: 0 auto;
+  }
+}
+@media print {
+  .sketchbook-controls,
+  .sketchbook-hairline-tools .dm-switch,
+  .sketchbook-component-link {
+    display: none;
+  }
+  .sketchbook-card {
+    break-inside: avoid;
+  }
+}

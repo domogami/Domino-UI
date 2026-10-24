@@ -1,0 +1,121 @@
+/* Original notebook scenes. Keep the pen narrow at every display size. */
+.dm-notebook-sketch {
+  --dm-sketch-x: 0px;
+  --dm-sketch-y: 0px;
+  display: block;
+  width: 100%;
+  max-width: 400px;
+  height: auto;
+  overflow: visible;
+  color: var(--dm-ink, #252b2e);
+}
+.dm-notebook-sketch[data-interactive="true"] {
+  touch-action: pan-y;
+}
+.dm-notebook-sketch .dm-notebook-sketch-line {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.1;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+  vector-effect: non-scaling-stroke;
+}
+.dm-notebook-sketch .dm-notebook-sketch-accent {
+  color: var(--dm-accent, #0e7c79);
+}
+.dm-notebook-sketch .dm-notebook-sketch-muted {
+  opacity: 0.42;
+}
+.dm-notebook-sketch .dm-notebook-sketch-hatch {
+  stroke-width: 0.75;
+  opacity: 0.34;
+}
+.dm-notebook-sketch .dm-notebook-sketch-paper {
+  fill: var(--dm-sketch-paper, var(--dm-surface, #f7f3e9));
+  stroke: none;
+}
+.dm-notebook-sketch .dm-notebook-sketch-wash {
+  fill: var(--dm-accent, #0e7c79);
+  fill-opacity: 0.12;
+  stroke: none;
+}
+.dm-notebook-sketch .dm-notebook-sketch-caption {
+  fill: var(--dm-accent, #0e7c79);
+  stroke: none;
+  font-family: var(--dm-font-hand, "Caveat", cursive);
+  font-size: 19px;
+  font-weight: 400;
+  letter-spacing: -0.15px;
+}
+.dm-notebook-sketch .dm-notebook-sketch-layer {
+  --dm-sketch-depth: 0.65;
+}
+.dm-notebook-sketch .dm-notebook-sketch-layer--back {
+  --dm-sketch-depth: 0.3;
+}
+.dm-notebook-sketch .dm-notebook-sketch-layer--front {
+  --dm-sketch-depth: 1;
+}
+
+/* The finished drawing is the base, including in print and reduced motion. */
+@media (prefers-reduced-motion: no-preference) {
+  .dm-notebook-sketch[data-animate="true"] .dm-notebook-sketch-line {
+    animation: dm-notebook-sketch-draw
+      calc(var(--dm-sketch-duration, 1600ms) * var(--dm-drawing-rate, 1))
+      cubic-bezier(0.3, 0.08, 0.24, 1)
+      calc(
+        var(--dm-sketch-step, 0) * var(--dm-sketch-stagger, 90ms) *
+          var(--dm-drawing-rate, 1)
+      )
+      backwards;
+  }
+  .dm-notebook-sketch[data-animate="true"] .dm-notebook-sketch-wash,
+  .dm-notebook-sketch[data-animate="true"] .dm-notebook-sketch-caption {
+    animation: dm-notebook-sketch-ink
+      calc(var(--dm-duration-base, 240ms) * var(--dm-drawing-rate, 1)) ease-out
+      calc(
+        (
+            var(--dm-sketch-duration, 1600ms) * 0.45 +
+              var(--dm-sketch-step, 0) * var(--dm-sketch-stagger, 90ms)
+          ) *
+          var(--dm-drawing-rate, 1)
+      )
+      backwards;
+  }
+  .dm-notebook-sketch[data-interactive="true"] .dm-notebook-sketch-layer {
+    transform: translate(
+      calc(var(--dm-sketch-x) * var(--dm-sketch-depth)),
+      calc(var(--dm-sketch-y) * var(--dm-sketch-depth))
+    );
+    transition: transform var(--dm-duration-base, 240ms)
+      var(--dm-menu-easing, ease-out);
+  }
+}
+@keyframes dm-notebook-sketch-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes dm-notebook-sketch-ink {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@media print {
+  .dm-notebook-sketch .dm-notebook-sketch-line,
+  .dm-notebook-sketch .dm-notebook-sketch-wash,
+  .dm-notebook-sketch .dm-notebook-sketch-caption {
+    animation: none !important;
+  }
+  .dm-notebook-sketch .dm-notebook-sketch-layer {
+    transform: none !important;
+  }
+}

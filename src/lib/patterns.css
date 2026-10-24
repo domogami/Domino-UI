@@ -1,0 +1,385 @@
+/* Signature notebook patterns. Palette and type inherit from the host's dm tokens. */
+.dm-pattern-sr-only {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+:where(.dm-annotation, .dm-timeline, .dm-polaroid-stack, .dm-flower-progress) {
+  box-sizing: border-box;
+  max-width: 100%;
+  min-width: 0;
+  color: var(--dm-ink);
+  font-family: var(--dm-font-body);
+}
+:where(.dm-annotation summary, .dm-polaroid-stack button):focus-visible {
+  outline: 2px dashed var(--dm-focus);
+  outline-offset: 4px;
+}
+
+.dm-annotation {
+  width: fit-content;
+  margin: 16px 0;
+  padding: 0;
+  border: 0;
+  background: none;
+}
+.dm-annotation__title {
+  display: block;
+  margin: 0;
+  padding: 0;
+  color: var(--dm-terracotta, var(--dm-danger));
+  font: 600 1.65rem/1.3 var(--dm-font-hand);
+  overflow-wrap: anywhere;
+}
+.dm-annotation__arrow {
+  display: inline-block;
+  width: 2.2em;
+  height: 1em;
+  margin-inline-start: 0.12em;
+  vertical-align: -0.15em;
+  pointer-events: none;
+}
+.dm-annotation__arrow path {
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.dm-annotation__arrow--left {
+  margin-inline: 0 0.12em;
+}
+.dm-annotation__arrow--up,
+.dm-annotation__arrow--down {
+  height: 1.45em;
+}
+.dm-annotation__arrow--up {
+  vertical-align: -0.05em;
+}
+.dm-annotation__arrow--down {
+  vertical-align: -0.95em;
+}
+.dm-annotation__body {
+  margin-top: 8px;
+  color: var(--dm-ink);
+  font: 400 13px/1.85 var(--dm-font-body);
+  overflow-wrap: anywhere;
+}
+.dm-annotation__body > :first-child {
+  margin-top: 0;
+}
+.dm-annotation__body > :last-child {
+  margin-bottom: 0;
+}
+details.dm-annotation > summary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  list-style: none;
+  cursor: pointer;
+}
+details.dm-annotation > summary::-webkit-details-marker {
+  display: none;
+}
+.dm-annotation__disclosure {
+  color: var(--dm-accent);
+}
+.dm-annotation__label {
+  min-width: 0;
+}
+
+.dm-timeline {
+  position: relative;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.dm-timeline__item {
+  position: relative;
+  margin: 0;
+  padding: 0 0 28px 32px;
+  overflow-wrap: anywhere;
+}
+.dm-timeline__item:last-child {
+  padding-bottom: 0;
+}
+.dm-timeline__item:not(:last-child)::before {
+  content: "";
+  position: absolute;
+  top: 12px;
+  bottom: 0;
+  left: 5px;
+  width: 0;
+  border-left: 1.5px solid var(--dm-border);
+}
+.dm-timeline__node {
+  position: absolute;
+  top: 9px;
+  left: 0;
+  box-sizing: border-box;
+  width: 12px;
+  height: 12px;
+  border: 1.5px solid var(--dm-accent);
+  border-radius: 5px 7px 6px 5px;
+  background: var(--dm-paper);
+  transform: rotate(-7deg);
+}
+.dm-timeline__meta {
+  margin: 0 0 5px;
+  color: var(--dm-muted);
+  font: 400 10px/1.6 var(--dm-font-mono);
+  letter-spacing: 0.04em;
+}
+.dm-timeline__title {
+  margin: 0;
+  color: var(--dm-ink);
+  font: 700 22px/1.5 var(--dm-font-lettered);
+}
+.dm-timeline__description {
+  margin-top: 6px;
+  color: var(--dm-muted);
+  font: 400 13px/1.85 var(--dm-font-body);
+}
+.dm-timeline__description > :first-child {
+  margin-top: 0;
+}
+.dm-timeline__description > :last-child {
+  margin-bottom: 0;
+}
+
+.dm-polaroid-stack {
+  width: 340px;
+  padding: 14px 16px 0;
+}
+.dm-polaroid-stack__stage {
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  padding: 0;
+}
+.dm-polaroid-stack__back {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  display: block;
+  border: 1px solid var(--dm-border);
+  background: var(--dm-surface);
+  box-shadow: 2px 5px 14px #0002;
+  transform: translate(6px, -4px) rotate(4deg);
+}
+.dm-polaroid-stack__photo {
+  position: relative;
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0;
+  padding: 10px 10px 7px;
+  border: 1px solid var(--dm-border);
+  border-radius: 1px;
+  background: var(--dm-surface-raised);
+  color: var(--dm-ink);
+  text-align: center;
+  box-shadow: 2px 7px 18px #0003;
+  transform: rotate(-3deg);
+}
+button.dm-polaroid-stack__photo {
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.dm-polaroid-stack__photo > img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1.45;
+  object-fit: cover;
+  background: var(--dm-sage);
+}
+.dm-polaroid-stack__caption {
+  display: block;
+  min-height: 36px;
+  padding: 6px 2px 0;
+  font: 500 24px/1.25 var(--dm-font-hand);
+  overflow-wrap: anywhere;
+}
+.dm-polaroid-stack__controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin-top: 18px;
+}
+.dm-polaroid-stack__control {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  flex: none;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 4px;
+  border: 0;
+  border-radius: 3px;
+  background: transparent;
+  color: var(--dm-accent);
+  cursor: pointer;
+}
+.dm-polaroid-stack__control:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--dm-accent) 8%, transparent);
+}
+.dm-polaroid-stack__control:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.dm-polaroid-stack__arrow {
+  width: 44px;
+  height: 24px;
+}
+.dm-polaroid-stack__arrow--previous {
+  transform: scaleX(-1);
+}
+.dm-polaroid-stack__arrow path {
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.dm-polaroid-stack__count {
+  min-width: 48px;
+  margin: 0;
+  color: var(--dm-accent);
+  font: 500 22px/1.4 var(--dm-font-hand);
+  text-align: center;
+}
+.dm-polaroid-stack--empty {
+  padding: 24px;
+  border: 1px dashed var(--dm-border);
+  color: var(--dm-muted);
+  font: 400 13px/1.8 var(--dm-font-body);
+}
+.dm-polaroid-stack--empty > p {
+  margin: 0;
+}
+
+.dm-flower-progress {
+  display: inline-flex;
+  align-items: center;
+  gap: 24px;
+}
+.dm-flower-progress__drawing {
+  display: block;
+  flex: none;
+  width: 96px;
+  max-width: 45%;
+  height: auto;
+  overflow: visible;
+}
+.dm-flower-progress__stem {
+  stroke: var(--dm-accent);
+  stroke-width: 2;
+  fill: color-mix(in srgb, var(--dm-accent) 16%, var(--dm-paper));
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.dm-flower-progress__petal path {
+  stroke: var(--dm-muted);
+  stroke-width: 1.7;
+  stroke-dasharray: 0.05 0.05;
+  opacity: 0.35;
+}
+.dm-flower-progress__petal--found path {
+  fill: color-mix(
+    in srgb,
+    var(--dm-terracotta, var(--dm-danger)) 35%,
+    var(--dm-paper)
+  );
+  stroke: var(--dm-terracotta, var(--dm-danger));
+  stroke-dasharray: 1;
+  opacity: 1;
+}
+.dm-flower-progress__heart {
+  fill: var(--dm-paper);
+  stroke: var(--dm-accent);
+  stroke-width: 2;
+}
+.dm-flower-progress[data-complete] .dm-flower-progress__heart {
+  fill: var(--dm-accent);
+}
+.dm-flower-progress__ground {
+  stroke: var(--dm-muted);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+}
+.dm-flower-progress__text {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 5px;
+}
+.dm-flower-progress__label {
+  font: 400 13px/1.6 var(--dm-font-body);
+  overflow-wrap: anywhere;
+}
+.dm-flower-progress__count {
+  color: var(--dm-accent);
+  font: 600 28px/1.3 var(--dm-font-hand);
+}
+
+@media (max-width: 480px) {
+  .dm-annotation__title {
+    font-size: 1.4rem;
+  }
+  .dm-timeline__item {
+    padding-left: 26px;
+  }
+  .dm-polaroid-stack {
+    padding-inline: 12px;
+  }
+  .dm-polaroid-stack__caption {
+    font-size: 21px;
+  }
+  .dm-flower-progress {
+    gap: 16px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dm-polaroid-stack *,
+  .dm-flower-progress * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+@media print {
+  .dm-annotation__arrow,
+  .dm-annotation__disclosure,
+  .dm-polaroid-stack__controls {
+    display: none;
+  }
+  details.dm-annotation > .dm-annotation__body {
+    display: block;
+    content-visibility: visible;
+  }
+  .dm-polaroid-stack__photo,
+  .dm-polaroid-stack__back {
+    box-shadow: none;
+  }
+}
+@media (forced-colors: active) {
+  .dm-timeline__node {
+    background: Canvas;
+    border-color: CanvasText;
+  }
+  .dm-polaroid-stack__photo {
+    border-color: CanvasText;
+  }
+  .dm-flower-progress__petal path {
+    stroke: GrayText;
+  }
+  .dm-flower-progress__petal--found path {
+    stroke: CanvasText;
+    fill: Highlight;
+  }
+}

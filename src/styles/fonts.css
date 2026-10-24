@@ -1,0 +1,59 @@
+/* GENERATED from tokens/system.json — Domino UI 0.1.0.
+   Source SHA-256: a9314aa55a1fe2e2b6b1750fffe4fbc84b5f42568c978bb4525fa52e7da651b1
+   Edit the canonical source, then run npm run build:system. */
+@font-face {
+  font-family: "Poppins";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/fonts/Poppins-Medium.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Poppins";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/fonts/Poppins-Semibold.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Poppins";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/fonts/Poppins-Bold.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Lexend";
+  font-style: normal;
+  font-weight: 300 400;
+  font-display: swap;
+  src: url("/fonts/Lexend-Light.ttf") format("truetype");
+}
+@font-face {
+  font-family: "Lexend";
+  font-style: normal;
+  font-weight: 500 700;
+  font-display: swap;
+  src: url("/fonts/Lexend-Medium.ttf") format("truetype");
+}
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url("/fonts/IBMPlexMono-Regular.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Caveat";
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url("/fonts/Caveat.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Kalam";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/fonts/Kalam-Bold.ttf") format("truetype");
+}

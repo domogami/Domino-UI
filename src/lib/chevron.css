@@ -1,0 +1,22 @@
+/* Shared geometry stays centered without depending on a font's glyph metrics. */
+.dm-chevron {
+  display: inline-block;
+  flex: none;
+  vertical-align: middle;
+  transform: rotate(0deg);
+  transform-origin: center;
+}
+.dm-chevron[data-direction="up"] {
+  transform: rotate(180deg);
+}
+.dm-chevron[data-direction="left"] {
+  transform: rotate(90deg);
+}
+.dm-chevron[data-direction="right"] {
+  transform: rotate(-90deg);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .dm-chevron {
+    transition: transform var(--dm-duration-fast, 160ms) ease;
+  }
+}

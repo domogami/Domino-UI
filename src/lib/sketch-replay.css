@@ -1,0 +1,37 @@
+.dm-sketch-replay {
+  appearance: none;
+  display: block;
+  width: 100%;
+  max-width: 400px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--dm-radius, 4px);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  line-height: 0;
+  text-align: initial;
+  cursor: pointer;
+  touch-action: pan-y;
+  -webkit-tap-highlight-color: transparent;
+}
+.dm-sketch-replay > .dm-notebook-sketch,
+.dm-sketch-replay > .dm-hairline {
+  width: 100%;
+  max-width: none;
+}
+.dm-sketch-replay:focus-visible {
+  outline: 2px solid var(--dm-focus, #0e7c79);
+  outline-offset: 5px;
+}
+.dm-sketch-replay:disabled {
+  cursor: default;
+  opacity: 1;
+}
+@media print {
+  .dm-sketch-replay {
+    outline: none;
+  }
+}

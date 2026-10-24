@@ -1,0 +1,454 @@
+/*
+ * Domino UI — additive Obsidian adapter.
+ * Build the standalone snippet with the repository's adapter build command.
+ * Keep AnuPpuccin installed; toggle this CSS snippet to apply/remove the overlay.
+ * Canonical --dm-* values and embedded font licenses precede this adapter in the
+ * generated snippet. Do not copy this source file alone into a vault.
+ */
+
+/* @settings
+name: Domino UI
+id: domino-ui
+settings:
+  - id: domino-ui-theme
+    title: Appearance
+    description: Hybrid pairs cream notes with charcoal chrome. This choice is independent of Obsidian's native Light/Dark setting.
+    type: class-select
+    allowEmpty: false
+    default: domino-theme-hybrid
+    options:
+      - label: Hybrid
+        value: domino-theme-hybrid
+      - label: Light
+        value: domino-theme-light
+      - label: Dark
+        value: domino-theme-dark
+  - id: dm-obsidian-dot-strength
+    title: Dot visibility
+    description: Multiplies the shared dot texture. Set to 0 to hide it.
+    type: variable-number-slider
+    default: 1
+    min: 0
+    max: 1
+    step: 0.1
+  - id: dm-obsidian-grid-size
+    title: Dot spacing
+    description: The shared notebook rhythm is 32 pixels.
+    type: variable-number-slider
+    default: 32
+    min: 20
+    max: 48
+    step: 2
+    format: px
+*/
+
+/* The workspace is application chrome. Native variables keep menus, search,
+ * navigation, settings, fields and buttons coherent without changing layout.
+ * !important is limited to the role bridge: AnuPpuccin's flavor/accent classes
+ * otherwise have higher specificity. No AnuPpuccin setting is overwritten.
+ */
+body:is(.theme-light, .theme-dark) {
+  --font-interface-theme: var(--dm-font-body);
+  --font-interface: var(--dm-font-body);
+  --font-text-theme: var(--dm-font-body);
+  --font-monospace-theme: var(--dm-font-mono);
+  --font-monospace: var(--dm-font-mono);
+  --background-primary: var(--dm-sidebar) !important;
+  --background-primary-alt: var(--dm-sidebar) !important;
+  --background-secondary: var(--dm-sidebar) !important;
+  --background-secondary-alt: color-mix(
+    in srgb,
+    var(--dm-sidebar) 94%,
+    var(--dm-sidebar-ink)
+  ) !important;
+  --background-modifier-border: var(--dm-sidebar-border) !important;
+  --background-modifier-border-hover: var(--dm-sidebar-muted) !important;
+  --background-modifier-border-focus: var(--dm-sidebar-accent) !important;
+  --background-modifier-hover: var(--dm-sidebar-active) !important;
+  --background-modifier-active-hover: var(--dm-sidebar-active) !important;
+  --background-modifier-form-field: color-mix(
+    in srgb,
+    var(--dm-sidebar) 94%,
+    var(--dm-sidebar-ink)
+  ) !important;
+  --text-normal: var(--dm-sidebar-ink) !important;
+  --text-muted: var(--dm-sidebar-muted) !important;
+  --text-faint: var(--dm-sidebar-muted) !important;
+  --text-accent: var(--dm-sidebar-accent) !important;
+  --text-accent-hover: var(--dm-sidebar-accent) !important;
+  --text-on-accent: var(--dm-sidebar) !important;
+  --color-accent: var(--dm-sidebar-accent) !important;
+  --color-accent-1: var(--dm-sidebar-accent) !important;
+  --color-accent-2: var(--dm-sidebar-accent) !important;
+  --interactive-normal: var(--dm-sidebar-active) !important;
+  --interactive-hover: color-mix(
+    in srgb,
+    var(--dm-sidebar-active) 80%,
+    var(--dm-sidebar-ink)
+  ) !important;
+  --interactive-accent: var(--dm-sidebar-accent) !important;
+  --interactive-accent-hover: color-mix(
+    in srgb,
+    var(--dm-sidebar-accent) 88%,
+    var(--dm-sidebar-ink)
+  ) !important;
+  --icon-color: var(--dm-sidebar-muted);
+  --icon-color-hover: var(--dm-sidebar-ink);
+  --icon-color-active: var(--dm-sidebar-accent);
+  --icon-color-focused: var(--dm-sidebar-accent);
+  --titlebar-background: var(--dm-sidebar);
+  --titlebar-background-focused: var(--dm-sidebar);
+  --titlebar-text-color: var(--dm-sidebar-ink);
+  --titlebar-text-color-focused: var(--dm-sidebar-ink);
+  --tab-background-active: var(--dm-sidebar-active);
+  --tab-text-color: var(--dm-sidebar-muted);
+  --tab-text-color-active: var(--dm-sidebar-ink);
+  --tab-text-color-focused: var(--dm-sidebar-ink);
+  --tab-text-color-focused-active: var(--dm-sidebar-ink);
+  --tab-outline-color: var(--dm-sidebar-border);
+  --nav-item-color: var(--dm-sidebar-ink);
+  --nav-item-color-hover: var(--dm-sidebar-ink);
+  --nav-item-color-active: var(--dm-sidebar-ink);
+  --nav-item-background-hover: var(--dm-sidebar-active);
+  --nav-item-background-active: var(--dm-sidebar-active);
+  --nav-collapse-icon-color: var(--dm-sidebar-muted);
+  --nav-collapse-icon-color-collapsed: var(--dm-sidebar-muted);
+  --ribbon-background: var(--dm-sidebar);
+  --ribbon-background-collapsed: var(--dm-sidebar);
+  --status-bar-background: var(--dm-sidebar);
+  --status-bar-text-color: var(--dm-sidebar-muted);
+  --status-bar-border-color: var(--dm-sidebar-border);
+  --divider-color: var(--dm-sidebar-border);
+  --search-result-background: var(--dm-sidebar);
+  --search-result-background-hover: var(--dm-sidebar-active);
+  --input-radius: var(--dm-radius);
+  --button-radius: var(--dm-radius);
+  --checkbox-radius: 3px 5px 2px 4px;
+  --code-normal: var(--text-normal);
+  --code-background: var(--background-secondary);
+  --text-selection: color-mix(in srgb, var(--text-accent) 24%, transparent);
+  --text-highlight-bg: color-mix(in srgb, var(--text-accent) 24%, transparent);
+  --link-color: var(--text-accent);
+  --link-color-hover: var(--text-accent-hover);
+  --link-external-color: var(--text-accent);
+  --link-external-color-hover: var(--text-accent-hover);
+  --modal-background: var(--dm-sidebar);
+  --modal-border-color: var(--dm-sidebar-border);
+  --prompt-background: var(--dm-sidebar);
+  --prompt-border-color: var(--dm-sidebar-border);
+}
+
+/* Keep native control rendering aligned with the actual chrome surface. */
+body:not(.domino-theme-light):not(.domino-theme-dark),
+body.domino-theme-hybrid,
+body.domino-theme-dark {
+  color-scheme: dark;
+}
+body.domino-theme-light {
+  color-scheme: light;
+}
+
+/* Markdown leaves form the paper region in Reading, Live Preview and Source.
+ * Local role overrides also cover note properties and embedded note controls.
+ */
+body .workspace-leaf-content[data-type="markdown"] {
+  --font-text: var(--dm-font-body);
+  --anp-editor-font-lp: var(--dm-font-body);
+  --anp-editor-font-rv: var(--dm-font-body);
+  --anp-editor-font-source: var(--dm-font-body);
+  --anp-header-font: var(--dm-font-heading);
+  --h1-font: var(--dm-font-heading);
+  --h2-font: var(--dm-font-heading);
+  --h3-font: var(--dm-font-heading);
+  --h4-font: var(--dm-font-heading);
+  --h5-font: var(--dm-font-heading);
+  --h6-font: var(--dm-font-heading);
+  --h1-color: var(--dm-ink);
+  --h2-color: var(--dm-ink);
+  --h3-color: var(--dm-ink);
+  --h4-color: var(--dm-ink);
+  --h5-color: var(--dm-ink);
+  --h6-color: var(--dm-ink);
+  --h1-weight: 700;
+  --h2-weight: 600;
+  --h3-weight: 600;
+  --h4-weight: 600;
+  --h5-weight: 600;
+  --h6-weight: 600;
+  --inline-title-font: var(--dm-font-heading);
+  --inline-title-color: var(--dm-ink);
+  --inline-title-weight: 700;
+  --line-height-normal: 1.85;
+  --background-primary: var(--dm-paper) !important;
+  --background-primary-alt: var(--dm-surface) !important;
+  --background-secondary: var(--dm-surface) !important;
+  --background-secondary-alt: var(--dm-surface-raised) !important;
+  --background-modifier-border: var(--dm-border) !important;
+  --background-modifier-border-hover: var(--dm-muted) !important;
+  --background-modifier-border-focus: var(--dm-focus) !important;
+  --background-modifier-hover: color-mix(
+    in srgb,
+    var(--dm-accent) 10%,
+    transparent
+  ) !important;
+  --background-modifier-active-hover: color-mix(
+    in srgb,
+    var(--dm-accent) 16%,
+    transparent
+  ) !important;
+  --background-modifier-form-field: var(--dm-surface-raised) !important;
+  --text-normal: var(--dm-ink) !important;
+  --text-muted: var(--dm-muted) !important;
+  --text-faint: var(--dm-muted) !important;
+  --text-accent: var(--dm-accent) !important;
+  --text-accent-hover: var(--dm-accent) !important;
+  --text-on-accent: var(--dm-accent-ink) !important;
+  --color-accent: var(--dm-accent) !important;
+  --color-accent-1: var(--dm-accent) !important;
+  --color-accent-2: var(--dm-accent) !important;
+  --interactive-normal: var(--dm-surface-raised) !important;
+  --interactive-hover: var(--dm-surface) !important;
+  --interactive-accent: var(--dm-accent) !important;
+  --interactive-accent-hover: color-mix(
+    in srgb,
+    var(--dm-accent) 88%,
+    var(--dm-ink)
+  ) !important;
+  --icon-color: var(--dm-muted);
+  --icon-color-hover: var(--dm-ink);
+  --icon-color-active: var(--dm-accent);
+  --icon-color-focused: var(--dm-accent);
+  --text-selection: color-mix(in srgb, var(--dm-accent) 24%, transparent);
+  --text-highlight-bg: color-mix(in srgb, var(--dm-accent) 24%, transparent);
+  --link-color: var(--dm-accent);
+  --link-color-hover: var(--dm-accent);
+  --link-external-color: var(--dm-accent);
+  --link-external-color-hover: var(--dm-accent);
+  --checkbox-marker-color: var(--dm-accent-ink);
+  --checkbox-color: var(--dm-accent);
+  --checkbox-color-hover: var(--dm-accent);
+  --checkbox-border-color: var(--dm-muted);
+  --checkbox-border-color-hover: var(--dm-accent);
+  --checklist-done-color: var(--dm-muted);
+  --code-background: var(--dm-surface);
+  --code-normal: var(--dm-ink);
+  --blockquote-background-color: var(--dm-blue);
+  --blockquote-border-color: var(--dm-accent);
+  --table-header-background: var(--dm-surface);
+  --table-border-color: var(--dm-border);
+  background-color: var(--dm-paper);
+  color: var(--dm-ink);
+  color-scheme: light;
+}
+body.domino-theme-dark .workspace-leaf-content[data-type="markdown"] {
+  color-scheme: dark;
+}
+
+/* AnuPpuccin defines source-heading fonts on the editor itself. */
+body .workspace-leaf-content[data-type="markdown"] .markdown-source-view {
+  --h1-font: var(--dm-font-heading);
+  --h2-font: var(--dm-font-heading);
+  --h3-font: var(--dm-font-heading);
+  --h4-font: var(--dm-font-heading);
+  --h5-font: var(--dm-font-heading);
+  --h6-font: var(--dm-font-heading);
+}
+body
+  .workspace-leaf-content[data-type="markdown"]
+  :is(.markdown-preview-view, .cm-content) {
+  font-family: var(--dm-font-body);
+  font-weight: 300;
+}
+
+/* The scrolling surface owns one continuous dot phase. */
+body
+  .workspace-leaf-content[data-type="markdown"]
+  :is(.markdown-preview-view, .markdown-source-view .cm-scroller) {
+  background-color: var(--dm-paper);
+  background-image: radial-gradient(
+    circle,
+    color-mix(
+        in srgb,
+        var(--dm-grid-color) calc(var(--dm-obsidian-dot-strength, 1) * 100%),
+        transparent
+      )
+      0.85px,
+    transparent 1.15px
+  );
+  background-size: var(--dm-obsidian-grid-size, var(--dm-grid-size))
+    var(--dm-obsidian-grid-size, var(--dm-grid-size));
+  background-position: 0 -16px;
+}
+body
+  .workspace-leaf-content[data-type="markdown"]
+  :is(.markdown-preview-sizer, .cm-content) {
+  background-color: color-mix(in srgb, var(--dm-paper) 72%, transparent);
+}
+body
+  .workspace-leaf-content[data-type="markdown"]
+  :is(.cm-gutters, .metadata-container) {
+  background-color: var(--dm-paper);
+  color: var(--dm-muted);
+}
+
+body .workspace-leaf-content[data-type="markdown"] :is(mark, .cm-highlight) {
+  background-color: var(--text-highlight-bg);
+  color: var(--dm-ink);
+}
+body .workspace-leaf-content[data-type="markdown"] blockquote {
+  border-inline-start: 3px solid var(--dm-accent);
+  border-radius: var(--dm-radius);
+  background-color: var(--dm-blue);
+  color: var(--dm-ink);
+}
+body .workspace-leaf-content[data-type="markdown"] .callout {
+  --dm-callout-paper: var(--dm-blue);
+  --dm-callout-ink: var(--dm-accent);
+  border: 1px solid var(--dm-border);
+  border-inline-start: 3px solid var(--dm-callout-ink);
+  border-radius: var(--dm-radius);
+  background-color: var(--dm-callout-paper);
+  color: var(--dm-ink);
+  mix-blend-mode: normal;
+}
+body
+  .workspace-leaf-content[data-type="markdown"]
+  .callout:is(
+    [data-callout="tip"],
+    [data-callout="success"],
+    [data-callout="todo"]
+  ) {
+  --dm-callout-paper: var(--dm-sage);
+}
+body
+  .workspace-leaf-content[data-type="markdown"]
+  .callout:is(
+    [data-callout="warning"],
+    [data-callout="caution"],
+    [data-callout="danger"],
+    [data-callout="failure"],
+    [data-callout="bug"]
+  ) {
+  --dm-callout-paper: var(--dm-peach);
+  --dm-callout-ink: var(--dm-danger);
+}
+body .workspace-leaf-content[data-type="markdown"] .callout > .callout-title {
+  color: var(--dm-callout-ink);
+  font-family: var(--dm-font-heading);
+}
+body
+  .workspace-leaf-content[data-type="markdown"]
+  .callout
+  > .callout-title
+  > .callout-icon {
+  color: var(--dm-callout-ink);
+}
+body .workspace-leaf-content[data-type="markdown"] .callout > .callout-content {
+  color: var(--dm-ink);
+}
+
+/* Native callouts give Markdown a shared handwriting/banner vocabulary without
+ * requiring React, raw HTML, a custom plugin, or changes to note serialization.
+ */
+body
+  .workspace-leaf-content[data-type="markdown"]
+  .callout[data-callout="annotation"] {
+  width: fit-content;
+  max-width: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+}
+body
+  .workspace-leaf-content[data-type="markdown"]
+  .callout[data-callout="annotation"]
+  > .callout-title {
+  padding: 0;
+  color: var(--dm-accent);
+  font: 600 1.65em/1.3 var(--dm-font-hand);
+}
+body
+  .workspace-leaf-content[data-type="markdown"]
+  .callout:is([data-callout="annotation"], [data-callout="banner"])
+  > .callout-title
+  > .callout-icon {
+  display: none;
+}
+body
+  .workspace-leaf-content[data-type="markdown"]
+  .callout[data-callout="annotation"]
+  > .callout-content {
+  margin-block-start: var(--dm-space-2);
+  padding: 0;
+  font-family: var(--dm-font-body);
+}
+body
+  .workspace-leaf-content[data-type="markdown"]
+  .callout[data-callout="banner"] {
+  padding: 0;
+  border: 0;
+  background: none;
+  box-shadow: none;
+}
+body
+  .workspace-leaf-content[data-type="markdown"]
+  .callout[data-callout="banner"]
+  > .callout-title {
+  width: fit-content;
+  max-width: 100%;
+  padding: var(--dm-space-2) var(--dm-space-6);
+  background-color: var(--dm-sage);
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    calc(100% - 8px) 50%,
+    100% 100%,
+    0 100%,
+    8px 50%
+  );
+  color: var(--dm-ink);
+  font: 700 1.35em/1.5 var(--dm-font-lettered);
+  overflow-wrap: anywhere;
+}
+body
+  .workspace-leaf-content[data-type="markdown"]
+  .callout[data-callout="banner"]
+  > .callout-content {
+  padding-block-start: var(--dm-space-2);
+}
+
+/* Quiet and visible keyboard focus. Native checkboxes remain native tasks. */
+body
+  :is(
+    button,
+    input,
+    textarea,
+    select,
+    a,
+    [role="button"],
+    [tabindex]:not([contenteditable])
+  ):focus-visible {
+  outline: 2px dashed var(--text-accent);
+  outline-offset: 3px;
+}
+body .workspace-leaf-content[data-type="markdown"] input[type="checkbox"] {
+  accent-color: var(--dm-accent);
+}
+
+@media print {
+  body
+    .workspace-leaf-content[data-type="markdown"]
+    :is(
+      .markdown-preview-view,
+      .markdown-source-view .cm-scroller,
+      .markdown-preview-sizer,
+      .cm-content
+    ) {
+    background: none !important;
+  }
+  body .workspace-leaf-content[data-type="markdown"] .callout {
+    break-inside: avoid;
+  }
+}

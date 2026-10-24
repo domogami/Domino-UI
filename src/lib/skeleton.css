@@ -1,0 +1,110 @@
+.dm-skeleton {
+  display: inline-block;
+  flex-shrink: 0;
+  max-width: 100%;
+  vertical-align: middle;
+}
+
+.dm-skeleton--handwritten {
+  --dm-skeleton-ink: color-mix(in srgb, var(--dm-ink) 27%, transparent);
+  --dm-skeleton-guide: color-mix(in srgb, var(--dm-ink) 9%, transparent);
+  color: var(--dm-skeleton-ink);
+}
+
+.dm-skeleton__drawing {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.dm-skeleton__drawing path {
+  stroke-width: 1.4px;
+  vector-effect: non-scaling-stroke;
+}
+
+.dm-skeleton__guide {
+  stroke: var(--dm-skeleton-guide);
+}
+
+.dm-skeleton__ink {
+  stroke: currentColor;
+}
+
+.dm-skeleton__ink path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: dm-skeleton-write var(--dm-skeleton-duration, 5400ms)
+    cubic-bezier(0.32, 0.08, 0.38, 1) infinite;
+}
+
+.dm-skeleton--circle .dm-skeleton__drawing path {
+  stroke-width: 1.5px;
+}
+
+.dm-skeleton--circle .dm-skeleton__ink path:first-child {
+  animation-duration: var(--dm-skeleton-ring-duration, 6200ms);
+}
+
+.dm-skeleton--circle .dm-skeleton__ink path:last-child {
+  stroke: color-mix(in srgb, var(--dm-accent) 28%, transparent);
+  animation-duration: var(--dm-skeleton-ring-duration, 6200ms);
+}
+
+@keyframes dm-skeleton-write {
+  0%,
+  5% {
+    stroke-dashoffset: 1;
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  30%,
+  76% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+  92%,
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+}
+
+.dm-skeleton--block {
+  border-radius: 3px;
+  background: linear-gradient(
+    100deg,
+    color-mix(in srgb, var(--dm-ink) 7%, transparent) 20%,
+    color-mix(in srgb, var(--dm-ink) 12%, transparent) 40%,
+    color-mix(in srgb, var(--dm-ink) 7%, transparent) 60%
+  );
+  background-size: 200% 100%;
+  animation: dm-skeleton-block 1.8s ease-in-out infinite;
+}
+
+.dm-skeleton--block.dm-skeleton--circle {
+  border-radius: 50%;
+}
+
+@keyframes dm-skeleton-block {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dm-skeleton--block,
+  .dm-skeleton__ink path {
+    animation: none;
+  }
+
+  .dm-skeleton__ink path {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}

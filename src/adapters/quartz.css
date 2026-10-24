@@ -1,0 +1,221 @@
+/*
+ * Domino UI → Dom Lee's Quartz 5 notebook.
+ * Concatenate after the generated native-selector tokens and existing notebook
+ * styles. Every rule is opt-in; remove html.domino-ui to restore the old skin.
+ * Quartz calls Hybrid "blended" in data-notebook-theme, never saved-theme.
+ */
+html.domino-ui,
+html.domino-ui[data-notebook-theme] {
+  --light: var(--dm-paper);
+  --lightgray: var(--dm-border);
+  --gray: var(--dm-muted);
+  --darkgray: var(--dm-ink);
+  --dark: var(--dm-ink);
+  --secondary: var(--dm-accent);
+  --tertiary: var(--dm-terracotta);
+  --highlight: color-mix(in srgb, var(--dm-accent) 8%, transparent);
+  --textHighlight: color-mix(in srgb, var(--dm-accent) 24%, transparent);
+  --titleFont: var(--dm-font-heading);
+  --headerFont: var(--dm-font-heading);
+  --bodyFont: var(--dm-font-body);
+  --codeFont: var(--dm-font-mono);
+  --notebook-grid: var(--dm-grid-size);
+  --notebook-dot: var(--dm-grid-color);
+  --hybrid-charcoal: var(--dm-sidebar);
+  --hybrid-blue-paper: var(--dm-blue);
+  --hybrid-teal: var(--dm-accent);
+}
+
+/* Beat the original :root[saved-theme="dark"] notebook-dot override. */
+html.domino-ui[saved-theme="dark"] {
+  --notebook-dot: var(--dm-grid-color);
+}
+
+html.domino-ui body {
+  background-color: var(--light);
+  color: var(--darkgray);
+  font-family: var(--bodyFont);
+}
+
+/* Keep Quartz's grid, sticky panels, mobile masthead and reading-mode geometry. */
+html.domino-ui .page > #quartz-body .sidebar.left {
+  --light: var(--dm-sidebar);
+  --lightgray: var(--dm-sidebar-border);
+  --gray: var(--dm-sidebar-muted);
+  --darkgray: var(--dm-sidebar-ink);
+  --dark: var(--dm-sidebar-ink);
+  --secondary: var(--dm-sidebar-accent);
+  --tertiary: var(--dm-sidebar-accent);
+  --highlight: color-mix(in srgb, var(--dm-sidebar-accent) 10%, transparent);
+  --textHighlight: color-mix(
+    in srgb,
+    var(--dm-sidebar-accent) 24%,
+    transparent
+  );
+  color: var(--darkgray);
+  background-color: var(--light);
+}
+
+/* Original Hybrid styles declare a complete local palette; remap that scope. */
+html.domino-ui:is([data-notebook-theme="blended"], :not([data-notebook-theme]))
+  .page
+  > #quartz-body
+  .sidebar.left {
+  --light: var(--dm-sidebar);
+  --lightgray: var(--dm-sidebar-border);
+  --gray: var(--dm-sidebar-muted);
+  --darkgray: var(--dm-sidebar-ink);
+  --dark: var(--dm-sidebar-ink);
+  --secondary: var(--dm-sidebar-accent);
+  --tertiary: var(--dm-sidebar-accent);
+  --highlight: color-mix(in srgb, var(--dm-sidebar-accent) 10%, transparent);
+  --textHighlight: color-mix(
+    in srgb,
+    var(--dm-sidebar-accent) 24%,
+    transparent
+  );
+  color-scheme: dark;
+}
+
+html.domino-ui[data-notebook-theme="dark"] .page > #quartz-body .sidebar.left {
+  color-scheme: dark;
+}
+
+html.domino-ui[data-notebook-theme="light"] .page > #quartz-body .sidebar.left {
+  color-scheme: light;
+}
+
+/* Reading mode deliberately uses article colors for its compact toolbar. */
+html.domino-ui[data-notebook-reading="on"]
+  .page
+  > #quartz-body
+  > .sidebar.left {
+  --light: var(--dm-paper);
+  --lightgray: var(--dm-border);
+  --gray: var(--dm-muted);
+  --darkgray: var(--dm-ink);
+  --dark: var(--dm-ink);
+  --secondary: var(--dm-accent);
+  --tertiary: var(--dm-terracotta);
+  --highlight: color-mix(in srgb, var(--dm-accent) 8%, transparent);
+  --textHighlight: color-mix(in srgb, var(--dm-accent) 24%, transparent);
+  color-scheme: inherit;
+}
+
+/* Search owns two surfaces, even when reading mode has hidden the usual rail. */
+html.domino-ui:is([data-notebook-theme="blended"], :not([data-notebook-theme]))
+  .search-container {
+  --light: var(--dm-sidebar);
+  --lightgray: var(--dm-sidebar-border);
+  --gray: var(--dm-sidebar-muted);
+  --darkgray: var(--dm-sidebar-ink);
+  --dark: var(--dm-sidebar-ink);
+  --secondary: var(--dm-sidebar-accent);
+  --tertiary: var(--dm-sidebar-accent);
+  --highlight: color-mix(in srgb, var(--dm-sidebar-accent) 10%, transparent);
+  --textHighlight: color-mix(
+    in srgb,
+    var(--dm-sidebar-accent) 24%,
+    transparent
+  );
+  color-scheme: dark;
+}
+
+html.domino-ui .search-container .preview-container,
+html.domino-ui:is([data-notebook-theme="blended"], :not([data-notebook-theme]))
+  .search-container
+  .preview-container {
+  --light: var(--dm-paper);
+  --lightgray: var(--dm-border);
+  --gray: var(--dm-muted);
+  --darkgray: var(--dm-ink);
+  --dark: var(--dm-ink);
+  --secondary: var(--dm-accent);
+  --tertiary: var(--dm-terracotta);
+  --highlight: color-mix(in srgb, var(--dm-accent) 8%, transparent);
+  --textHighlight: color-mix(in srgb, var(--dm-accent) 24%, transparent);
+  background-color: var(--light);
+  color: var(--darkgray);
+}
+
+html.domino-ui:is([data-notebook-theme="blended"], :not([data-notebook-theme]))
+  .search-container
+  .preview-container {
+  color-scheme: light;
+}
+
+html.domino-ui[data-notebook-theme="dark"]
+  .search-container
+  .preview-container {
+  color-scheme: dark;
+}
+
+html.domino-ui :is(.notebook-brand, .page-title, .article-title) {
+  font-family: var(--dm-font-heading);
+}
+
+html.domino-ui
+  :is(.content-meta, .breadcrumb-container, footer, pre, code, kbd) {
+  font-family: var(--dm-font-mono);
+}
+
+html.domino-ui
+  article
+  .callout[data-callout="annotation"]
+  > .callout-title
+  > .callout-title-inner,
+html.domino-ui article .callout[data-callout="quote"] .callout-title-inner {
+  font-family: var(--dm-font-hand);
+}
+
+/* Graphic banner color follows the article accent, not tinted navigation text. */
+html.domino-ui .graph > h3.notebook-banner {
+  --banner-paper: var(--dm-accent);
+  --banner-ink: var(--dm-accent-ink);
+}
+
+html.domino-ui:is([data-notebook-theme="blended"], :not([data-notebook-theme]))
+  article
+  .callout[data-callout="quote"] {
+  --color: var(--dm-ink);
+  background-color: var(--dm-blue);
+  border-left-color: var(--dm-accent);
+}
+
+/* Style native form elements without replacing their keyboard or checked state. */
+html.domino-ui :is(input, select, textarea, button) {
+  font-family: var(--dm-font-body);
+}
+
+html.domino-ui :is(input, select, textarea) {
+  accent-color: var(--secondary);
+}
+
+html.domino-ui
+  :is(
+    input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not(
+        [type="file"]
+      ):not([type="color"]):not([type="hidden"]),
+    select,
+    textarea
+  ) {
+  color: var(--darkgray);
+  background-color: var(--light);
+  border-color: var(--lightgray);
+}
+
+html.domino-ui
+  :is(a, button, input, select, textarea, summary, [tabindex]):focus-visible,
+html.domino-ui .page article li > input[type="checkbox"]:focus-visible {
+  outline: 2px dashed var(--secondary);
+  outline-offset: 4px;
+}
+
+/* Let system contrast colors own native controls in forced-colors mode. */
+@media (forced-colors: active) {
+  html.domino-ui
+    :is(a, button, input, select, textarea, summary, [tabindex]):focus-visible,
+  html.domino-ui .page article li > input[type="checkbox"]:focus-visible {
+    outline-color: Highlight;
+  }
+}

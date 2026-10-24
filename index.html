@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en" data-theme="hybrid">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#2b3034" />
+    <meta
+      name="description"
+      content="Domino UI — a living React component library and design field guide. Paper, ink, and a little curiosity."
+    />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
+    <title>Domino UI — The component notebook</title>
+    <script>
+      try {
+        const t = localStorage.getItem("domino-theme");
+        if (["light", "dark", "hybrid"].includes(t))
+          document.documentElement.dataset.theme = t;
+      } catch {}
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
