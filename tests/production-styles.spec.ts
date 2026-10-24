@@ -1,5 +1,18 @@
 import { expect, test } from "@playwright/test";
 
+interface ProductionRouteSnapshot {
+  count: number;
+  root: string;
+  sheet: string;
+  rail: string;
+  marked: boolean;
+}
+
+type ProductionRoutingWindow = Window & {
+  productionRouteTransitions: ViewTransition[];
+  productionRouteSnapshots: Promise<ProductionRouteSnapshot>[];
+};
+
 test("production paper layers retain their styles, viewport fit and nested focus behavior", async ({
   page,
 }) => {
@@ -706,24 +719,34 @@ test("production route transitions capture only the content sheet and keep reduc
   const errors: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
   await page.addInitScript(() => {
-    const browser = window as Window & {
-      productionRouteTransitions: ViewTransition[];
-    };
+    const browser = window as ProductionRoutingWindow;
     browser.productionRouteTransitions = [];
+    browser.productionRouteSnapshots = [];
     const start = document.startViewTransition;
     if (!start) return;
     // Keep the actual browser capture; observe only its returned lifecycle.
     document.startViewTransition = function (update) {
       const transition = start.call(this, update);
       browser.productionRouteTransitions.push(transition);
+      // Capture styles in the ready microtask, before finished removes the
+      // temporary scope. Later test IPC reads this stored capture, not live CSS.
+      const snapshot = transition.ready.then(() => ({
+        count: browser.productionRouteTransitions.length,
+        root: getComputedStyle(document.documentElement).viewTransitionName,
+        sheet: getComputedStyle(document.querySelector(".dm-page-transition")!)
+          .viewTransitionName,
+        rail: getComputedStyle(document.querySelector(".sidebar")!)
+          .viewTransitionName,
+        marked: document.documentElement.hasAttribute(
+          "data-dm-page-transition",
+        ),
+      }));
+      browser.productionRouteSnapshots.push(snapshot);
+      void snapshot.catch(() => {});
       return transition;
     };
   });
   await page.goto("/#overview");
-  await page.addStyleTag({
-    content:
-      "html { --dm-layer-duration: 600ms; --dm-layer-exit-duration: 300ms; }",
-  });
   const supported = await page.evaluate(
     () => typeof document.startViewTransition === "function",
   );
@@ -736,25 +759,15 @@ test("production route transitions capture only the content sheet and keep reduc
     page.getByRole("heading", { name: "Color & themes.", exact: true }),
   ).toBeVisible();
   if (supported) {
-    const snapshot = await page.evaluate(async () => {
-      const transitions = (
-        window as Window & { productionRouteTransitions: ViewTransition[] }
-      ).productionRouteTransitions;
-      await transitions.at(-1)!.ready;
-      return {
-        count: transitions.length,
-        root: getComputedStyle(document.documentElement).viewTransitionName,
-        sheet: getComputedStyle(document.querySelector(".dm-page-transition")!)
-          .viewTransitionName,
-        rail: getComputedStyle(document.querySelector(".sidebar")!)
-          .viewTransitionName,
-      };
-    });
+    const snapshot = await page.evaluate(
+      () => (window as ProductionRoutingWindow).productionRouteSnapshots[0],
+    );
     expect(snapshot).toEqual({
       count: 1,
       root: "none",
       sheet: "dm-page-content",
       rail: "none",
+      marked: true,
     });
     await page.evaluate(async () => {
       await (

@@ -1,14 +1,49 @@
 import { expect, test, type Page } from "@playwright/test";
 
+interface RouteSnapshot {
+  root: string;
+  sheet: string;
+  rail: string;
+  animations: string[];
+  scroll: number;
+  marked: boolean;
+}
+
+type RoutingWindow = Window & {
+  routeTransitions: ViewTransition[];
+  routeSnapshots: Promise<RouteSnapshot>[];
+};
+
 async function observeTransitions(page: Page) {
   await page.addInitScript(() => {
-    const browser = window as Window & { routeTransitions?: ViewTransition[] };
+    const browser = window as RoutingWindow;
     browser.routeTransitions = [];
+    browser.routeSnapshots = [];
     const start = document.startViewTransition;
     if (!start) return;
     document.startViewTransition = function (update) {
       const transition = start.call(this, update);
-      browser.routeTransitions!.push(transition);
+      browser.routeTransitions.push(transition);
+      // Sample in the browser's ready microtask. A later Node round trip may
+      // arrive after finished has correctly removed the temporary CSS scope.
+      const snapshot = transition.ready.then(() => ({
+        root: getComputedStyle(document.documentElement).viewTransitionName,
+        sheet: getComputedStyle(document.querySelector(".dm-page-transition")!)
+          .viewTransitionName,
+        rail: getComputedStyle(document.querySelector(".sidebar")!)
+          .viewTransitionName,
+        animations: document
+          .getAnimations()
+          .map((animation) => (animation as CSSAnimation).animationName),
+        scroll: window.scrollY,
+        marked: document.documentElement.hasAttribute(
+          "data-dm-page-transition",
+        ),
+      }));
+      browser.routeSnapshots.push(snapshot);
+      // Superseded captures can reject ready; keep their stored promise safe
+      // while allowing a test that awaits it to observe the original rejection.
+      void snapshot.catch(() => {});
       return transition;
     };
   });
@@ -25,10 +60,6 @@ test("real page snapshots animate the content sheet while navigation, scroll and
     )),
     "Browser has no same-document View Transitions API.",
   );
-  await page.addStyleTag({
-    content:
-      "html { --dm-layer-duration: 800ms; --dm-layer-exit-duration: 400ms; }",
-  });
   await page.evaluate(() => window.scrollTo({ top: 600, behavior: "instant" }));
   const colors = page.locator('.sidebar a[href="#colors"]');
   await colors.focus();
@@ -36,30 +67,16 @@ test("real page snapshots animate the content sheet while navigation, scroll and
   await expect(
     page.getByRole("heading", { name: "Color & themes.", exact: true }),
   ).toBeVisible();
-  const snapshot = await page.evaluate(async () => {
-    const transitions = (
-      window as Window & { routeTransitions: ViewTransition[] }
-    ).routeTransitions;
-    const transition = transitions.at(-1)!;
-    await transition.ready;
-    return {
-      root: getComputedStyle(document.documentElement).viewTransitionName,
-      sheet: getComputedStyle(document.querySelector(".dm-page-transition")!)
-        .viewTransitionName,
-      rail: getComputedStyle(document.querySelector(".sidebar")!)
-        .viewTransitionName,
-      animations: document
-        .getAnimations()
-        .map((animation) => (animation as CSSAnimation).animationName),
-      scroll: window.scrollY,
-    };
-  });
+  const snapshot = await page.evaluate(
+    () => (window as RoutingWindow).routeSnapshots[0],
+  );
   expect(snapshot.root).toBe("none");
   expect(snapshot.sheet).toBe("dm-page-content");
   expect(snapshot.rail).toBe("none");
   expect(snapshot.animations).toContain("dm-page-arrive");
   expect(snapshot.animations).toContain("dm-page-leave");
   expect(snapshot.scroll).toBe(0);
+  expect(snapshot.marked).toBe(true);
   await expect(colors).toBeFocused();
   await page.evaluate(async () => {
     await (
