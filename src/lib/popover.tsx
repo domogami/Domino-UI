@@ -259,12 +259,43 @@ export function Popover({
     };
   }, [open, native, position]);
 
-  useEffect(() => {
+  useBrowserLayoutEffect(() => {
     if (!open) return;
     const panel = panelRef.current;
     if (!panel) return;
     activePopovers.push(panel);
     const isTopmost = () => activePopovers.at(-1) === panel;
+    const escape = (event: KeyboardEvent) => {
+      if (
+        event.key !== "Escape" ||
+        event.defaultPrevented ||
+        !isTopmost() ||
+        !openRef.current
+      )
+        return;
+      const modalSelector = 'dialog[open], [aria-modal="true"]';
+      const focusedModal =
+        document.activeElement instanceof Element
+          ? document.activeElement.closest(modalSelector)
+          : null;
+      if (focusedModal && !focusedModal.contains(panel)) return;
+      if (
+        !focusedModal &&
+        Array.from(document.querySelectorAll<HTMLElement>(modalSelector)).some(
+          (modal) =>
+            !modal.contains(panel) &&
+            modal.getClientRects().length > 0 &&
+            !modal.closest('[hidden], [inert], [aria-hidden="true"]') &&
+            getComputedStyle(modal).visibility === "visible",
+        )
+      )
+        return;
+      // Bubble after child React handlers. A topmost popover also owns Escape
+      // while its trigger is focused or before its initial focus frame runs.
+      event.preventDefault();
+      event.stopPropagation();
+      requestOpen(false, true);
+    };
     const outside = (event: PointerEvent) => {
       if (!isTopmost()) return;
       const target = event.target as Node;
@@ -293,6 +324,7 @@ export function Popover({
         : undefined;
     observer?.observe(panel);
     if (triggerRef.current) observer?.observe(triggerRef.current);
+    document.addEventListener("keydown", escape);
     document.addEventListener("pointerdown", outside, true);
     document.addEventListener("focusin", focusOut);
     window.addEventListener("resize", reposition);
@@ -304,6 +336,7 @@ export function Popover({
       const stackIndex = activePopovers.indexOf(panel);
       if (stackIndex >= 0) activePopovers.splice(stackIndex, 1);
       panel.removeEventListener("toggle", nativeToggle);
+      document.removeEventListener("keydown", escape);
       document.removeEventListener("pointerdown", outside, true);
       document.removeEventListener("focusin", focusOut);
       window.removeEventListener("resize", reposition);
@@ -311,7 +344,7 @@ export function Popover({
       window.visualViewport?.removeEventListener("resize", reposition);
       window.visualViewport?.removeEventListener("scroll", reposition);
     };
-  }, [open, position, requestOpen]);
+  }, [open, native, position, requestOpen]);
 
   const panel = (
     <div

@@ -370,3 +370,36 @@ for (const fallback of [false, true]) {
     ).toBe(0);
   });
 }
+
+test("Escape on an open popover trigger dismisses it and respects another active modal", async ({
+  page,
+}) => {
+  await mountPopover(page);
+  await trigger(page).click();
+  await expect(panel(page)).toHaveAttribute("data-state", "open");
+  await trigger(page).focus();
+  await expect(trigger(page)).toBeFocused();
+  await expect(trigger(page)).toHaveAttribute("aria-expanded", "true");
+  await page.evaluate(() => {
+    const modal = document.createElement("div");
+    modal.id = "separate-modal-owner";
+    modal.setAttribute("role", "dialog");
+    modal.setAttribute("aria-modal", "true");
+    modal.style.cssText =
+      "position:fixed;inset:20px;background:var(--dm-paper)";
+    modal.textContent = "Another modal owns Escape until it is dismissed.";
+    document.body.append(modal);
+  });
+  await page.keyboard.press("Escape");
+  await expect(trigger(page)).toHaveAttribute("aria-expanded", "true");
+  await page.evaluate(() =>
+    document.querySelector("#separate-modal-owner")?.remove(),
+  );
+  await page.keyboard.press("Escape");
+  await expect(trigger(page)).toHaveAttribute("aria-expanded", "false");
+  await expect(trigger(page)).toBeFocused();
+  await expect(panel(page)).toHaveAttribute("data-state", "closed");
+  expect(
+    await page.evaluate(() => (window as any).popoverTest.changes),
+  ).toEqual([true, false]);
+});

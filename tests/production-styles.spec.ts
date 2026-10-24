@@ -149,8 +149,19 @@ test("production reduced motion settles paper immediately and preserves dismissa
     name: "A thought in the margin",
     exact: true,
   });
+  await expect(popover).toHaveAttribute("data-state", "open");
   await expect(popover).toHaveCSS("transition-duration", "0s");
   await expect(popover).toHaveCSS("transform", "none");
+  await expect(
+    popover.getByRole("checkbox", {
+      name: "Pin this thought for later",
+      exact: true,
+    }),
+  ).toBeFocused();
+  await page
+    .getByRole("button", { name: "Open paper popover", exact: true })
+    .focus();
+  await expect(popover).toHaveAttribute("data-state", "open");
   await page.keyboard.press("Escape");
   await expect(popover).toBeHidden();
   await page
