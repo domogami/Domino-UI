@@ -23,7 +23,7 @@
 
 ![Domino UI: paper surfaces, fine ink, handwritten notes, and original notebook artwork](docs/images/domino-ui-cover.png)
 
-Domino UI brings the visual language of [dominicklee.net](https://dominicklee.net/) and [the Quartz garden](https://domogami.github.io/) into one reusable system: **52 documented React components**, semantic tokens, original SVG artwork, and native CSS adapters. The visual notebook puts working examples, React code, props, and usage guidance beside each component.
+Domino UI brings the visual language of [dominicklee.net](https://dominicklee.net/) and [the Quartz garden](https://domogami.github.io/) into one reusable system: **54 documented React components**, semantic tokens, original SVG artwork, and native CSS adapters. The visual notebook puts working examples, React code, props, and usage guidance beside each component.
 
 **Hybrid comes first:** charcoal navigation around warm paper, with teal `#0e7c79` accents. Light and Dark share the same structure, typography, and interaction rules.
 
@@ -32,6 +32,7 @@ Domino UI brings the visual language of [dominicklee.net](https://dominicklee.ne
 | Layer                  | What is included                                                                                                           |
 | ---------------------- | -------------------------------------------------------------------------------------------------------------------------- |
 | **Useful controls**    | Buttons, inputs, selects, checkboxes, switches, sliders, menus, tabs, dialogs, drawers, and feedback states                |
+| **Paper layers**       | Anchored popovers, stacked notification cards, modal decisions, edge drawers, and actionable status notes                  |
 | **Notebook patterns**  | Paper cards, sticky notes, callouts, expanding folded banners, annotations, journal marks, and keepsake photos             |
 | **Original identity**  | The **Dom Lee.** name animation, crane, plant, sketch arrows, six notebook scenes, and handwritten loading marks           |
 | **Deliberate motion**  | Morphing hamburger/X, spring switches, the garden's drawn check and text strike, and per-drawing click/tap/keyboard replay |
@@ -171,6 +172,14 @@ export function NotebookPieces() {
 
 Every catalog entry documents its real API, origin, meaningful states, and composition guidance. [Browse the component inventory](docs/COMPONENTS.md) or run the notebook below to use the live examples.
 
+[Open the component notebook](https://ui.dominicklee.net/) · [Paper layers](https://ui.dominicklee.net/#layers) · [Motion & page flow](https://ui.dominicklee.net/#motion)
+
+## A thought in the foreground
+
+Popovers stay beside their trigger. Important decisions open on a clear modal surface. Notification cards collect source, message, and action on one piece of paper, with a readable queue count and crisp edges behind it. Dialogs and toasts also support short context labels and distinct actions.
+
+The **Paper layers** notebook route (`/#layers`) brings them together in all three themes. The interaction study draws on [Pebble's design guidance](https://developer.repebble.com/guides/design-and-interaction/core-experience/): glanceable hierarchy, a few meaningful colors, visible actions, and purposeful motion. The paper stacks, teal accents, and handwriting remain Domino's own treatment. [Layer APIs, examples, accessibility, and provenance](docs/LAYERS.md).
+
 ## A sketchbook with room to grow
 
 ![Notebook, paper plane, and growing idea: original Domino UI SVG scenes](docs/images/sketchbook-originals.png)
@@ -204,7 +213,7 @@ npm ci
 npm run dev
 ```
 
-Open the printed local URL, normally **http://127.0.0.1:5173/**. Use **⌘K / Ctrl+K** to find components. The guide includes color themes, typography specimens, spacing and surfaces, writing rules, haptics, shared platform previews, and replayable motion.
+Open the printed local URL, normally **http://127.0.0.1:5173/**. Use **⌘K / Ctrl+K** to find components. The guide includes color themes, typography specimens, spacing and surfaces, writing rules, paper layers (`/#layers`), haptics, shared platform previews, and replayable motion.
 
 ```sh
 npm run check             # Generated token consistency + TypeScript
@@ -223,6 +232,8 @@ Install browser runtimes with `npx playwright install chromium webkit` when need
 
 - [Design language](DESIGN.md): exact colors, typography, journal meanings, paper shapes, identity, and motion.
 - [Accessibility](docs/ACCESSIBILITY.md): labels, keyboard behavior, focus, reduced motion, and composition responsibilities.
+- [Paper layers](docs/LAYERS.md): Pebble-inspired hierarchy, notification cards, popovers, dialogs, drawers, and status feedback.
+- [Page flow](docs/ROUTING.md): content-only View Transitions, progressive routing, interruption, history, focus, and reduced motion.
 - [Touch & haptics](docs/HAPTICS.md): opt-in feedback, trusted gestures, Safari native switches, and physical-device acceptance.
 - [Assets & attribution](docs/ASSETS.md): original artwork, public sample photos, font OFL notices, and Hairline's MIT license.
 

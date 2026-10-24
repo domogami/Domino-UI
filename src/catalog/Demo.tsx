@@ -1,4 +1,4 @@
-import { useId, useState } from "react";
+import { useId, useRef, useState } from "react";
 import * as UI from "../lib";
 import {
   HeroName,
@@ -83,6 +83,7 @@ export function Demo({
   const [petals, setPetals] = useState(3);
   const [saved, setSaved] = useState(false);
   const menuPanelId = useId();
+  const dialogTriggerRef = useRef<HTMLButtonElement>(null);
   const notice = () => setSaved((v) => !v);
   switch (id) {
     case "chevron":
@@ -478,9 +479,52 @@ export function Demo({
           }
         />
       );
+    case "notification-card":
+      return (
+        <UI.NotificationCard
+          source="The garden"
+          title="A small idea is ready to grow."
+          time={compact ? undefined : "JUST NOW"}
+          count={3}
+          surface="ink"
+          icon={<Icon name="leaf" />}
+          actions={
+            !compact && (
+              <UI.Button size="sm" onClick={notice}>
+                {saved ? "A thought, kept ✓" : "Keep this thought"}
+              </UI.Button>
+            )
+          }
+        >
+          <p>Your note is saved. Leave a little room for what comes next.</p>
+        </UI.NotificationCard>
+      );
+    case "popover":
+      return (
+        <UI.Popover
+          title="A thought in the margin"
+          description="A little context, close at hand."
+          trigger={
+            <UI.Button variant="secondary">
+              A closer look <Icon name="plus" size={15} />
+            </UI.Button>
+          }
+          footer={
+            <span className="hand-small">small enough to keep nearby.</span>
+          }
+        >
+          <p>Keep related context beside the thing it explains.</p>
+          <UI.Checkbox
+            label="Keep this thought nearby"
+            checked={saved}
+            onChange={(event) => setSaved(event.target.checked)}
+          />
+        </UI.Popover>
+      );
     case "toast":
       return toast ? (
         <UI.Toast
+          eyebrow="Your notebook"
           title="A thought, saved."
           description={compact ? undefined : "Ready when you come back."}
           onDismiss={() => setToast(false)}
@@ -493,14 +537,22 @@ export function Demo({
     case "dialog":
       return (
         <>
-          <UI.Button variant="secondary" onClick={() => setOpen(true)}>
+          <UI.Button
+            ref={dialogTriggerRef}
+            variant="secondary"
+            onClick={() => setOpen(true)}
+          >
             Open a little conversation
             <Icon name="external" size={15} />
           </UI.Button>
           <UI.Dialog
             open={open}
+            returnFocusRef={dialogTriggerRef}
             onClose={() => setOpen(false)}
             title="Keep this thought?"
+            eyebrow="YOUR NOTEBOOK / A SMALL DECISION"
+            icon={<Icon name="book" />}
+            surface="ink"
             description="A small place for something worth remembering."
             footer={
               <>
@@ -531,12 +583,17 @@ export function Demo({
     case "drawer":
       return (
         <>
-          <UI.Button variant="secondary" onClick={() => setDrawer(true)}>
+          <UI.Button
+            ref={dialogTriggerRef}
+            variant="secondary"
+            onClick={() => setDrawer(true)}
+          >
             Look in the margins
             <Icon name="arrow" size={15} />
           </UI.Button>
           <UI.Drawer
             open={drawer}
+            returnFocusRef={dialogTriggerRef}
             onClose={() => setDrawer(false)}
             title="In the margins"
             description="A few details, close at hand."

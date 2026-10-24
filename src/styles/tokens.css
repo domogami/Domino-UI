@@ -1,5 +1,5 @@
 /* GENERATED from tokens/system.json — Domino UI 0.1.0.
-   Source SHA-256: a9314aa55a1fe2e2b6b1750fffe4fbc84b5f42568c978bb4525fa52e7da651b1
+   Source SHA-256: 397198c3b7bfd2ef6c04910f96cc4b727788026c1a36dd0951b893906a37be5b
    Edit the canonical source, then run npm run build:system. */
 :root {
   --dm-grid-size: 32px;
@@ -48,6 +48,10 @@
   --dm-banner-fill-delay: 750ms;
   --dm-banner-label-duration: 300ms;
   --dm-banner-label-delay: 1100ms;
+  --dm-layer-duration: 240ms;
+  --dm-layer-exit-duration: 160ms;
+  --dm-layer-easing: cubic-bezier(0.22, 1, 0.36, 1);
+  --dm-shadow-layer: 4px 4px 0 var(--dm-paper), 5px 5px 0 var(--dm-ink), 9px 9px 0 var(--dm-paper), 10px 10px 0 var(--dm-ink);
   --dm-paper: #efe7d7;
   --dm-surface: #f7f3e9;
   --dm-surface-raised: #fcf9f1;
@@ -72,6 +76,7 @@
   --dm-sidebar-accent: #b6cf8e;
   --dm-mint: #43d0c1;
   --dm-terracotta: #a34e36;
+  --dm-backdrop: rgb(25 31 31 / 48%);
   color-scheme: light;
 }
 [data-theme="hybrid"] {
@@ -121,6 +126,10 @@
   --dm-banner-fill-delay: 750ms;
   --dm-banner-label-duration: 300ms;
   --dm-banner-label-delay: 1100ms;
+  --dm-layer-duration: 240ms;
+  --dm-layer-exit-duration: 160ms;
+  --dm-layer-easing: cubic-bezier(0.22, 1, 0.36, 1);
+  --dm-shadow-layer: 4px 4px 0 var(--dm-paper), 5px 5px 0 var(--dm-ink), 9px 9px 0 var(--dm-paper), 10px 10px 0 var(--dm-ink);
   --dm-paper: #efe7d7;
   --dm-surface: #f7f3e9;
   --dm-surface-raised: #fcf9f1;
@@ -145,6 +154,7 @@
   --dm-sidebar-accent: #b6cf8e;
   --dm-mint: #43d0c1;
   --dm-terracotta: #a34e36;
+  --dm-backdrop: rgb(25 31 31 / 48%);
   color-scheme: light;
 }
 [data-theme="light"] {
@@ -194,6 +204,10 @@
   --dm-banner-fill-delay: 750ms;
   --dm-banner-label-duration: 300ms;
   --dm-banner-label-delay: 1100ms;
+  --dm-layer-duration: 240ms;
+  --dm-layer-exit-duration: 160ms;
+  --dm-layer-easing: cubic-bezier(0.22, 1, 0.36, 1);
+  --dm-shadow-layer: 4px 4px 0 var(--dm-paper), 5px 5px 0 var(--dm-ink), 9px 9px 0 var(--dm-paper), 10px 10px 0 var(--dm-ink);
   --dm-paper: #efe7d7;
   --dm-surface: #f7f3e9;
   --dm-surface-raised: #fcf9f1;
@@ -218,6 +232,7 @@
   --dm-sidebar-accent: #0e7c79;
   --dm-mint: #43d0c1;
   --dm-terracotta: #a34e36;
+  --dm-backdrop: rgb(25 31 31 / 48%);
   color-scheme: light;
 }
 [data-theme="dark"] {
@@ -267,6 +282,10 @@
   --dm-banner-fill-delay: 750ms;
   --dm-banner-label-duration: 300ms;
   --dm-banner-label-delay: 1100ms;
+  --dm-layer-duration: 240ms;
+  --dm-layer-exit-duration: 160ms;
+  --dm-layer-easing: cubic-bezier(0.22, 1, 0.36, 1);
+  --dm-shadow-layer: 4px 4px 0 var(--dm-paper), 5px 5px 0 var(--dm-ink), 9px 9px 0 var(--dm-paper), 10px 10px 0 var(--dm-ink);
   --dm-paper: #2b3034;
   --dm-surface: #323b3e;
   --dm-surface-raised: #394347;
@@ -291,5 +310,6 @@
   --dm-sidebar-accent: #b6cf8e;
   --dm-mint: #b6cf8e;
   --dm-terracotta: #e6b78d;
+  --dm-backdrop: rgb(5 10 12 / 70%);
   color-scheme: dark;
 }

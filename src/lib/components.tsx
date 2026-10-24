@@ -11,6 +11,7 @@ import {
   type InputHTMLAttributes,
   type ReactElement,
   type ReactNode,
+  type RefObject,
   type SelectHTMLAttributes,
   type TableHTMLAttributes,
   type TextareaHTMLAttributes,
@@ -18,6 +19,7 @@ import {
 import { Chevron } from "./chevron";
 import "./components.css";
 import "./switch-motion.css";
+import "./paper-layers.css";
 
 const cx = (...values: (string | false | null | undefined)[]) =>
   values.filter(Boolean).join(" ");
@@ -889,6 +891,14 @@ export interface DialogProps extends Omit<
   footer?: ReactNode;
   closeLabel?: string;
   closeOnBackdrop?: boolean;
+  /** A short source or context label above the title. */
+  eyebrow?: ReactNode;
+  /** Decorative context mark. The title remains the accessible name. */
+  icon?: ReactNode;
+  /** Ink gives the header a high-contrast cap; the content remains on paper. */
+  surface?: "paper" | "ink";
+  /** Explicit opener for browsers where tapping a button does not focus it. */
+  returnFocusRef?: RefObject<HTMLElement | null>;
 }
 /** Native modal semantics provide focus trapping, Escape support, and focus restoration. */
 export function Dialog({
@@ -899,6 +909,10 @@ export function Dialog({
   footer,
   closeLabel = "Close dialog",
   closeOnBackdrop = true,
+  eyebrow,
+  icon,
+  surface = "paper",
+  returnFocusRef,
   children,
   className,
   ...props
@@ -907,38 +921,127 @@ export function Dialog({
   const id = useId();
   const onCloseRef = useRef(onClose);
   onCloseRef.current = onClose;
+  const openRef = useRef(open);
+  openRef.current = open;
+  const closeRequested = useRef(false);
+  const pressedBackdrop = useRef(false);
+  const internalCloses = useRef(0);
+  const [motionState, setMotionState] = useState<
+    "closed" | "opening" | "open" | "closing"
+  >("closed");
+  const requestClose = () => {
+    if (!openRef.current || closeRequested.current) return;
+    closeRequested.current = true;
+    onCloseRef.current();
+  };
   useEffect(() => {
     const dialog = ref.current;
     if (!dialog) return;
-    if (open && !dialog.open) dialog.showModal();
-    if (!open && dialog.open) dialog.close();
+    let frame = 0;
+    let nextFrame = 0;
+    if (open) {
+      closeRequested.current = false;
+      if (!dialog.open) {
+        setMotionState("opening");
+        dialog.showModal();
+        // Give the paper its first frame before it settles into place.
+        frame = requestAnimationFrame(() => {
+          nextFrame = requestAnimationFrame(() => setMotionState("open"));
+        });
+      } else {
+        // Reversing a close uses the same mounted surface and CSS transition.
+        setMotionState("open");
+      }
+    } else if (dialog.open) {
+      setMotionState("closing");
+    } else {
+      setMotionState("closed");
+    }
+    return () => {
+      cancelAnimationFrame(frame);
+      cancelAnimationFrame(nextFrame);
+    };
   }, [open]);
   useEffect(() => {
     const dialog = ref.current;
+    if (open || motionState !== "closing" || !dialog?.open) return;
+    // Read the rendered closing state so host styles and reduced motion determine
+    // the actual exit duration. The native modal stays active through this exit.
+    const style = getComputedStyle(dialog);
+    const milliseconds = (value: string) =>
+      value
+        .split(",")
+        .map((part) =>
+          part.trim().endsWith("ms")
+            ? parseFloat(part)
+            : parseFloat(part) * 1000,
+        );
+    const duration = Math.max(0, ...milliseconds(style.transitionDuration));
+    const delay = Math.max(0, ...milliseconds(style.transitionDelay));
+    const timeout = window.setTimeout(
+      () => {
+        if (openRef.current || !dialog.open) return;
+        internalCloses.current += 1;
+        dialog.close();
+        if (returnFocusRef?.current?.isConnected)
+          returnFocusRef.current.focus({ preventScroll: true });
+        setMotionState("closed");
+      },
+      duration + delay + (duration ? 34 : 0),
+    );
+    return () => clearTimeout(timeout);
+  }, [open, motionState, returnFocusRef]);
+  useEffect(() => {
+    const dialog = ref.current;
     return () => {
-      if (dialog?.open) dialog.close();
+      if (dialog?.open) {
+        internalCloses.current += 1;
+        dialog.close();
+      }
     };
   }, []);
   return (
     <dialog
       {...props}
       ref={ref}
-      className={cx("dm-dialog", className)}
+      className={cx("dm-dialog", `dm-dialog--${surface}`, className)}
+      data-state={motionState}
       aria-labelledby={`${id}-title`}
       aria-describedby={description ? `${id}-description` : undefined}
       onCancel={(event) => {
         props.onCancel?.(event);
         if (!event.defaultPrevented) {
           event.preventDefault();
-          onCloseRef.current();
+          requestClose();
         }
       }}
       onClose={() => {
-        if (open && !ref.current?.open) onCloseRef.current();
+        if (internalCloses.current) {
+          internalCloses.current -= 1;
+          return;
+        }
+        setMotionState("closed");
+        if (openRef.current && !ref.current?.open) requestClose();
+      }}
+      onPointerDown={(event) => {
+        props.onPointerDown?.(event);
+        const rect = event.currentTarget.getBoundingClientRect();
+        pressedBackdrop.current =
+          !event.defaultPrevented &&
+          event.target === event.currentTarget &&
+          (event.clientX < rect.left ||
+            event.clientX > rect.right ||
+            event.clientY < rect.top ||
+            event.clientY > rect.bottom);
       }}
       onClick={(event) => {
         props.onClick?.(event);
-        if (closeOnBackdrop && event.target === event.currentTarget) {
+        if (
+          !event.defaultPrevented &&
+          closeOnBackdrop &&
+          pressedBackdrop.current &&
+          event.target === event.currentTarget
+        ) {
           const rect = event.currentTarget.getBoundingClientRect();
           if (
             event.clientX < rect.left ||
@@ -946,17 +1049,35 @@ export function Dialog({
             event.clientY < rect.top ||
             event.clientY > rect.bottom
           )
-            onCloseRef.current();
+            requestClose();
         }
       }}
     >
       <div className="dm-dialog__header">
-        <div>
-          <h2 id={`${id}-title`}>{title}</h2>
-          {description && <p id={`${id}-description`}>{description}</p>}
+        <div className="dm-dialog__heading">
+          {icon && (
+            <span className="dm-dialog__icon" aria-hidden="true">
+              {icon}
+            </span>
+          )}
+          <div className="dm-dialog__heading-copy">
+            {eyebrow && <div className="dm-dialog__eyebrow">{eyebrow}</div>}
+            <h2 id={`${id}-title`}>{title}</h2>
+            {description && <p id={`${id}-description`}>{description}</p>}
+          </div>
         </div>
-        <IconButton variant="ghost" label={closeLabel} onClick={onClose}>
-          ×
+        <IconButton variant="ghost" label={closeLabel} onClick={requestClose}>
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+          >
+            <path d="m6 6 12 12M18 6 6 18" />
+          </svg>
         </IconButton>
       </div>
       <div className="dm-dialog__body">{children}</div>
@@ -985,6 +1106,7 @@ export interface ToastProps extends Omit<
   onDismiss?: () => void;
   tone?: "success" | "info" | "warning" | "danger";
   action?: ReactNode;
+  eyebrow?: ReactNode;
 }
 export function Toast({
   title,
@@ -992,6 +1114,7 @@ export function Toast({
   onDismiss,
   tone = "success",
   action,
+  eyebrow,
   className,
   ...props
 }: ToastProps) {
@@ -1002,9 +1125,14 @@ export function Toast({
       role={tone === "danger" ? "alert" : "status"}
     >
       <span className="dm-toast__mark" aria-hidden="true">
-        {tone === "success" ? "✓" : tone === "danger" ? "!" : "i"}
+        {tone === "success"
+          ? "✓"
+          : tone === "danger" || tone === "warning"
+            ? "!"
+            : "i"}
       </span>
       <div className="dm-toast__copy">
+        {eyebrow && <div className="dm-toast__eyebrow">{eyebrow}</div>}
         <strong>{title}</strong>
         {description && <p>{description}</p>}
         {action && <div className="dm-toast__action">{action}</div>}
@@ -1016,7 +1144,17 @@ export function Toast({
           size="sm"
           onClick={onDismiss}
         >
-          ×
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+          >
+            <path d="m6 6 12 12M18 6 6 18" />
+          </svg>
         </IconButton>
       )}
     </div>

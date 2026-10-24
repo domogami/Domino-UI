@@ -40,6 +40,23 @@ export function nativeTapTargets(root: HTMLElement, preference: () => boolean) {
     for (const [host, layer] of layers) removeLayer(host, layer);
   }
 
+  function topLayerPopover(button: HTMLElement) {
+    for (
+      let surface =
+        button.parentElement?.closest<HTMLElement>("[popover]") ?? null;
+      surface;
+      surface = surface.parentElement?.closest<HTMLElement>("[popover]") ?? null
+    ) {
+      // Older Safari versions may not recognize the selector at all.
+      try {
+        if (surface.matches(":popover-open")) return surface;
+      } catch {
+        return null;
+      }
+    }
+    return null;
+  }
+
   function measure() {
     frame = 0;
     if (destroyed) return;
@@ -78,16 +95,24 @@ export function nativeTapTargets(root: HTMLElement, preference: () => boolean) {
       let bottom = Math.min(innerHeight, rect.bottom);
       let visible = true;
       let scrollHost: HTMLElement | null = null;
+      const popover = topLayerPopover(button);
       // Clip to scroll panels as well as the viewport, so a scrolled-out target
       // cannot intercept taps on navigation underneath the panel.
-      for (let parent = button.parentElement; parent; parent = parent.parentElement) {
+      for (
+        let parent = button.parentElement;
+        parent;
+        parent = parent.parentElement
+      ) {
         const style = getComputedStyle(parent);
         if (Number(style.opacity) === 0 || style.visibility !== "visible") {
           visible = false;
           break;
         }
         const box = parent.getBoundingClientRect();
-        if (!scrollHost && /auto|scroll/.test(`${style.overflowX} ${style.overflowY}`))
+        if (
+          !scrollHost &&
+          /auto|scroll/.test(`${style.overflowX} ${style.overflowY}`)
+        )
           scrollHost = parent;
         if (/hidden|clip|auto|scroll/.test(style.overflowX)) {
           left = Math.max(left, box.left);
@@ -97,11 +122,14 @@ export function nativeTapTargets(root: HTMLElement, preference: () => boolean) {
           top = Math.max(top, box.top);
           bottom = Math.min(bottom, box.bottom);
         }
+        // A top-layer popover escapes the clipping of its original DOM ancestors.
+        // Its own overflow and scrolling content still constrain native targets.
+        if (parent === popover) break;
       }
       if (!visible || right <= left || bottom <= top) continue;
       // Retain the original scrolling ancestor. Native switch pan behavior is
       // browser-version dependent; hosts can opt out with data-native-tap=none.
-      const host = scrollHost ?? modal ?? document.body;
+      const host = scrollHost ?? popover ?? modal ?? document.body;
       const local = host !== document.body;
       if (local && getComputedStyle(host).position === "static") {
         if (!positions.has(host)) positions.set(host, host.style.position);
@@ -144,7 +172,9 @@ export function nativeTapTargets(root: HTMLElement, preference: () => boolean) {
             !trusted ||
             !active() ||
             !button.isConnected ||
-            button.matches(':disabled, [aria-disabled="true"], [data-haptic="none"], [data-native-tap="none"]') ||
+            button.matches(
+              ':disabled, [aria-disabled="true"], [data-haptic="none"], [data-native-tap="none"]',
+            ) ||
             button.closest('[hidden], [inert], [aria-hidden="true"]')
           ) {
             trusted = false;
@@ -210,11 +240,24 @@ export function nativeTapTargets(root: HTMLElement, preference: () => boolean) {
       childList: true,
       attributes: true,
       attributeFilter: [
-        "class", "style", "hidden", "inert", "disabled", "aria-disabled",
-        "aria-label", "open", "data-haptic", "data-native-tap",
+        "class",
+        "style",
+        "hidden",
+        "inert",
+        "disabled",
+        "aria-disabled",
+        "aria-label",
+        "aria-hidden",
+        "open",
+        "popover",
+        "data-state",
+        "data-haptic",
+        "data-native-tap",
       ],
     });
     document.addEventListener("scroll", refresh, true);
+    document.addEventListener("toggle", refresh, true);
+    document.addEventListener("beforetoggle", refresh, true);
     root.addEventListener("transitionend", refresh, true);
     root.addEventListener("animationend", refresh, true);
     document.addEventListener("visibilitychange", refresh);
@@ -233,6 +276,8 @@ export function nativeTapTargets(root: HTMLElement, preference: () => boolean) {
       mutation.disconnect();
       clear();
       document.removeEventListener("scroll", refresh, true);
+      document.removeEventListener("toggle", refresh, true);
+      document.removeEventListener("beforetoggle", refresh, true);
       root.removeEventListener("transitionend", refresh, true);
       root.removeEventListener("animationend", refresh, true);
       document.removeEventListener("visibilitychange", refresh);

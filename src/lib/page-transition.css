@@ -1,0 +1,41 @@
+/* Name one content sheet during a route change. Persistent chrome stays live. */
+html[data-dm-page-transition] {
+  view-transition-name: none;
+}
+html[data-dm-page-transition] .dm-page-transition {
+  view-transition-name: dm-page-content;
+}
+html[data-dm-page-transition]::view-transition {
+  pointer-events: none;
+}
+html[data-dm-page-transition]::view-transition-group(dm-page-content) {
+  animation: none;
+}
+html[data-dm-page-transition]::view-transition-old(dm-page-content) {
+  animation: dm-page-leave var(--dm-layer-exit-duration, 160ms) ease both;
+  mix-blend-mode: normal;
+}
+html[data-dm-page-transition]::view-transition-new(dm-page-content) {
+  animation: dm-page-arrive var(--dm-layer-duration, 240ms)
+    var(--dm-layer-easing, cubic-bezier(0.22, 1, 0.36, 1)) both;
+  mix-blend-mode: normal;
+}
+@keyframes dm-page-leave {
+  to {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+@keyframes dm-page-arrive {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  html[data-dm-page-transition]::view-transition-group(*),
+  html[data-dm-page-transition]::view-transition-old(*),
+  html[data-dm-page-transition]::view-transition-new(*) {
+    animation: none;
+  }
+}

@@ -2116,20 +2116,11 @@ button {
   right: 24px;
   max-width: min(420px, calc(100vw - 40px));
 }
-.app-toast .dm-toast {
-  box-shadow: 4px 5px 20px #0002;
-}
-.app-toast .dm-toast strong {
-  font-size: 12px;
-}
 .not-found {
   padding: 60px 0;
 }
 .nav-backdrop {
   display: none;
-}
-body:has(.dm-dialog[open]) {
-  overflow: hidden;
 }
 @media (min-width: 1600px) {
   .topbar {

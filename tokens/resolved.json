@@ -3,7 +3,7 @@
   "name": "Domino UI",
   "version": "0.1.0",
   "defaultTheme": "hybrid",
-  "fingerprint": "a9314aa55a1fe2e2b6b1750fffe4fbc84b5f42568c978bb4525fa52e7da651b1",
+  "fingerprint": "397198c3b7bfd2ef6c04910f96cc4b727788026c1a36dd0951b893906a37be5b",
   "shared": {
     "grid-size": "32px",
     "font-heading": "\"Poppins\", sans-serif",
@@ -50,7 +50,11 @@
     "banner-fill-duration": "450ms",
     "banner-fill-delay": "750ms",
     "banner-label-duration": "300ms",
-    "banner-label-delay": "1100ms"
+    "banner-label-delay": "1100ms",
+    "layer-duration": "240ms",
+    "layer-exit-duration": "160ms",
+    "layer-easing": "cubic-bezier(0.22, 1, 0.36, 1)",
+    "shadow-layer": "4px 4px 0 var(--dm-paper), 5px 5px 0 var(--dm-ink), 9px 9px 0 var(--dm-paper), 10px 10px 0 var(--dm-ink)"
   },
   "themes": {
     "hybrid": {
@@ -100,6 +104,10 @@
       "banner-fill-delay": "750ms",
       "banner-label-duration": "300ms",
       "banner-label-delay": "1100ms",
+      "layer-duration": "240ms",
+      "layer-exit-duration": "160ms",
+      "layer-easing": "cubic-bezier(0.22, 1, 0.36, 1)",
+      "shadow-layer": "4px 4px 0 var(--dm-paper), 5px 5px 0 var(--dm-ink), 9px 9px 0 var(--dm-paper), 10px 10px 0 var(--dm-ink)",
       "paper": "#efe7d7",
       "surface": "#f7f3e9",
       "surface-raised": "#fcf9f1",
@@ -123,7 +131,8 @@
       "sidebar-active": "#414b47",
       "sidebar-accent": "#b6cf8e",
       "mint": "#43d0c1",
-      "terracotta": "#a34e36"
+      "terracotta": "#a34e36",
+      "backdrop": "rgb(25 31 31 / 48%)"
     },
     "light": {
       "grid-size": "32px",
@@ -172,6 +181,10 @@
       "banner-fill-delay": "750ms",
       "banner-label-duration": "300ms",
       "banner-label-delay": "1100ms",
+      "layer-duration": "240ms",
+      "layer-exit-duration": "160ms",
+      "layer-easing": "cubic-bezier(0.22, 1, 0.36, 1)",
+      "shadow-layer": "4px 4px 0 var(--dm-paper), 5px 5px 0 var(--dm-ink), 9px 9px 0 var(--dm-paper), 10px 10px 0 var(--dm-ink)",
       "paper": "#efe7d7",
       "surface": "#f7f3e9",
       "surface-raised": "#fcf9f1",
@@ -195,7 +208,8 @@
       "sidebar-active": "#dde3d2",
       "sidebar-accent": "#0e7c79",
       "mint": "#43d0c1",
-      "terracotta": "#a34e36"
+      "terracotta": "#a34e36",
+      "backdrop": "rgb(25 31 31 / 48%)"
     },
     "dark": {
       "grid-size": "32px",
@@ -244,6 +258,10 @@
       "banner-fill-delay": "750ms",
       "banner-label-duration": "300ms",
       "banner-label-delay": "1100ms",
+      "layer-duration": "240ms",
+      "layer-exit-duration": "160ms",
+      "layer-easing": "cubic-bezier(0.22, 1, 0.36, 1)",
+      "shadow-layer": "4px 4px 0 var(--dm-paper), 5px 5px 0 var(--dm-ink), 9px 9px 0 var(--dm-paper), 10px 10px 0 var(--dm-ink)",
       "paper": "#2b3034",
       "surface": "#323b3e",
       "surface-raised": "#394347",
@@ -267,7 +285,8 @@
       "sidebar-active": "#414b47",
       "sidebar-accent": "#b6cf8e",
       "mint": "#b6cf8e",
-      "terracotta": "#e6b78d"
+      "terracotta": "#e6b78d",
+      "backdrop": "rgb(5 10 12 / 70%)"
     }
   }
 }

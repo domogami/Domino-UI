@@ -555,6 +555,68 @@ export const entries: Entry[] = [
       "Import the shown components from @domlee/ui. Standard className, style, aria-* and native element attributes are supported unless a narrower API is described here.",
   },
   {
+    id: "notification-card",
+    name: "Notification card",
+    group: "Feedback",
+    summary:
+      "A glanceable thought on its own sheet, with paper edges that hint at a waiting queue.",
+    code: '<NotificationCard source="The garden" title="A small idea is ready to grow."\n  time="JUST NOW" count={3} surface="ink"\n  actions={<a href="/notes">Open your notes</a>}>\n  <p>Your thought is saved. Leave a little room for what comes next.</p>\n</NotificationCard>',
+    props: [
+      ["source / title", "string / ReactNode", "required"],
+      ["children", "ReactNode; message body", "required"],
+      ["time / icon / actions", "ReactNode; icon is decorative", "—"],
+      [
+        "count",
+        "number; total queue size, normalized to a positive integer",
+        "1",
+      ],
+      ["surface", "paper | ink; header treatment", "paper"],
+    ],
+    guidance:
+      "Use a strong title and a useful first line. Rear sheets appear only when count exceeds one. This named article does not interrupt or announce itself; the host owns the queue, dismissal, and a single appropriate live region. Keep important information available until the user has acted.",
+    origin: "Extended",
+    usage:
+      "Import NotificationCard and styles.css from @domlee/ui. Compose native links or Button actions, and pass the real queue count. No portal, automatic timeout, global manager, or extra copies of the content are created. See Layers & notifications for a working queue.",
+  },
+  {
+    id: "popover",
+    name: "Popover",
+    group: "Feedback",
+    summary:
+      "An anchored paper layer for a little context or a small choice, with the surrounding page still in sight.",
+    code: '<Popover title="A thought in the margin"\n  description="A little context, close at hand."\n  trigger={<Button variant="secondary">A closer look</Button>}\n  footer={<small>You can always change your mind.</small>}>\n  <p>Keep related context beside the thing it explains.</p>\n  <Checkbox label="Keep this thought nearby" />\n</Popover>',
+    props: [
+      [
+        "trigger",
+        "ReactElement; one focusable control accepting a ref",
+        "required",
+      ],
+      ["children", "ReactNode; panel body", "required"],
+      [
+        "title / description / footer / eyebrow",
+        "ReactNode",
+        "— / — / — / a closer look",
+      ],
+      ["side / align", "top | bottom / start | center | end", "bottom / start"],
+      [
+        "open / defaultOpen",
+        "boolean; controlled / initial uncontrolled",
+        "— / false",
+      ],
+      ["onOpenChange", "(open: boolean) => void", "—"],
+      [
+        "label / closeLabel",
+        "string; fallback panel name / dismiss action",
+        "More details / Close popover",
+      ],
+    ],
+    guidance:
+      "Use for short, related context and controls. The panel flips and fits the viewport, scrolls long content, closes on outside interaction or Escape, and preserves natural Tab navigation. Escape and an explicit close return focus to the trigger. A modal decision belongs in Dialog; a list of actions belongs in DropdownMenu.",
+    origin: "Extended",
+    usage:
+      "Import Popover, Button, Checkbox and styles.css from @domlee/ui. Native Popover API places it in the top layer; older browsers use a positioned portal. The trigger's ref and click handler are composed. A controlled parent must update open through onOpenChange. Keep the component mounted through its closing transition; reduced motion closes immediately.",
+  },
+  {
     id: "toast",
     name: "Toast",
     group: "Feedback",
@@ -564,6 +626,7 @@ export const entries: Entry[] = [
     props: [
       ["title", "ReactNode", "required"],
       ["description / action", "ReactNode", "—"],
+      ["eyebrow", "ReactNode; compact source context", "—"],
       ["tone", "success | info | warning | danger", "success"],
       ["onDismiss", "() => void; shows dismiss button", "—"],
     ],
@@ -585,12 +648,19 @@ export const entries: Entry[] = [
       ["onClose", "() => void; update open state", "required"],
       ["title", "ReactNode", "required"],
       ["description / footer", "ReactNode", "—"],
+      ["eyebrow / icon", "ReactNode; compact context / decorative mark", "—"],
+      ["surface", "paper | ink; header treatment", "paper"],
       ["children", "ReactNode", "—"],
       ["closeLabel", "string", "Close dialog"],
       ["closeOnBackdrop", "boolean", "true"],
+      [
+        "returnFocusRef",
+        "RefObject<HTMLElement | null>; explicit opener for touch browsers",
+        "native focus return",
+      ],
     ],
     guidance:
-      "The native modal contains focus, supports Escape and returns focus when closed. onClose must update open state. Supply a concise title and a visible close action.",
+      "The native modal contains focus, supports Escape and returns focus when closed. Keep it mounted while open changes so its paper can settle and leave smoothly; modality persists until the exit finishes. Reduced motion skips movement. onClose must update open state. Supply a concise title and a visible close action.",
     origin: "Extended",
     usage:
       "Import Dialog and Button from @domlee/ui. The example defines open state and its opener. Native dialog attributes are supported; the component owns its DOM ref and open/showModal synchronization.",
@@ -608,9 +678,19 @@ export const entries: Entry[] = [
       ["onClose", "() => void; update open state", "required"],
       ["title", "ReactNode", "required"],
       ["description / footer", "ReactNode", "—"],
+      [
+        "eyebrow / icon / surface",
+        "ReactNode / ReactNode / paper | ink",
+        "— / — / paper",
+      ],
       ["children", "ReactNode", "—"],
       ["closeLabel", "string", "Close dialog"],
       ["closeOnBackdrop", "boolean", "true"],
+      [
+        "returnFocusRef",
+        "RefObject<HTMLElement | null>; explicit opener for touch browsers",
+        "native focus return",
+      ],
     ],
     guidance:
       "Use for supporting tasks that benefit from more room. Drawer uses Dialog behavior, including Escape, backdrop dismissal and focus restoration.",

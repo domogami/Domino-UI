@@ -17,3 +17,6 @@ export * from "./task-checkbox";
 export * from "./sketch";
 export * from "./hairline";
 export * from "./chevron";
+export * from "./popover";
+export * from "./notification-card";
+export * from "./page-transition";

@@ -1,5 +1,158 @@
 import { expect, test } from "@playwright/test";
 
+test("production paper layers retain their styles, viewport fit and nested focus behavior", async ({
+  page,
+}) => {
+  await page.addInitScript(() =>
+    localStorage.setItem("notebook-touch-feedback", "off"),
+  );
+  await page.goto("/#layers");
+  const card = page.locator(".layers-stage .dm-notification-card");
+  await expect(card).toHaveAccessibleName("A small idea is ready to grow.");
+  await expect(card.locator(".dm-notification-card__sheet")).toHaveCSS(
+    "border-top-style",
+    "solid",
+  );
+  expect(
+    await card
+      .locator(".dm-notification-card__sheet")
+      .evaluate((element) =>
+        parseFloat(getComputedStyle(element).borderTopWidth),
+      ),
+  ).toBeGreaterThanOrEqual(1);
+  await expect(card.locator(".dm-notification-card__title")).toHaveCSS(
+    "font-family",
+    /Poppins/,
+  );
+  const trigger = page.getByRole("button", {
+    name: "Open paper popover",
+    exact: true,
+  });
+  await trigger.tap();
+  const popover = page.getByRole("dialog", {
+    name: "A thought in the margin",
+    exact: true,
+  });
+  await expect(popover).toHaveAttribute("data-state", "open");
+  await expect(popover).toHaveCSS("border-top-style", "solid");
+  expect(
+    await popover.evaluate((element) =>
+      parseFloat(getComputedStyle(element).borderTopWidth),
+    ),
+  ).toBeGreaterThanOrEqual(1);
+  await expect(popover).toHaveCSS("opacity", "1");
+  expect(
+    await popover.evaluate((element) => element.matches(":popover-open")),
+  ).toBe(true);
+  expect(
+    await popover.evaluate((element) => {
+      const rect = element.getBoundingClientRect();
+      return (
+        rect.left >= 15 &&
+        rect.right <= innerWidth - 15 &&
+        rect.top >= 15 &&
+        rect.bottom <= innerHeight - 15
+      );
+    }),
+  ).toBe(true);
+  const pinnedChoice = popover.getByRole("checkbox", {
+    name: "Pin this thought for later",
+    exact: true,
+  });
+  const scrollBody = popover.locator(".dm-popover__body");
+  const startsBelowFold = await pinnedChoice.evaluate((choice) => {
+    const body = choice.closest(".dm-popover__body")!;
+    return (
+      choice.getBoundingClientRect().bottom >
+      body.getBoundingClientRect().bottom
+    );
+  });
+  await pinnedChoice.check();
+  await expect(pinnedChoice).toBeChecked();
+  if (startsBelowFold) {
+    await expect
+      .poll(() => scrollBody.evaluate((body) => body.scrollTop))
+      .toBeGreaterThan(0);
+    // Repositioning after internal scroll must not expand the body and reset it.
+    await page.waitForTimeout(100);
+    expect(await scrollBody.evaluate((body) => body.scrollTop)).toBeGreaterThan(
+      0,
+    );
+  }
+  await popover
+    .getByRole("button", { name: "Close popover", exact: true })
+    .tap();
+  await expect(popover).toBeHidden();
+  await expect(trigger).toBeFocused();
+  const opener = page.getByRole("button", {
+    name: "Open layered modal",
+    exact: true,
+  });
+  await opener.tap();
+  const dialog = page.getByRole("dialog", {
+    name: "A thought worth keeping",
+    exact: true,
+  });
+  await expect(dialog).toHaveAttribute("data-state", "open");
+  await expect(dialog).toHaveCSS("border-top-width", "2px");
+  expect(await dialog.evaluate((element) => element.matches(":modal"))).toBe(
+    true,
+  );
+  const help = dialog.getByRole("button", {
+    name: "Why give it a name?",
+    exact: true,
+  });
+  await help.tap();
+  const nested = page.getByRole("dialog", {
+    name: "A name is just a starting point",
+    exact: true,
+  });
+  await expect(nested).toHaveAttribute("data-state", "open");
+  await page.keyboard.press("Escape");
+  await expect(nested).toBeHidden();
+  await expect(dialog).toBeVisible();
+  await expect(help).toBeFocused();
+  await page.keyboard.press("Escape");
+  await expect(dialog).toBeHidden();
+  await expect(opener).toBeFocused();
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
+});
+
+test("production reduced motion settles paper immediately and preserves dismissal", async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/#layers");
+  const card = page.locator(".layers-stage .dm-notification-card");
+  await expect(card).toHaveCSS("animation-name", "none");
+  await page
+    .getByRole("button", { name: "Open paper popover", exact: true })
+    .tap();
+  const popover = page.getByRole("dialog", {
+    name: "A thought in the margin",
+    exact: true,
+  });
+  await expect(popover).toHaveCSS("transition-duration", "0s");
+  await expect(popover).toHaveCSS("transform", "none");
+  await page.keyboard.press("Escape");
+  await expect(popover).toBeHidden();
+  await page
+    .getByRole("button", { name: "Open layered modal", exact: true })
+    .tap();
+  const dialog = page.getByRole("dialog", {
+    name: "A thought worth keeping",
+    exact: true,
+  });
+  await expect(dialog).toHaveCSS("transition-duration", "0s");
+  await expect(dialog).toHaveCSS("transform", "none");
+  await dialog.getByRole("button", { name: "Close dialog", exact: true }).tap();
+  await expect(dialog).toBeHidden();
+});
+
 test("production chevrons stay centered, rotate disclosures and preserve the native select", async ({
   page,
 }) => {
@@ -462,4 +615,187 @@ test("production quiet and reduced motion keep finished original and Hairline sk
   await loupe.hover({ position: { x: 30, y: 30 } });
   await page.waitForTimeout(350);
   expect(await shape()).toEqual(initial);
+});
+
+test("production native switch targets stay in the paper popover top layer", async ({
+  page,
+}) => {
+  // Feature emulation validates trusted touch routing, not a physical motor pulse.
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, "vibrate", {
+      configurable: true,
+      value: undefined,
+    });
+    Object.defineProperty(HTMLInputElement.prototype, "switch", {
+      configurable: true,
+      get() {
+        return this.hasAttribute("switch");
+      },
+    });
+  });
+  const errors: string[] = [];
+  page.on("pageerror", (error) => errors.push(error.message));
+  await page.goto("/#layers");
+  const trigger = page.getByRole("button", {
+    name: "Open paper popover",
+    exact: true,
+  });
+  await trigger.evaluate((button) => {
+    (window as any).productionLayerActions = { opens: 0, closes: 0 };
+    button.addEventListener(
+      "click",
+      () => (window as any).productionLayerActions.opens++,
+    );
+  });
+  const tapEnhanced = async (control: import("@playwright/test").Locator) => {
+    await control.scrollIntoViewIfNeeded();
+    const rect = (await control.boundingBox())!;
+    const point = { x: rect.x + rect.width / 2, y: rect.y + rect.height / 2 };
+    await expect
+      .poll(() =>
+        page.evaluate(
+          ({ x, y }) =>
+            document
+              .elementFromPoint(x, y)
+              ?.classList.contains("dm-native-tap-target"),
+          point,
+        ),
+      )
+      .toBe(true);
+    await page.touchscreen.tap(point.x, point.y);
+  };
+  await tapEnhanced(trigger);
+  const popover = page.getByRole("dialog", {
+    name: "A thought in the margin",
+    exact: true,
+  });
+  await expect(popover).toHaveAttribute("data-state", "open");
+  await expect(popover).toHaveCSS("opacity", "1");
+  const close = popover.getByRole("button", {
+    name: "Close popover",
+    exact: true,
+  });
+  await close.evaluate((button) =>
+    button.addEventListener(
+      "click",
+      () => (window as any).productionLayerActions.closes++,
+    ),
+  );
+  const closeTarget = page.locator(
+    '.dm-native-tap-target[data-native-tap-label="Close popover"]',
+  );
+  await expect(closeTarget).toHaveCount(1);
+  expect(
+    await closeTarget.evaluate((input) =>
+      input.closest("[popover]")?.matches(":popover-open"),
+    ),
+  ).toBe(true);
+  await tapEnhanced(close);
+  await expect(popover).toBeHidden();
+  await expect(trigger).toBeFocused();
+  await expect(closeTarget).toHaveCount(0);
+  expect(
+    await page.evaluate(() => (window as any).productionLayerActions),
+  ).toEqual({ opens: 1, closes: 1 });
+  expect(errors).toEqual([]);
+});
+
+test("production route transitions capture only the content sheet and keep reduced-motion routing immediate", async ({
+  page,
+}) => {
+  const errors: string[] = [];
+  page.on("pageerror", (error) => errors.push(error.message));
+  await page.addInitScript(() => {
+    const browser = window as Window & {
+      productionRouteTransitions: ViewTransition[];
+    };
+    browser.productionRouteTransitions = [];
+    const start = document.startViewTransition;
+    if (!start) return;
+    // Keep the actual browser capture; observe only its returned lifecycle.
+    document.startViewTransition = function (update) {
+      const transition = start.call(this, update);
+      browser.productionRouteTransitions.push(transition);
+      return transition;
+    };
+  });
+  await page.goto("/#overview");
+  await page.addStyleTag({
+    content:
+      "html { --dm-layer-duration: 600ms; --dm-layer-exit-duration: 300ms; }",
+  });
+  const supported = await page.evaluate(
+    () => typeof document.startViewTransition === "function",
+  );
+  // A real hash navigation exercises the same event path as a route link while
+  // avoiding the mobile drawer, whose own animation intentionally takes priority.
+  await page.evaluate(() => {
+    location.hash = "colors";
+  });
+  await expect(
+    page.getByRole("heading", { name: "Color & themes.", exact: true }),
+  ).toBeVisible();
+  if (supported) {
+    const snapshot = await page.evaluate(async () => {
+      const transitions = (
+        window as Window & { productionRouteTransitions: ViewTransition[] }
+      ).productionRouteTransitions;
+      await transitions.at(-1)!.ready;
+      return {
+        count: transitions.length,
+        root: getComputedStyle(document.documentElement).viewTransitionName,
+        sheet: getComputedStyle(document.querySelector(".dm-page-transition")!)
+          .viewTransitionName,
+        rail: getComputedStyle(document.querySelector(".sidebar")!)
+          .viewTransitionName,
+      };
+    });
+    expect(snapshot).toEqual({
+      count: 1,
+      root: "none",
+      sheet: "dm-page-content",
+      rail: "none",
+    });
+    await page.evaluate(async () => {
+      await (
+        window as Window & { productionRouteTransitions: ViewTransition[] }
+      ).productionRouteTransitions.at(-1)!.finished;
+    });
+  }
+  await expect(page.locator("html")).not.toHaveAttribute(
+    "data-dm-page-transition",
+  );
+  await page.goBack();
+  await expect(page).toHaveURL(/#overview$/);
+  await expect(page.locator(".overview-hero")).toBeVisible();
+  if (supported) {
+    await page.evaluate(async () => {
+      await (
+        window as Window & { productionRouteTransitions: ViewTransition[] }
+      ).productionRouteTransitions.at(-1)!.finished;
+    });
+  }
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  const countBefore = await page.evaluate(
+    () =>
+      (window as Window & { productionRouteTransitions: ViewTransition[] })
+        .productionRouteTransitions.length,
+  );
+  await page.evaluate(() => {
+    location.hash = "typography";
+  });
+  await expect(
+    page.getByRole("heading", { name: "Words with character.", exact: true }),
+  ).toBeVisible();
+  expect(
+    await page.evaluate(
+      () =>
+        (window as Window & { productionRouteTransitions: ViewTransition[] })
+          .productionRouteTransitions.length,
+    ),
+  ).toBe(countBefore);
+  await expect(page.locator("html")).not.toHaveAttribute(
+    "data-dm-page-transition",
+  );
+  expect(errors).toEqual([]);
 });

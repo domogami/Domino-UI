@@ -85,7 +85,11 @@
     "banner-fill-duration": "450ms",
     "banner-fill-delay": "750ms",
     "banner-label-duration": "300ms",
-    "banner-label-delay": "1100ms"
+    "banner-label-delay": "1100ms",
+    "layer-duration": "240ms",
+    "layer-exit-duration": "160ms",
+    "layer-easing": "cubic-bezier(0.22, 1, 0.36, 1)",
+    "shadow-layer": "4px 4px 0 var(--dm-paper), 5px 5px 0 var(--dm-ink), 9px 9px 0 var(--dm-paper), 10px 10px 0 var(--dm-ink)"
   },
   "themes": {
     "light": {
@@ -113,7 +117,8 @@
         "sidebar-active": "{palette.sidebarActiveLight}",
         "sidebar-accent": "{palette.teal}",
         "mint": "{palette.mint}",
-        "terracotta": "{palette.terracotta}"
+        "terracotta": "{palette.terracotta}",
+        "backdrop": "rgb(25 31 31 / 48%)"
       }
     },
     "hybrid": {
@@ -153,7 +158,8 @@
         "sidebar-active": "{palette.sidebarActiveDark}",
         "sidebar-accent": "{palette.accentDark}",
         "mint": "{palette.accentDark}",
-        "terracotta": "{palette.terracottaDark}"
+        "terracotta": "{palette.terracottaDark}",
+        "backdrop": "rgb(5 10 12 / 70%)"
       }
     }
   },

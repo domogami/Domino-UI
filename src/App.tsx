@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { flushSync } from "react-dom";
 import {
   Button,
   Badge,
@@ -9,6 +10,7 @@ import {
   Select,
   Toast,
   MenuToggle,
+  createPageTransition,
 } from "./lib";
 import { HeroName, HandwrittenNote, SketchArrow, Crane } from "./lib/brand";
 import type { DrawingSpeed } from "./lib/brand";
@@ -18,6 +20,7 @@ import { Demo } from "./catalog/Demo";
 import { HapticsPage } from "./catalog/HapticsPage";
 import { SharedSystemPage } from "./catalog/SharedSystem";
 import { SketchbookPage } from "./catalog/Sketchbook";
+import { LayersPage } from "./catalog/Layers";
 import {
   AccessibilityPage,
   CodeBlock,
@@ -35,6 +38,7 @@ const foundations = [
   { id: "spacing", name: "Space & surfaces", icon: "ruler" },
 ];
 const guides = [
+  { id: "layers", name: "Layers & notifications", icon: "book" },
   { id: "sketchbook", name: "The sketchbook", icon: "pen" },
   { id: "haptics", name: "Touch & haptics", icon: "sparkle" },
   { id: "shared-system", name: "One shared system", icon: "grid" },
@@ -43,15 +47,72 @@ const guides = [
   { id: "accessibility", name: "Accessibility", icon: "heart" },
   { id: "getting-started", name: "Getting started", icon: "code" },
 ];
-const routeFromHash = () =>
-  decodeURIComponent(location.hash.slice(1) || "overview");
+const routeFromHash = () => {
+  const hash = location.hash.slice(1) || "overview";
+  try {
+    return decodeURIComponent(hash);
+  } catch {
+    return hash;
+  }
+};
 
 function useRoute() {
   const [route, setRoute] = useState(routeFromHash);
   useEffect(() => {
-    const change = () => setRoute(routeFromHash());
+    const transition = createPageTransition();
+    let pendingRoute = route;
+    let committedRoute = route;
+    const change = (event: Event) => {
+      const next = routeFromHash();
+      // In-page anchors and repeated hashes retain their native behavior.
+      if (next === pendingRoute) return;
+      if (next === committedRoute || document.getElementById(next)) {
+        transition.cancel();
+        pendingRoute = committedRoute;
+        return;
+      }
+      pendingRoute = next;
+      const browserOwnsMotion =
+        "hasUAVisualTransition" in event &&
+        event.hasUAVisualTransition === true;
+      const modalOpen = Boolean(
+        document.querySelector('dialog:modal, [aria-modal="true"]'),
+      );
+      const navigationMoving = document
+        .querySelector(".navigation-shell")
+        ?.getAnimations({ subtree: true })
+        .some((animation) => {
+          const target = (animation.effect as KeyframeEffect | null)?.target;
+          return (
+            animation.playState === "running" &&
+            target instanceof Element &&
+            target.matches(".sidebar, .nav-backdrop, .dm-menu-toggle__line")
+          );
+        });
+      void transition
+        .run(
+          () => {
+            // The snapshot must see React's committed route, not a queued render.
+            committedRoute = next;
+            flushSync(() => setRoute(next));
+            document
+              .getElementById("main-content")
+              ?.scrollTo({ top: 0, behavior: "instant" });
+            window.scrollTo({ top: 0, behavior: "instant" });
+          },
+          { skip: browserOwnsMotion || modalOpen || navigationMoving },
+        )
+        .catch((error) => {
+          console.error("The notebook route could not be updated.", error);
+        });
+    };
     addEventListener("hashchange", change);
-    return () => removeEventListener("hashchange", change);
+    addEventListener("popstate", change);
+    return () => {
+      removeEventListener("hashchange", change);
+      removeEventListener("popstate", change);
+      transition.cancel();
+    };
   }, []);
   return route;
 }
@@ -355,7 +416,7 @@ export default function App() {
           className="main-content"
           tabIndex={-1}
         >
-          <div className="content-width">
+          <div className="content-width dm-page-transition">
             {route === "overview" && <Overview copy={copy} />}
             {(route === "components" || category) && (
               <ComponentGallery category={category} />
@@ -370,6 +431,7 @@ export default function App() {
             {route === "style-guide" && <StylePage />}
             {route === "shared-system" && <SharedSystemPage copy={copy} />}
             {route === "sketchbook" && <SketchbookPage copy={copy} />}
+            {route === "layers" && <LayersPage copy={copy} />}
             {route === "motion" && <MotionPage copy={copy} />}
             {route === "haptics" && <HapticsPage copy={copy} />}
             {route === "accessibility" && <AccessibilityPage />}
@@ -384,6 +446,7 @@ export default function App() {
               "style-guide",
               "shared-system",
               "sketchbook",
+              "layers",
               "motion",
               "haptics",
               "accessibility",
@@ -1009,9 +1072,13 @@ function ComponentDetail({
                             "flower-progress",
                           ].includes(entry.id)
                         ? "patterns.tsx"
-                        : ["menu-toggle", "task-checkbox", "skeleton"].includes(
-                              entry.id,
-                            )
+                        : [
+                              "menu-toggle",
+                              "task-checkbox",
+                              "skeleton",
+                              "popover",
+                              "notification-card",
+                            ].includes(entry.id)
                           ? `${entry.id}.tsx`
                           : "components.tsx"}
               </code>{" "}
@@ -1204,6 +1271,26 @@ function MotionPage({ copy }: { copy: (text: string) => void }) {
         </p>
         <a className="text-link" href="#component/menu-toggle">
           Explore the menu toggle <Icon name="arrow" size={16} />
+        </a>
+      </section>
+      <section className="guide-section">
+        <h2>A page that turns quietly</h2>
+        <p className="guide-copy">
+          Supported browsers give the content sheet a brief fade and an 8px
+          settle as you move through the notebook. The navigation and theme
+          controls keep their place. Try a page link, then Back or Forward.
+          Reduced motion uses the immediate route change; modals and the mobile
+          drawer keep their own choreography.
+        </p>
+        <p className="guide-copy">
+          The shared <code>createPageTransition</code> helper wraps a committed
+          DOM update. Your router keeps control of URLs, scroll, and focus.
+          Interrupted snapshots cannot put an older page back, and existing
+          in-page anchors keep working. The notebook returns actual route
+          changes to the top of the new page.
+        </p>
+        <a className="text-link" href="#layers">
+          Try the page flow <Icon name="arrow" size={16} />
         </a>
       </section>
       <a href="#category/Brand" className="text-link">

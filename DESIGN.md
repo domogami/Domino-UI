@@ -8,8 +8,8 @@ This document defines the visual language and its provenance. [Component scope](
 
 The references are the [personal website](https://dominicklee.net/) and [digital garden](https://domogami.github.io/), supported by their local source. The source audit was performed on October 22, 2026. Live references establish the destination and overall composition; local code supplies exact geometry, values, and behavior. Both public homepages were captured through Firecrawl and inspected in the browser during this audit. Local source supplied exact values, artwork geometry, responsive rules, and motion timings; branding extraction was treated as supporting evidence because some detected font roles were imprecise.
 
-| Reference            | Local source                                                                                           | What it establishes                                                                                             |
-| -------------------- | ------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------- |
+| Reference            | Local source                                                               | What it establishes                                                                                             |
+| -------------------- | -------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
 | Portfolio guide      | `dominicklee.net/docs/design-system.md`                                    | Five type families, paper and ink palette, 32px rhythm, journal meanings, folds, motion, responsive composition |
 | Portfolio styles     | `dominicklee.net/app/styles/notebook.css`                                  | Exact CSS, final cascade, banner/plant/name timing, focus appearance, paper shapes                              |
 | Portfolio drawings   | `dominicklee.net/app/components/notebook/NotebookDrawings.tsx`             | Notched and folded banner SVG geometry, drawn note and plant composition                                        |
@@ -134,6 +134,14 @@ Folded paper must have a real silhouette: clip the paper layer at its 20px missi
 
 Elevation is restrained. The source folded banner face uses a small `0 2px 1.5px` dark teal shadow; photographic polaroids use `2px 10px 24px #0004`. The library's `2px 3px 0` ink shadow is a new shared token for paper/control separation. Use the stronger photographic shadow only for stacked physical artifacts. A semantic border should still define the control when shadows disappear.
 
+### Paper layers
+
+Contextual popovers, modal decisions, and notification cards use opaque paper with a strong ink boundary. The shared `shadow-layer` adds alternating paper/ink edges behind a surface; it is a deliberate library extension. Keep depth crisp and restrained, preserve context around the foreground, and separate source metadata, title, content, and actions. An inverse ink header is a semantic treatment in every theme, including Dark.
+
+The [Paper layers guide](docs/LAYERS.md) records inspiration from Pebble's published interaction guidance: prominent information, limited meaningful color, self-contained cards, visible actions, and short motion that explains change. Stacked paper, handwritten annotations, and teal are Domino's adaptation, not Pebble specifications. Do not copy Pebble artwork, fonts, or icons to express that influence.
+
+Use a nonmodal `Popover` for a small contextual task, a native `Dialog` or `Drawer` for a focused decision, a static `NotificationCard` for a complete message, and a `Toast` for operation feedback. Keep the actual message and queue count readable; decorative back sheets contain no duplicate content. Shared layer motion enters over 240ms and exits over 160ms with a reversible settle. Reduced motion removes movement, and focus/dismissal contracts remain part of the component rather than decorative polish. The notebook's `/#layers` composition demonstrates those choices together.
+
 ## Handwriting, banners, and journal marks
 
 Use **Kalam** for a named section on a paper banner and **Caveat** for an aside about the section. One handwritten thought with an arrow is usually enough beside a heading. Keep instructions, validation, form labels, and long paragraphs in Lexend. Do not turn all headings into casual handwriting.
@@ -195,6 +203,8 @@ Task completion retains the garden’s original 220ms curved check and 280ms ink
 Reference breakpoints differ by application: the portfolio uses major changes at 1100px and 760px; the garden uses 1200px and 800px. They are evidence for layout transitions, not a reason to bake one page's dimensions into every primitive.
 
 The library website keeps the navigation rail and document aligned on larger screens and uses a modal slide-out navigation below 700px. Its single menu button morphs between three strokes and a close mark as the panel slides and backdrop fades. Shared `menu-duration` (360ms) and `menu-easing` (`cubic-bezier(0.22, 1, 0.36, 1)`) tokens coordinate reversible transitions. Reduced motion changes state immediately. Closed navigation is inert; the modal contains focus and restores it on dismissal, while desktop resizing releases the scroll lock. Hybrid's charcoal area follows the actual header/rail box. Components keep their theme-independent measurements.
+
+Page changes name only the content sheet for a progressive View Transition; persistent chrome keeps its place. Incoming content settles by 8px over the existing 240ms layer duration, while the outgoing sheet leaves by 4px over 160ms. Use `createPageTransition` at the router's synchronous DOM commit boundary, or the consuming framework's own integration. Reduced motion, unsupported capture, active modals, and browser-owned navigation animations use the normal immediate commit. Rapid navigation invalidates obsolete callbacks, and application history, scroll, and focus remain application responsibilities. The notebook retains scroll-to-top for actual route changes and native behavior for in-page anchors. [Page-flow API and routing contract](docs/ROUTING.md).
 
 At garden widths below 1200px, related panels follow the article in an adaptive grid with 16rem minimum columns. At ≤800px the navigation expands in document flow and the flower collector becomes a footer-adjacent row. Carry that principle into reusable compositions: decorative fixed controls must not cover text, form actions, or footer links.
 
