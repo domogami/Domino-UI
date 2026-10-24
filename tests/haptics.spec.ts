@@ -628,3 +628,61 @@ test.describe("native switch targets in top-layer popovers", () => {
     expect(errors).toEqual([]);
   });
 });
+
+test.describe("native switch targets in folding modals", () => {
+  test.use({
+    hasTouch: true,
+    isMobile: true,
+    viewport: { width: 390, height: 844 },
+  });
+
+  test("native touch targets follow the connected paper and return to the opener", async ({
+    page,
+  }) => {
+    await nativeSwitchFeatures(page);
+    await page.goto("/#layers");
+    const opener = page.getByRole("button", {
+      name: "Open layered modal",
+      exact: true,
+    });
+    await nativeTap(page, opener);
+    const dialog = page.getByRole("dialog", {
+      name: "A thought worth keeping",
+      exact: true,
+    });
+    await expect(dialog.locator(".dm-dialog__leaf")).toHaveCSS(
+      "transform",
+      "none",
+    );
+    const save = dialog.getByRole("button", {
+      name: "Keep this note",
+      exact: true,
+    });
+    const target = dialog.locator(
+      '.dm-native-tap-target[data-native-tap-label="Keep this note"]',
+    );
+    await expect(target).toHaveCount(1);
+    expect(
+      await target.evaluate((input) =>
+        input.closest("dialog")?.matches(":modal"),
+      ),
+    ).toBe(true);
+    await nativeTap(page, save);
+    await expect(dialog).toBeHidden();
+    await expect(opener).toBeFocused();
+    await expect(page.getByRole("status")).toContainText("Kept in");
+
+    await nativeTap(page, opener);
+    await expect(dialog.locator(".dm-dialog__leaf")).toHaveCSS(
+      "transform",
+      "none",
+    );
+    await nativeTap(
+      page,
+      dialog.getByRole("button", { name: "Close dialog", exact: true }),
+    );
+    await expect(dialog).toBeHidden();
+    await expect(opener).toBeFocused();
+    await expect(dialog.locator(".dm-native-tap-target")).toHaveCount(0);
+  });
+});

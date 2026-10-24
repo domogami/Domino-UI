@@ -184,7 +184,7 @@ Every catalog entry documents its real API, origin, meaningful states, and compo
 
 ## A thought in the foreground
 
-Popovers stay beside their trigger. Important decisions open on a clear modal surface. Notification cards collect source, message, and action on one piece of paper, with a readable queue badge, a thin accent seam, and one subtle ink edge. Dialogs unfold their header, body, and footer in sequence over 320ms, then fold closed over 160ms; `motion="settle"` provides a quiet alternative. Drawers and the command palette retain settle motion. Dialogs and toasts also support short context labels and distinct actions.
+Popovers stay beside their trigger. Important decisions open on a clear modal surface. Notification cards collect source, message, and action on one piece of paper, with a readable queue badge, a thin accent seam, and one subtle ink edge. Dialogs unfold in 360ms beneath a flat, opaque header, with a small hinge overtravel before settling. Closing starts immediately with a connected paper fold and tuck, followed by a final 40ms fade within the 240ms exit. `motion="settle"` provides a quiet alternative; drawers and the command palette keep their 240ms/160ms settle motion. Dialogs and toasts also support short context labels and distinct actions.
 
 The **Paper layers** notebook route (`/#layers`) brings them together in all three themes. The interaction study draws on [Pebble's design guidance](https://developer.repebble.com/guides/design-and-interaction/core-experience/): glanceable hierarchy, a few meaningful colors, visible actions, and purposeful motion. The paper surfaces, folding motion, teal accents, and handwriting remain Domino's own treatment. [Layer APIs, examples, accessibility, and provenance](docs/LAYERS.md).
 

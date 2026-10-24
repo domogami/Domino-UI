@@ -232,13 +232,18 @@ test("production paper layers retain their styles, viewport fit and nested focus
     exact: true,
   });
   await expect(dialog).toHaveAttribute("data-state", "open");
-  await expect(dialog).toHaveCSS("border-top-width", "2px");
+  await expect(dialog).toHaveCSS("border-top-width", "0px");
   await expect(dialog).toHaveCSS("opacity", "1");
   const header = dialog.locator(".dm-dialog__header");
   await expect(header).toHaveCSS("opacity", "1");
-  await expect(header).toHaveCSS("transition-property", "transform");
+  await expect(header).toHaveCSS("border-top-width", "2px");
+  await expect(header).toHaveCSS("transform", "none");
   await expect(header).toHaveCSS("transition-delay", "0s");
-  await expect(header).toHaveCSS("transition-duration", "0.128s");
+  await expect(dialog).not.toHaveAttribute("data-folding", "true");
+  await expect(dialog.locator(".dm-dialog__leaf")).toHaveCSS(
+    "transform",
+    "none",
+  );
   expect(await dialog.evaluate((element) => element.matches(":modal"))).toBe(
     true,
   );
@@ -256,7 +261,116 @@ test("production paper layers retain their styles, viewport fit and nested focus
   await expect(nested).toBeHidden();
   await expect(dialog).toBeVisible();
   await expect(help).toBeFocused();
+  await dialog.evaluate((element) => {
+    const leaf = element.querySelector<HTMLElement>(".dm-dialog__leaf")!;
+    const body = element.querySelector<HTMLElement>(".dm-dialog__body")!;
+    const footer = element.querySelector<HTMLElement>(".dm-dialog__footer")!;
+    const marker = (owner: HTMLElement, edge: "top" | "bottom") => {
+      const point = document.createElement("span");
+      point.setAttribute("aria-hidden", "true");
+      point.style.cssText = `position:absolute;left:50%;${edge}:0;width:0;height:0;pointer-events:none`;
+      owner.append(point);
+      return point;
+    };
+    const bodyJoint = marker(body, "bottom");
+    const footerJoint = marker(footer, "top");
+    const angle = (plane: HTMLElement) => {
+      const transform = getComputedStyle(plane).transform;
+      if (transform === "none") return 0;
+      const matrix = new DOMMatrixReadOnly(transform);
+      return (Math.atan2(matrix.m23, matrix.m22) * 180) / Math.PI;
+    };
+    const sample = () => ({
+      opacity: Number(getComputedStyle(element).opacity),
+      leaf: getComputedStyle(leaf).transform,
+      leafAngle: angle(leaf),
+      footerAngle: angle(footer),
+      headerOpacity: Number(
+        getComputedStyle(element.querySelector(".dm-dialog__header")!).opacity,
+      ),
+      jointGap: Math.hypot(
+        bodyJoint.getBoundingClientRect().x -
+          footerJoint.getBoundingClientRect().x,
+        bodyJoint.getBoundingClientRect().y -
+          footerJoint.getBoundingClientRect().y,
+      ),
+    });
+    (window as any).productionFoldExit = new Promise((resolve) => {
+      const observer = new MutationObserver(() => {
+        if (element.getAttribute("data-state") !== "closing") return;
+        observer.disconnect();
+        const animations = element
+          .getAnimations({ subtree: true })
+          .filter(
+            (animation) =>
+              animation instanceof CSSTransition &&
+              ["transform", "opacity"].includes(animation.transitionProperty),
+          );
+        const duration = Math.max(
+          ...animations.map((animation) =>
+            Number(animation.effect!.getComputedTiming().endTime),
+          ),
+        );
+        animations.forEach((animation) => animation.pause());
+        const seek = (time: number) => {
+          animations.forEach((animation) => {
+            animation.currentTime = time;
+          });
+          return sample();
+        };
+        const start = seek(0);
+        const middle = seek(duration * 0.5);
+        const tucked = seek(duration * 0.75);
+        const foldComplete = seek(duration - 40);
+        const fading = seek(duration * 0.92);
+        const end = seek(duration + 1);
+        animations.forEach((animation) => animation.finish());
+        resolve({
+          duration,
+          start,
+          middle,
+          tucked,
+          foldComplete,
+          fading,
+          end,
+          modal: element.matches(":modal"),
+        });
+      });
+      observer.observe(element, {
+        attributes: true,
+        attributeFilter: ["data-state"],
+      });
+    });
+  });
   await page.keyboard.press("Escape");
+  const closing = await page.evaluate(() => (window as any).productionFoldExit);
+  expect(closing.duration).toBeGreaterThanOrEqual(230);
+  expect(closing.duration).toBeLessThanOrEqual(250);
+  expect(closing.modal).toBe(true);
+  expect(closing.middle.leaf).toContain("matrix3d");
+  expect(Math.abs(closing.middle.leafAngle)).toBeGreaterThan(20);
+  expect(Math.abs(closing.middle.footerAngle)).toBeGreaterThan(40);
+  for (const phase of [
+    closing.start,
+    closing.middle,
+    closing.tucked,
+    closing.foldComplete,
+  ])
+    expect(phase.opacity).toBe(1);
+  expect(closing.fading.opacity).toBeGreaterThan(0);
+  expect(closing.fading.opacity).toBeLessThan(1);
+  expect(closing.end.opacity).toBe(0);
+  for (const phase of [
+    closing.start,
+    closing.middle,
+    closing.tucked,
+    closing.foldComplete,
+    closing.fading,
+    closing.end,
+  ]) {
+    expect(phase.headerOpacity).toBe(1);
+    expect(phase.jointGap).toBeLessThanOrEqual(2.5);
+  }
   await expect(dialog).toBeHidden();
   await expect(opener).toBeFocused();
   expect(

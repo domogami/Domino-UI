@@ -932,6 +932,7 @@ export function Dialog({
   const [motionState, setMotionState] = useState<
     "closed" | "opening" | "open" | "closing"
   >("closed");
+  const [folding, setFolding] = useState(false);
   const requestClose = () => {
     if (!openRef.current || closeRequested.current) return;
     closeRequested.current = true;
@@ -942,8 +943,12 @@ export function Dialog({
     if (!dialog) return;
     let frame = 0;
     let nextFrame = 0;
+    const canFold =
+      motion === "fold" &&
+      !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (open) {
       closeRequested.current = false;
+      setFolding(canFold);
       if (!dialog.open) {
         setMotionState("opening");
         dialog.showModal();
@@ -956,15 +961,50 @@ export function Dialog({
         setMotionState("open");
       }
     } else if (dialog.open) {
+      setFolding(canFold);
       setMotionState("closing");
     } else {
+      setFolding(false);
       setMotionState("closed");
     }
     return () => {
       cancelAnimationFrame(frame);
       cancelAnimationFrame(nextFrame);
     };
-  }, [open]);
+  }, [open, motion]);
+  useEffect(() => {
+    const dialog = ref.current;
+    if (!folding || !dialog || motionState === "opening") return;
+    // Keep the connected 3D planes only while their own finite transitions run.
+    // Descendant controls may animate indefinitely; they do not own this hinge.
+    const regions = new Set<Element>([
+      dialog,
+      ...dialog.querySelectorAll(
+        ":scope > .dm-dialog__header, :scope > .dm-dialog__leaf, :scope > .dm-dialog__leaf > .dm-dialog__body, :scope > .dm-dialog__leaf > .dm-dialog__footer",
+      ),
+    ]);
+    const transitions = dialog
+      .getAnimations({ subtree: true })
+      .filter((animation) => {
+        const effect = animation.effect;
+        return (
+          animation instanceof CSSTransition &&
+          effect instanceof KeyframeEffect &&
+          effect.target !== null &&
+          regions.has(effect.target) &&
+          Number.isFinite(effect.getComputedTiming().endTime)
+        );
+      });
+    let cancelled = false;
+    void Promise.all(
+      transitions.map((animation) => animation.finished.catch(() => undefined)),
+    ).then(() => {
+      if (!cancelled) setFolding(false);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [folding, motionState, motion]);
   useEffect(() => {
     const dialog = ref.current;
     if (open || motionState !== "closing" || !dialog?.open) return;
@@ -981,7 +1021,7 @@ export function Dialog({
     const regions = [
       dialog,
       ...dialog.querySelectorAll<HTMLElement>(
-        ":scope > .dm-dialog__header, :scope > .dm-dialog__body, :scope > .dm-dialog__footer",
+        ":scope > .dm-dialog__header, :scope > .dm-dialog__leaf, :scope > .dm-dialog__leaf > .dm-dialog__body, :scope > .dm-dialog__leaf > .dm-dialog__footer",
       ),
     ];
     const phaseEnd = (style: CSSStyleDeclaration) => {
@@ -1000,6 +1040,7 @@ export function Dialog({
       ...regions.flatMap((region) => [
         phaseEnd(getComputedStyle(region)),
         phaseEnd(getComputedStyle(region, "::before")),
+        phaseEnd(getComputedStyle(region, "::after")),
       ]),
     );
     const timeout = window.setTimeout(
@@ -1035,6 +1076,7 @@ export function Dialog({
         className,
       )}
       data-state={motionState}
+      data-folding={folding ? "true" : undefined}
       aria-labelledby={`${id}-title`}
       aria-describedby={description ? `${id}-description` : undefined}
       onCancel={(event) => {
@@ -1109,8 +1151,15 @@ export function Dialog({
           </svg>
         </IconButton>
       </div>
-      <div className="dm-dialog__body">{children}</div>
-      {footer && <div className="dm-dialog__footer">{footer}</div>}
+      <div
+        className={cx(
+          "dm-dialog__leaf",
+          !!footer && "dm-dialog__leaf--with-footer",
+        )}
+      >
+        <div className="dm-dialog__body">{children}</div>
+        {footer && <div className="dm-dialog__footer">{footer}</div>}
+      </div>
     </dialog>
   );
 }

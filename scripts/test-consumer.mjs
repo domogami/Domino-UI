@@ -192,6 +192,7 @@ createRoot(document.getElementById("root")!).render(<App />);
     ".dm-bookmark-drawing",
     ".dm-journal-art-line",
     ".dm-dialog--fold",
+    ".dm-dialog__leaf",
     ".dm-notification-card__actions",
     ".dm-dialog--ink",
     ".dm-dialog::backdrop",
@@ -267,6 +268,8 @@ assert(html.includes("dm-bookmark-drawing"));
 assert(html.includes('data-variant="notched"'));
 assert(html.includes('data-variant="pointed"'));
 assert(html.includes("dm-dialog--fold"));
+assert(html.includes("dm-dialog__leaf"));
+assert.equal(html.split("One focused decision.").length - 1, 1);
 assert(html.replace(/<[^>]*>/g, "").includes("3 in queue"));
 assert(html.includes("dm-notification-card__actions"));
 assert(html.includes("dm-dialog--ink"));

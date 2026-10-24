@@ -1,5 +1,5 @@
 /* GENERATED from tokens/system.json — Domino UI 0.1.0.
-   Source SHA-256: 14646349b4d80fcc03ec5e690aea1596b4d973f533365814bbc54331e445c367
+   Source SHA-256: cb043c23e3d81ccb5aa2978e6b8d60feb85c6d9676e17dff11d31f5b99a411db
    Edit the canonical source, then run npm run build:system. */
 :root {
   --dm-grid-size: 32px;
@@ -49,8 +49,8 @@
   --dm-banner-label-duration: 300ms;
   --dm-banner-label-delay: 1100ms;
   --dm-layer-duration: 240ms;
-  --dm-dialog-duration: 320ms;
-  --dm-dialog-exit-duration: 160ms;
+  --dm-dialog-duration: 360ms;
+  --dm-dialog-exit-duration: 240ms;
   --dm-layer-exit-duration: 160ms;
   --dm-layer-easing: cubic-bezier(0.22, 1, 0.36, 1);
   --dm-shadow-layer: 2px 3px 0 color-mix(in srgb, var(--dm-ink) 16%, transparent);
@@ -129,8 +129,8 @@
   --dm-banner-label-duration: 300ms;
   --dm-banner-label-delay: 1100ms;
   --dm-layer-duration: 240ms;
-  --dm-dialog-duration: 320ms;
-  --dm-dialog-exit-duration: 160ms;
+  --dm-dialog-duration: 360ms;
+  --dm-dialog-exit-duration: 240ms;
   --dm-layer-exit-duration: 160ms;
   --dm-layer-easing: cubic-bezier(0.22, 1, 0.36, 1);
   --dm-shadow-layer: 2px 3px 0 color-mix(in srgb, var(--dm-ink) 16%, transparent);
@@ -209,8 +209,8 @@
   --dm-banner-label-duration: 300ms;
   --dm-banner-label-delay: 1100ms;
   --dm-layer-duration: 240ms;
-  --dm-dialog-duration: 320ms;
-  --dm-dialog-exit-duration: 160ms;
+  --dm-dialog-duration: 360ms;
+  --dm-dialog-exit-duration: 240ms;
   --dm-layer-exit-duration: 160ms;
   --dm-layer-easing: cubic-bezier(0.22, 1, 0.36, 1);
   --dm-shadow-layer: 2px 3px 0 color-mix(in srgb, var(--dm-ink) 16%, transparent);
@@ -289,8 +289,8 @@
   --dm-banner-label-duration: 300ms;
   --dm-banner-label-delay: 1100ms;
   --dm-layer-duration: 240ms;
-  --dm-dialog-duration: 320ms;
-  --dm-dialog-exit-duration: 160ms;
+  --dm-dialog-duration: 360ms;
+  --dm-dialog-exit-duration: 240ms;
   --dm-layer-exit-duration: 160ms;
   --dm-layer-easing: cubic-bezier(0.22, 1, 0.36, 1);
   --dm-shadow-layer: 2px 3px 0 color-mix(in srgb, var(--dm-ink) 16%, transparent);

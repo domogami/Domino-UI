@@ -64,7 +64,7 @@ test("reduced motion closes without a visual exit and backdrop presses dismiss o
   await expect(dialog).toHaveCSS("transform", "none");
   for (const region of await dialog
     .locator(
-      ":scope > .dm-dialog__header, :scope > .dm-dialog__body, :scope > .dm-dialog__footer",
+      ":scope > .dm-dialog__header, :scope > .dm-dialog__leaf, :scope > .dm-dialog__leaf > .dm-dialog__body, :scope > .dm-dialog__leaf > .dm-dialog__footer",
     )
     .all()) {
     await expect(region).toHaveCSS("transform", "none");
@@ -332,22 +332,63 @@ test("paper folds through coordinated hinges and crease shading on the same dial
       ".playground-canvas .dm-dialog",
     )!;
     const header = dialog.querySelector<HTMLElement>(".dm-dialog__header")!;
+    const leaf = dialog.querySelector<HTMLElement>(".dm-dialog__leaf")!;
     const body = dialog.querySelector<HTMLElement>(".dm-dialog__body")!;
     const footer = dialog.querySelector<HTMLElement>(".dm-dialog__footer")!;
+    const point = (owner: HTMLElement, edge: "top" | "bottom") => {
+      const marker = document.createElement("span");
+      marker.setAttribute("aria-hidden", "true");
+      marker.style.cssText = `position:absolute;left:50%;${edge}:0;width:0;height:0;pointer-events:none`;
+      owner.append(marker);
+      return marker;
+    };
+    const bodyJoint = point(body, "bottom");
+    const footerJoint = point(footer, "top");
+    const isFlat = (element: HTMLElement) => {
+      const transform = getComputedStyle(element).transform;
+      if (transform === "none") return true;
+      const matrix = new DOMMatrixReadOnly(transform);
+      // A zero-angle leaf keeps perspective until its transition cleanup runs.
+      // Perspective alone does not tilt, scale, or translate the paper plane.
+      return (
+        Math.abs(matrix.m11 - 1) < 0.001 &&
+        Math.abs(matrix.m22 - 1) < 0.001 &&
+        Math.abs(matrix.m33 - 1) < 0.001 &&
+        [
+          matrix.m12,
+          matrix.m13,
+          matrix.m14,
+          matrix.m21,
+          matrix.m23,
+          matrix.m24,
+          matrix.m31,
+          matrix.m32,
+          matrix.m41,
+          matrix.m42,
+          matrix.m43,
+        ].every((value) => Math.abs(value) < 0.001)
+      );
+    };
     const sample = () => ({
       shell: getComputedStyle(dialog).transform,
+      shellFlat: isFlat(dialog),
       shellOpacity: Number(getComputedStyle(dialog).opacity),
       headerDelay: getComputedStyle(header).transitionDelay,
       header: getComputedStyle(header).transform,
-      body: getComputedStyle(body).transform,
-      bodyFlat:
-        getComputedStyle(body).transform === "none" ||
-        new DOMMatrixReadOnly(getComputedStyle(body).transform).isIdentity,
+      leaf: getComputedStyle(leaf).transform,
+      leafFlat: isFlat(leaf),
       footer: getComputedStyle(footer).transform,
+      footerFlat: isFlat(footer),
       headerOpacity: Number(getComputedStyle(header).opacity),
       bodyOpacity: Number(getComputedStyle(body).opacity),
       footerOpacity: Number(getComputedStyle(footer).opacity),
       crease: Number(getComputedStyle(body, "::before").opacity),
+      jointGap: Math.hypot(
+        bodyJoint.getBoundingClientRect().x -
+          footerJoint.getBoundingClientRect().x,
+        bodyJoint.getBoundingClientRect().y -
+          footerJoint.getBoundingClientRect().y,
+      ),
     });
     const watch = (state: "open" | "closing") =>
       new Promise((resolve) => {
@@ -374,18 +415,29 @@ test("paper folds through coordinated hinges and crease shading on the same dial
             return sample();
           };
           const start = seek(0);
+          const early = seek(duration / 4);
           const middle = seek(duration / 2);
+          const tucked = seek(duration * 0.75);
+          const foldComplete = seek(duration - 40);
+          const fading = seek(duration * 0.92);
           const end = seek(duration + 1);
           animations.forEach((animation) => animation.finish());
           resolve({
             duration,
             start,
+            early,
             middle,
+            tucked,
+            foldComplete,
+            fading,
             end,
             regionsPersist:
               dialog.querySelector(".dm-dialog__header") === header &&
+              dialog.querySelector(".dm-dialog__leaf") === leaf &&
               dialog.querySelector(".dm-dialog__body") === body &&
-              dialog.querySelector(".dm-dialog__footer") === footer,
+              dialog.querySelector(".dm-dialog__footer") === footer &&
+              body.parentElement === leaf &&
+              footer.parentElement === leaf,
             modal: dialog.matches(":modal"),
           });
         });
@@ -409,42 +461,83 @@ test("paper folds through coordinated hinges and crease shading on the same dial
   });
   await expect(dialog).toHaveClass(/dm-dialog--fold/);
   const opening = await page.evaluate(() => (window as any).foldProbe.opening);
-  expect(opening.duration).toBeGreaterThanOrEqual(300);
-  expect(opening.duration).toBeLessThanOrEqual(340);
+  expect(opening.duration).toBeGreaterThanOrEqual(350);
+  expect(opening.duration).toBeLessThanOrEqual(380);
   expect(opening.regionsPersist).toBe(true);
   expect(opening.modal).toBe(true);
-  for (const region of ["shell", "header", "body", "footer"] as const) {
-    expect(opening.start[region]).toContain("matrix3d");
+  for (const region of ["shell", "leaf", "footer"] as const) {
+    expect(opening.start[region]).not.toBe("none");
     expect(opening.middle[region]).not.toBe(opening.start[region]);
-    expect(opening.end[region]).toBe("none");
+    expect(opening.end[`${region}Flat`]).toBe(true);
   }
   // The paper and lettering stay opaque; only the hinges and crease move.
   expect(opening.start.shellOpacity).toBe(1);
-  for (const phase of [opening.start, opening.middle, opening.end]) {
+  for (const phase of [
+    opening.start,
+    opening.early,
+    opening.middle,
+    opening.tucked,
+    opening.fading,
+    opening.end,
+  ]) {
+    expect(phase.shellOpacity).toBe(1);
+    expect(phase.header).toBe("none");
     expect(phase.headerOpacity).toBe(1);
     expect(phase.bodyOpacity).toBe(1);
     expect(phase.footerOpacity).toBe(1);
     expect(phase.headerDelay).toBe("0s");
+    // These projected zero-size points sit on the actual paper planes, so the
+    // assertion detects a visually detached fold rather than matching CSS text.
+    expect(phase.jointGap).toBeLessThanOrEqual(2.5);
   }
-  expect(opening.middle.header).toBe("none");
   expect(opening.middle.crease).toBeLessThan(opening.start.crease);
   expect(opening.end.crease).toBe(0);
   expect(opening.end.bodyOpacity).toBe(1);
+  await expect(dialog).not.toHaveAttribute("data-folding", "true");
+  for (const region of [".dm-dialog__leaf", ".dm-dialog__footer"]) {
+    await expect(dialog.locator(region)).toHaveCSS("transform", "none");
+    await expect(dialog.locator(region)).toHaveCSS("transform-style", "flat");
+  }
   await dialog
     .getByRole("button", { name: "Close dialog", exact: true })
     .click();
   const closing = await page.evaluate(() => (window as any).foldProbe.closing);
-  expect(closing.duration).toBeGreaterThanOrEqual(150);
-  expect(closing.duration).toBeLessThanOrEqual(180);
+  expect(closing.duration).toBeGreaterThanOrEqual(230);
+  expect(closing.duration).toBeLessThanOrEqual(250);
   expect(closing.regionsPersist).toBe(true);
   expect(closing.modal).toBe(true);
-  expect(closing.start.bodyFlat).toBe(true);
-  expect(closing.middle.body).toContain("matrix3d");
+  expect(closing.start.leafFlat).toBe(true);
+  expect(closing.early.leafFlat).toBe(false);
+  expect(closing.middle.leaf).toContain("matrix3d");
+  expect(closing.middle.footerFlat).toBe(false);
   expect(closing.start.headerDelay).toBe("0s");
-  expect(closing.middle.shellOpacity).toBeLessThanOrEqual(0.01);
-  expect(closing.middle.headerOpacity).toBe(1);
-  expect(closing.middle.bodyOpacity).toBe(1);
-  expect(closing.middle.footerOpacity).toBe(1);
+  for (const phase of [
+    closing.start,
+    closing.early,
+    closing.middle,
+    closing.tucked,
+    closing.foldComplete,
+  ]) {
+    expect(phase.shellOpacity).toBe(1);
+  }
+  expect(closing.fading.shellOpacity).toBeGreaterThan(0);
+  expect(closing.fading.shellOpacity).toBeLessThan(1);
+  expect(closing.end.shellOpacity).toBe(0);
+  for (const phase of [
+    closing.start,
+    closing.early,
+    closing.middle,
+    closing.tucked,
+    closing.foldComplete,
+    closing.fading,
+    closing.end,
+  ]) {
+    expect(phase.header).toBe("none");
+    expect(phase.headerOpacity).toBe(1);
+    expect(phase.bodyOpacity).toBe(1);
+    expect(phase.footerOpacity).toBe(1);
+    expect(phase.jointGap).toBeLessThanOrEqual(2.5);
+  }
   expect(closing.end.crease).toBeGreaterThan(closing.start.crease);
   await expect(dialog).toBeHidden();
   await expect(opener).toBeFocused();
@@ -456,7 +549,7 @@ test("native modality waits for a longer owned fold phase before restoring focus
   await page.goto("/#component/dialog");
   await page.addStyleTag({
     content:
-      '.dm-dialog--fold[data-state="closing"] > .dm-dialog__footer { transition-duration: 600ms; }',
+      '.dm-dialog--fold[data-state="closing"] .dm-dialog__footer { transition-duration: 600ms; }',
   });
   const opener = page
     .locator(".playground-canvas")

@@ -251,9 +251,9 @@ export function LayersPage({ copy }: { copy: (text: string) => void }) {
           <span className="eyebrow">03 / A MOMENT OF FOCUS</span>
           <h2 id="dialog-study-title">One thing, on its own page.</h2>
           <p>
-            A modal is a deliberate pause. One sheet unfolds from the heading
-            through the body to its actions, then gently folds away. Open it
-            again to replay the movement.
+            A modal opens like a folded note. The heading stays clear while the
+            paper unfolds beneath it, then tucks away in one small gesture.
+            Open it again to replay the movement.
           </p>
           <div className="layers-example-actions">
             <Button onClick={openEditor}>
