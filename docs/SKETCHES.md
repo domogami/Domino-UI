@@ -1,6 +1,6 @@
 # Notebook sketches and Hairline
 
-The [sketch gallery](http://127.0.0.1:5173/#sketchbook) brings two related drawing treatments into Domino UI: original notebook scenes and an adapter for the actual [Hairline project](https://github.com/lucasmarkes/hairline). Both use the shared paper and ink palette. They remain distinct kinds of artwork with separate provenance.
+The [sketch gallery](http://127.0.0.1:5173/#sketchbook) brings related drawing treatments into Domino UI: original notebook scenes, journal ribbons and bookmarks, and an adapter for the actual [Hairline project](https://github.com/lucasmarkes/hairline). All use the shared paper and ink palette. They remain distinct kinds of artwork with separate provenance.
 
 ## Original notebook scenes
 
@@ -38,6 +38,32 @@ The shared `sketch-duration` token is **1600ms**, with **90ms** between stroke g
 
 When `replayOnClick` is enabled, each illustration owns its replay count. Only that drawing restarts, including rapid clicks, while its native button and keyboard focus stay in place. Quiet and reduced-motion modes disable replay and show completed ink. The gallery enables replay on every illustration, with a separate Draw again control for the whole set. A vertical touch gesture remains a scroll.
 
+## Journal ribbons and bookmarks
+
+`TripleBanner` and `BookmarkDrawing` are original reference-inspired additions in `src/lib/journal-art.tsx`. They share the notebook's fine rounded pen, a semantic accent seam, and a faint second pass. Their SVG geometry was authored for this system from the supplied ribbon and bookmark references; it is separate from the exact portfolio artwork.
+
+```tsx
+import { BookmarkDrawing, TripleBanner, type DrawingProps } from "@domlee/ui";
+
+const drawing: DrawingProps = { animate: true, speed: 1, quiet: false, replayKey: 0 };
+
+<TripleBanner
+  {...drawing}
+  lines={["A few good pieces", "room for a longer thought", "kept together"]}
+  tone="accent"
+  replayOnClick
+  label="Three thoughts on one ribbon"
+/>
+<BookmarkDrawing {...drawing} variant="notched" replayOnClick label="A place kept for later" />
+<BookmarkDrawing variant="pointed" quiet label="A pointed bookmark" />
+```
+
+`TripleBanner.lines` is an exact three-item tuple of React nodes. Each face grows around real text, with natural wrapping for long copy and narrow widths; the drawing does not impose a fixed label height. `tone` is `"accent"` (default), `"sage"`, `"peach"`, or `"ink"`. `animate` defaults to **false**: pass `animate` together with `replayOnClick` to enable replay. Replayable lines must be plain text or noninteractive inline content; avoid links, controls, and headings inside the native replay button. An optional `label` names that replay control; by default, plain string/number lines form its accessible name. Supply `label` when styled inline nodes need a meaningful replay name.
+
+`BookmarkDrawing.variant` is `"notched"` (default) or `"pointed"`; `animate` defaults to **true**. Omit `label` beside an equivalent caption to keep a noninteractive bookmark decorative, or provide it for one accessible image description. `replayOnClick` adds a stable native replay button.
+
+Both components accept common `DrawingProps`: `animate`, `quiet`, `speed` (`0.5`, `1`, `1.5`, or `2`), and `replayKey`. Changing the key redraws their ink. Quiet and reduced motion retain completed strokes and disable click/tap/keyboard replay. The reveal uses the shared sketch duration and stagger. These components are currently React drawings; the eighteen static SVG companions below still cover only the six `NotebookSketch` scenes.
+
 ## Actual Hairline figures
 
 `HairlineSketch` wraps `@lucasmarkes/hairline` **0.5.1**, using its original SVG figures and runtime through the published vanilla API inside a small React lifecycle owner. Importing only three figures keeps the other engines out of the website bundle. Its geometric, isometric drawings complement the original curved scenes; they are not redrawn or presented as Dom's work.
@@ -72,11 +98,11 @@ Hairline reserves a 5:4 box and draws on the client. The adapter sets a 0.85px n
 
 ## Palette and motion rules
 
-Both treatments inherit semantic tokens without requiring `ThemeProvider`: `--dm-ink` for the pen, `--dm-accent` for a few details, and `--dm-surface` for paper. Hybrid keeps teal `#0e7c79` on light paper. Dark uses its own ink, paper, and accent values; do not hardcode Hybrid colors into a new drawing.
+All drawing treatments inherit semantic tokens without requiring `ThemeProvider`: `--dm-ink` for the pen, `--dm-accent` for a few details, and `--dm-surface` for paper. Hybrid keeps teal `#0e7c79` on light paper. Dark uses its own ink, paper, and accent values; do not hardcode Hybrid colors into a new drawing.
 
 Hairline's plate fill must match its backing surface, because its filled shapes hide geometry behind them. The adapter supplies the same `--dm-surface` for both. It maps `--hairline-hi` to the accent, `--hairline-edge` to strong ink, `--hairline-mid` to softened ink, and `--hairline-lo` to the shared border. Override `--hairline-plate` deliberately if placing it on another paper color.
 
-Quiet mode and `prefers-reduced-motion: reduce` make **both components wholly still**. The Hairline adapter goes further than upstream's reduced-motion behavior: it recreates a resting figure, disables pointer input and autoplay, and prevents palette transitions. The gallery's explicit motion control governs its demonstrations. No haptics run merely because a drawing moves.
+Quiet mode and `prefers-reduced-motion: reduce` make **all these drawings wholly still**. The Hairline adapter goes further than upstream's reduced-motion behavior: it recreates a resting figure, disables pointer input and autoplay, and prevents palette transitions. The gallery's explicit motion control governs its demonstrations. No haptics run merely because a drawing moves.
 
 Keep captions short and use `--dm-font-hand` (Caveat). Keep instructions, labels, and important information in readable UI type outside the drawing. Do not apply random shake, roughness filters, or continuous drift to suggest handwriting. Preserve vertical touch scrolling and keep illustrations outside the Tab order; intentional replay and play controls remain real labeled buttons.
 

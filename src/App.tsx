@@ -487,6 +487,7 @@ export default function App() {
         title="Find a little something"
         description="Components, foundations, and notes from the guide."
         className="command-dialog"
+        motion="settle"
       >
         <div className="command-input">
           <Icon name="search" />
@@ -608,11 +609,6 @@ function Overview({ copy }: { copy: (text: string) => void }) {
             the original signature, brought along.
             <SketchArrow direction="up" />
           </span>
-          <div className="specimen-sticker">
-            React
-            <br />
-            <span>+ a little soul</span>
-          </div>
         </div>
       </section>
       <div className="overview-stats">
@@ -1061,26 +1057,28 @@ function ComponentDetail({
                 src/lib/
                 {["touch-feedback-setting", "ink-switch"].includes(entry.id)
                   ? "haptics.tsx"
-                  : entry.group === "Brand"
-                    ? "brand.tsx"
-                    : entry.id === "theme-toggle"
-                      ? "theme.tsx"
-                      : [
-                            "annotation",
-                            "timeline",
-                            "polaroid-stack",
-                            "flower-progress",
-                          ].includes(entry.id)
-                        ? "patterns.tsx"
+                  : ["triple-banner", "bookmark-drawing"].includes(entry.id)
+                    ? "journal-art.tsx"
+                    : entry.group === "Brand"
+                      ? "brand.tsx"
+                      : entry.id === "theme-toggle"
+                        ? "theme.tsx"
                         : [
-                              "menu-toggle",
-                              "task-checkbox",
-                              "skeleton",
-                              "popover",
-                              "notification-card",
+                              "annotation",
+                              "timeline",
+                              "polaroid-stack",
+                              "flower-progress",
                             ].includes(entry.id)
-                          ? `${entry.id}.tsx`
-                          : "components.tsx"}
+                          ? "patterns.tsx"
+                          : [
+                                "menu-toggle",
+                                "task-checkbox",
+                                "skeleton",
+                                "popover",
+                                "notification-card",
+                              ].includes(entry.id)
+                            ? `${entry.id}.tsx`
+                            : "components.tsx"}
               </code>{" "}
               for the exported interface. Native attributes are passed through
               where supported.

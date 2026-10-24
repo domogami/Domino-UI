@@ -23,7 +23,7 @@
 
 ![Domino UI: paper surfaces, fine ink, handwritten notes, and original notebook artwork](docs/images/domino-ui-cover.png)
 
-Domino UI brings the visual language of [dominicklee.net](https://dominicklee.net/) and [the Quartz garden](https://domogami.github.io/) into one reusable system: **54 documented React components**, semantic tokens, original SVG artwork, and native CSS adapters. The visual notebook puts working examples, React code, props, and usage guidance beside each component.
+Domino UI brings the visual language of [dominicklee.net](https://dominicklee.net/) and [the Quartz garden](https://domogami.github.io/) into one reusable system: **56 documented React components**, semantic tokens, original SVG artwork, and native CSS adapters. The visual notebook puts working examples, React code, props, and usage guidance beside each component.
 
 **Hybrid comes first:** charcoal navigation around warm paper, with teal `#0e7c79` accents. Light and Dark share the same structure, typography, and interaction rules.
 
@@ -32,8 +32,8 @@ Domino UI brings the visual language of [dominicklee.net](https://dominicklee.ne
 | Layer                  | What is included                                                                                                           |
 | ---------------------- | -------------------------------------------------------------------------------------------------------------------------- |
 | **Useful controls**    | Buttons, inputs, selects, checkboxes, switches, sliders, menus, tabs, dialogs, drawers, and feedback states                |
-| **Paper layers**       | Anchored popovers, stacked notification cards, modal decisions, edge drawers, and actionable status notes                  |
-| **Notebook patterns**  | Paper cards, sticky notes, callouts, expanding folded banners, annotations, journal marks, and keepsake photos             |
+| **Paper layers**       | Anchored popovers, single-sheet notification cards, unfolding modal decisions, edge drawers, and actionable status notes                  |
+| **Notebook patterns**  | Paper cards, sticky notes, callouts, wrapping triple ribbons, bookmark drawings, annotations, and keepsake photos             |
 | **Original identity**  | The **Dom Lee.** name animation, crane, plant, sketch arrows, six notebook scenes, and handwritten loading marks           |
 | **Deliberate motion**  | Morphing hamburger/X, spring switches, the garden's drawn check and text strike, and per-drawing click/tap/keyboard replay |
 | **Shared foundations** | Three themes, five typography roles, a 32px dot grid, spacing and motion tokens, and generated platform adapters           |
@@ -148,6 +148,8 @@ The helper preserves identical files and refuses to replace different existing f
 ```tsx
 import {
   BrandBanner,
+  BookmarkDrawing,
+  TripleBanner,
   HandwrittenNote,
   HeroName,
   Skeleton,
@@ -158,6 +160,12 @@ export function NotebookPieces() {
   return (
     <>
       <BrandBanner folded>Paper, patience & curiosity</BrandBanner>
+      <TripleBanner
+        lines={["A few good pieces", "room for a longer thought", "kept together"]}
+        animate
+        replayOnClick
+      />
+      <BookmarkDrawing variant="notched" replayOnClick label="A place kept for later" />
       <HandwrittenNote>a small thought in the margin</HandwrittenNote>
       <HeroName replayKey={0} />
       <TaskCheckbox label="Leave a little room to explore" />
@@ -176,9 +184,9 @@ Every catalog entry documents its real API, origin, meaningful states, and compo
 
 ## A thought in the foreground
 
-Popovers stay beside their trigger. Important decisions open on a clear modal surface. Notification cards collect source, message, and action on one piece of paper, with a readable queue count and crisp edges behind it. Dialogs and toasts also support short context labels and distinct actions.
+Popovers stay beside their trigger. Important decisions open on a clear modal surface. Notification cards collect source, message, and action on one piece of paper, with a readable queue badge, a thin accent seam, and one subtle ink edge. Dialogs unfold their header, body, and footer in sequence over 480ms, then fold closed over 280ms; `motion="settle"` provides a quiet alternative. Drawers and the command palette retain settle motion. Dialogs and toasts also support short context labels and distinct actions.
 
-The **Paper layers** notebook route (`/#layers`) brings them together in all three themes. The interaction study draws on [Pebble's design guidance](https://developer.repebble.com/guides/design-and-interaction/core-experience/): glanceable hierarchy, a few meaningful colors, visible actions, and purposeful motion. The paper stacks, teal accents, and handwriting remain Domino's own treatment. [Layer APIs, examples, accessibility, and provenance](docs/LAYERS.md).
+The **Paper layers** notebook route (`/#layers`) brings them together in all three themes. The interaction study draws on [Pebble's design guidance](https://developer.repebble.com/guides/design-and-interaction/core-experience/): glanceable hierarchy, a few meaningful colors, visible actions, and purposeful motion. The paper surfaces, folding motion, teal accents, and handwriting remain Domino's own treatment. [Layer APIs, examples, accessibility, and provenance](docs/LAYERS.md).
 
 ## A sketchbook with room to grow
 
@@ -186,6 +194,8 @@ The **Paper layers** notebook route (`/#layers`) brings them together in all thr
 ![Camera, mechanical keyboard, and compass: three more original scenes](docs/images/sketchbook-more.png)
 
 `NotebookSketch` offers **notebook, flight, garden, camera, keyboard, and compass**. Fine rounded strokes, loose curves, sparse color, and Caveat captions keep the drawings in the same notebook. Click, tap, Enter, or Space replays just that drawing while its button keeps focus.
+
+`TripleBanner` adds three connected ribbon faces whose real labels wrap naturally; `BookmarkDrawing` offers notched and pointed hanging bookmarks. Their original reference-inspired geometry uses the same fine pen, teal seam, and quiet replay behavior. Set `animate` as well as `replayOnClick` for a replayable triple ribbon.
 
 `HairlineSketch` adds three actual [Hairline](https://github.com/lucasmarkes/hairline) figures—**riffle, branches, and loupe**—in the shared palette. Replay draws an ink sweep; the guided pointer tour is a separate opt-in. Both treatments honor quiet and reduced motion.
 

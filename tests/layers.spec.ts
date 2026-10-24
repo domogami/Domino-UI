@@ -14,10 +14,9 @@ test("the notification tray navigates, dismisses the real queue, and can start a
         null,
     ),
   ).toBe(true);
-  await expect(card.locator(".dm-notification-card__papers")).toHaveAttribute(
-    "aria-hidden",
-    "true",
-  );
+  await expect(card).toHaveClass(/dm-notification-card--queued/);
+  await expect(card.locator(".dm-notification-card__sheet")).toHaveCount(1);
+  await expect(card.locator(".dm-notification-card__papers")).toHaveCount(0);
   await page
     .getByRole("button", { name: "Next notification", exact: true })
     .click();
@@ -30,6 +29,9 @@ test("the notification tray navigates, dismisses the real queue, and can start a
   await expect(card.getByText("2 in queue")).toBeVisible();
   await page.getByRole("button", { name: "Dismiss note", exact: true }).click();
   await expect(card).toHaveAccessibleName("Follow a little curiosity.");
+  await expect(card).not.toHaveClass(/dm-notification-card--queued/);
+  await expect(card.locator(".dm-notification-card__count")).toHaveCount(0);
+  await expect(card.locator(".dm-notification-card__sheet")).toHaveCount(1);
   await expect(card.locator(".dm-notification-card__papers")).toHaveCount(0);
   await expect(
     page.getByRole("button", { name: "Next notification", exact: true }),

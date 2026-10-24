@@ -20,3 +20,4 @@ export * from "./chevron";
 export * from "./popover";
 export * from "./notification-card";
 export * from "./page-transition";
+export * from "./journal-art";

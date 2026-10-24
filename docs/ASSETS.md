@@ -29,6 +29,10 @@ All are SIL Open Font License assets. Read and retain the supplied notices. The 
 
 Artwork is retained for Dom's own design system. No third-party relicensing of personal brand assets is asserted by this repository. Generic interface icons and the Domino mark were drawn as code for this library.
 
+## Journal ribbons and bookmarks
+
+`src/lib/journal-art.tsx` contains new original SVG geometry inspired by the supplied three-face folded-ribbon and hanging-bookmark references. `TripleBanner` uses real, naturally wrapping labels with authored paper faces, tails, seams, and diagonal reverse folds. `BookmarkDrawing` provides notched and pointed silhouettes with a fine pen outline, teal seam, and faint second pass. These are reference-inspired additions to Domino's journal language, not exact copies of the portfolio's existing banner geometry and not samples of Dom's handwriting. They use the existing semantic palette and Kalam lettering; no external raster image or illustration file is redistributed for these components.
+
 ## Task motion and loading marks
 
 `TaskCheckbox` retains the curved SVG check from `obsidian-site/quartz/work/garden-v5/site/notebook/tasks.scss`: `M3 12Q6 15 9 19Q14 10 22 3`, a 220ms clipped reveal, and the 280ms background-size strike. The original `site/notebook/motion/tasks.ts` wraps only inline task text; React supplies an equivalent owned span while leaving descriptions and nested tasks separate. The garden source remains unchanged.

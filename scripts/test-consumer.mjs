@@ -122,18 +122,21 @@ try {
     `import { useMemo, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import { createRoot } from "react-dom/client";
-import { Button, Card, Chevron, Dialog, HairlineSketch, NotebookSketch, NotificationCard, Popover, Skeleton, TaskCheckbox, ThemeProvider, ThemeToggle, TouchFeedbackProvider, createPageTransition } from "@domlee/ui";
+import { BookmarkDrawing, Button, Card, Chevron, Dialog, HairlineSketch, NotebookSketch, NotificationCard, Popover, Skeleton, TaskCheckbox, ThemeProvider, ThemeToggle, TouchFeedbackProvider, TripleBanner, createPageTransition, type DrawingProps } from "@domlee/ui";
 import "@domlee/ui/styles.css";
 import "@domlee/ui/fonts.css";
 function App() {
   const [open, setOpen] = useState(false);
   const [heading, setHeading] = useState("A shared notebook");
   const returnFocusRef = useRef<HTMLButtonElement>(null);
+  const drawing: DrawingProps = { animate: true, quiet: false, speed: 1, replayKey: 0 };
   const pageTransition = useMemo(() => createPageTransition(), []);
   return <ThemeProvider><TouchFeedbackProvider><ThemeToggle /><Card title={heading} className="dm-page-transition"><Button ref={returnFocusRef} trailingIcon={<Chevron />} onClick={() => setOpen(true)}>Keep going</Button><Button variant="secondary" onClick={() => { void pageTransition.run(() => flushSync(() => setHeading("A new notebook page"))); }}>Turn page</Button><TaskCheckbox label="A little progress" /><NotebookSketch variant="flight" replayOnClick /><HairlineSketch variant="branches" /><Skeleton width="70%" />
+    <TripleBanner {...drawing} lines={["One good thought", "room to let it grow", "a few good pieces"]} tone="sage" replayOnClick label="Three thoughts on one ribbon" />
+    <BookmarkDrawing {...drawing} variant="notched" replayOnClick label="A place kept for later" /><BookmarkDrawing {...drawing} variant="pointed" quiet label="A pointed bookmark" />
     <Popover title="A thought in the margin" eyebrow="A closer look" trigger={<Button variant="secondary">Show context</Button>} footer={<Button size="sm">Keep this thought</Button>}><p>Supporting context stays close to its source.</p></Popover>
     <NotificationCard source="Notebook" title="A thought, saved" count={3} surface="ink" time="Just now" icon={<Chevron />} actions={<Button size="sm">Open note</Button>}><p>Ready when you come back.</p></NotificationCard>
-    <Dialog open={open} onClose={() => setOpen(false)} returnFocusRef={returnFocusRef} title="A thought worth keeping" eyebrow="Your notebook" icon={<Chevron />} surface="ink" footer={<Button onClick={() => setOpen(false)}>Done</Button>}><p>One focused decision, on its own sheet of paper.</p></Dialog>
+    <Dialog motion="fold" open={open} onClose={() => setOpen(false)} returnFocusRef={returnFocusRef} title="A thought worth keeping" eyebrow="Your notebook" icon={<Chevron />} surface="ink" footer={<Button onClick={() => setOpen(false)}>Done</Button>}><p>One focused decision, on its own sheet of paper.</p></Dialog>
   </Card></TouchFeedbackProvider></ThemeProvider>;
 }
 createRoot(document.getElementById("root")!).render(<App />);
@@ -183,7 +186,12 @@ createRoot(document.getElementById("root")!).render(<App />);
     ".dm-hairline",
     ".dm-popover",
     ".dm-popover__body",
-    ".dm-notification-card--stacked",
+    ".dm-notification-card__count",
+    ".dm-triple-banner",
+    ".dm-triple-banner__band",
+    ".dm-bookmark-drawing",
+    ".dm-journal-art-line",
+    ".dm-dialog--fold",
     ".dm-notification-card__actions",
     ".dm-dialog--ink",
     ".dm-dialog::backdrop",
@@ -195,9 +203,19 @@ createRoot(document.getElementById("root")!).render(<App />);
     "--dm-layer-duration",
     "--dm-layer-exit-duration",
     "--dm-layer-easing",
+    "--dm-dialog-duration",
+    "--dm-dialog-exit-duration",
     "--dm-shadow-layer",
   ])
     assert(css.includes(rule), `Consumer CSS is missing ${rule}`);
+  assert(
+    !css.includes("dm-notification-card__papers"),
+    "Notifications must not ship duplicate backing sheets.",
+  );
+  assert(
+    !css.includes("dm-notification-card--stacked"),
+    "Notifications use a readable queue badge on one sheet.",
+  );
   assert(
     files.some((file) => /Caveat.*\.woff2$/.test(file)),
     "Consumer build must self-host Caveat.",
@@ -214,7 +232,7 @@ createRoot(document.getElementById("root")!).render(<App />);
     `import assert from "node:assert/strict";
 import { createElement as h } from "react";
 import { renderToString } from "react-dom/server";
-import { Button, Card, Chevron, Dialog, HairlineSketch, NotebookSketch, NotificationCard, Popover, Skeleton, TaskCheckbox, ThemeProvider, createPageTransition } from "@domlee/ui";
+import { BookmarkDrawing, Button, Card, Chevron, Dialog, HairlineSketch, NotebookSketch, NotificationCard, Popover, Skeleton, TaskCheckbox, ThemeProvider, TripleBanner, createPageTransition } from "@domlee/ui";
 assert.equal(typeof document, "undefined");
 const pageTransition = createPageTransition();
 let committed = false;
@@ -225,6 +243,8 @@ pageTransition.skip();
 pageTransition.cancel();
 const html = renderToString(h(ThemeProvider, {}, h(Card, {title: "A shared notebook"},
   h(TaskCheckbox, {label:"A little progress"}), h(NotebookSketch, {variant:"notebook", quiet:true}), h(HairlineSketch, {variant:"riffle", quiet:true}), h(Skeleton, {width:"70%"}), h(Chevron),
+  h(TripleBanner, {lines:["One good thought", "room to let it grow", "a few good pieces"], animate:true, replayOnClick:true, label:"Three thoughts on one ribbon"}),
+  h(BookmarkDrawing, {variant:"notched", replayOnClick:true, label:"A place kept for later"}), h(BookmarkDrawing, {variant:"pointed", quiet:true, label:"A pointed bookmark"}),
   h(Popover, {title:"A thought in the margin", trigger:h(Button, {}, "Show context")}, h("p", {}, "Supporting context stays close to its source.")),
   h(Popover, {title:"An initially open margin", defaultOpen:true, trigger:h(Button, {}, "Open by default")}, h("p", {}, "Initial open state can render without a browser.")),
   h(NotificationCard, {source:"Notebook", title:"A thought, saved", count:3, surface:"ink", time:"Just now", actions:h(Button, {}, "Open note")}, h("p", {}, "Ready when you come back.")),
@@ -238,7 +258,15 @@ assert(html.includes('aria-haspopup="dialog"'));
 assert(html.includes('aria-expanded="false"'));
 assert(html.includes('aria-expanded="true"'));
 assert(html.includes("An initially open margin"));
-assert(html.includes("dm-notification-card--stacked"));
+assert(html.includes("dm-notification-card--queued"));
+assert(!html.includes("dm-notification-card__papers"));
+assert(!html.includes("dm-notification-card--stacked"));
+assert.equal((html.match(/class="dm-triple-banner__band"/g) ?? []).length, 3);
+assert(html.includes("One good thought"));
+assert(html.includes("dm-bookmark-drawing"));
+assert(html.includes('data-variant="notched"'));
+assert(html.includes('data-variant="pointed"'));
+assert(html.includes("dm-dialog--fold"));
 assert(html.replace(/<[^>]*>/g, "").includes("3 in queue"));
 assert(html.includes("dm-notification-card__actions"));
 assert(html.includes("dm-dialog--ink"));

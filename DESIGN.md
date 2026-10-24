@@ -136,17 +136,19 @@ Elevation is restrained. The source folded banner face uses a small `0 2px 1.5px
 
 ### Paper layers
 
-Contextual popovers, modal decisions, and notification cards use opaque paper with a strong ink boundary. The shared `shadow-layer` adds alternating paper/ink edges behind a surface; it is a deliberate library extension. Keep depth crisp and restrained, preserve context around the foreground, and separate source metadata, title, content, and actions. An inverse ink header is a semantic treatment in every theme, including Dark.
+Contextual popovers, modal decisions, and notification cards use opaque paper with a strong ink boundary. The shared `shadow-layer` adds one subtle 2px / 3px ink edge; it is a deliberate library extension. Notification queues use a readable badge on one sheet, without duplicate backing cards. Keep depth crisp and restrained, preserve context around the foreground, and separate source metadata, title, content, and actions. An inverse ink header is a semantic treatment in every theme, including Dark.
 
-The [Paper layers guide](docs/LAYERS.md) records inspiration from Pebble's published interaction guidance: prominent information, limited meaningful color, self-contained cards, visible actions, and short motion that explains change. Stacked paper, handwritten annotations, and teal are Domino's adaptation, not Pebble specifications. Do not copy Pebble artwork, fonts, or icons to express that influence.
+The [Paper layers guide](docs/LAYERS.md) records inspiration from Pebble's published interaction guidance: prominent information, limited meaningful color, self-contained cards, visible actions, and short motion that explains change. Single paper surfaces, folding motion, handwritten annotations, and teal are Domino's adaptation, not Pebble specifications. Do not copy Pebble artwork, fonts, or icons to express that influence.
 
-Use a nonmodal `Popover` for a small contextual task, a native `Dialog` or `Drawer` for a focused decision, a static `NotificationCard` for a complete message, and a `Toast` for operation feedback. Keep the actual message and queue count readable; decorative back sheets contain no duplicate content. Shared layer motion enters over 240ms and exits over 160ms with a reversible settle. Reduced motion removes movement, and focus/dismissal contracts remain part of the component rather than decorative polish. The notebook's `/#layers` composition demonstrates those choices together.
+Use a nonmodal `Popover` for a small contextual task, a native `Dialog` or `Drawer` for a focused decision, a static `NotificationCard` for a complete message, and a `Toast` for operation feedback. Keep the actual message and queue count readable. Shared settle motion enters over 240ms and exits over 160ms. `Dialog` defaults to `motion="fold"`: the header, body, and footer unfold in sequence over the dedicated 480ms dialog duration and close in reverse over 280ms. `motion="settle"` is available for utility dialogs; `Drawer` and the command palette always settle. Reduced motion removes movement, and focus/dismissal contracts remain part of the component rather than decorative polish. The notebook's `/#layers` composition demonstrates those choices together.
 
 ## Handwriting, banners, and journal marks
 
 Use **Kalam** for a named section on a paper banner and **Caveat** for an aside about the section. One handwritten thought with an arrow is usually enough beside a heading. Keep instructions, validation, form labels, and long paragraphs in Lexend. Do not turn all headings into casual handwriting.
 
 Reuse the exact SVG banners from `NotebookDrawings.tsx`: the standard notched strip and the folded ribbon with tails, folds, and a front face. Preserve the folding order. Labels must stay within the front panel at narrow widths and at enlarged text sizes. The garden's smaller graph banner uses Poppins; that is a contextual source variant.
+
+`TripleBanner` extends the family with three connected ribbon faces and two diagonal reverse folds. It uses new geometry inspired by the supplied reference, rather than copying the existing single-ribbon paths. Its three real-text labels determine the face heights and wrap naturally, including narrow layouts and long words. `BookmarkDrawing` adds original notched and pointed hanging-bookmark silhouettes with a fine teal seam and a faint second pen pass. Both share `DrawingProps`, semantic colors, quiet/reduced motion, and optional native-button replay; enable `animate` explicitly for a replayable triple ribbon. Keep replayable labels plain and noninteractive.
 
 Annotations have optional curved arrows pointing up, down, left, or right. Arrows travel inline with the title and wrap safely within the content column. They are decorative hints; actual references should use a descriptive link. Do not position an arrow across an unrelated control or use it to convey essential instructions by position alone. End-aligned and title-only annotations are valid. Collapsible annotation bodies retain regular body typography.
 
@@ -168,7 +170,7 @@ Other reusable motifs include a drawn potted plant, shared faceted crane, dotted
 
 ### Thin notebook sketches
 
-`NotebookSketch` extends that family with three original scenes: notebook, flight, and garden. Keep the pen narrow and rounded, with non-scaling strokes, restrained hatching, a few semantic accent marks, and short Caveat captions. Curved paths and intentional asymmetry supply the handwritten character; random shake and roughness filters do not. The art reveals once using the shared 1600ms sketch duration and 90ms stroke-group stagger, then rests. Optional pointer depth is bounded to ±4px per axis on the nearest layer, with less movement behind it and no layout movement.
+`NotebookSketch` extends that family with six original scenes: notebook, flight, garden, camera, keyboard, and compass. Keep the pen narrow and rounded, with non-scaling strokes, restrained hatching, a few semantic accent marks, and short Caveat captions. Curved paths and intentional asymmetry supply the handwritten character; random shake and roughness filters do not. The art reveals once using the shared 1600ms sketch duration and 90ms stroke-group stagger, then rests. Optional pointer depth is bounded to ±4px per axis on the nearest layer, with less movement behind it and no layout movement.
 
 `HairlineSketch` complements those curves with the actual Hairline 0.5.1 isometric figures: paper cards, branching ideas, and a loupe. Its 0.85px line weight and semantic paper/ink/accent palette fit the notebook while preserving the upstream geometry and attribution. Plate fills must match the backing paper so foreground shapes conceal the lines behind them. Hybrid uses teal details on light paper; Light and Dark inherit their own semantic roles.
 
@@ -189,6 +191,7 @@ Motion describes a drawing becoming ink on paper. Avoid unrelated bounce, contin
 | Plant                        | Staggered stem, leaves, and pot outlines with soft fills; full source sequence about 2.4s                                      |
 | Garden task                  | 220ms check drawing; 280ms wrapped strike                                                                                      |
 | Standard UI                  | Library extension: 160ms fast and 240ms base feedback                                                                          |
+| Folding dialog               | Library extension: header/body/footer unfold over 480ms; reverse close over 280ms; settle alternative for utility surfaces |
 
 The wordmark's period is part of the requested identity. The garden header intentionally omits it; use the portfolio's period-bearing variant for the library's main brand example. Use instance-specific SVG identifiers so several wordmarks can coexist on one page. Do not replace its geometry with live text in an approximately similar font.
 

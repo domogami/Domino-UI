@@ -37,7 +37,7 @@ export const NotificationCard = forwardRef<HTMLElement, NotificationCardProps>(
     const queueCount = Number.isFinite(count)
       ? Math.max(1, Math.floor(count))
       : 1;
-    const stacked = queueCount > 1;
+    const queued = queueCount > 1;
 
     return (
       <article
@@ -50,18 +50,12 @@ export const NotificationCard = forwardRef<HTMLElement, NotificationCardProps>(
         className={[
           "dm-notification-card",
           `dm-notification-card--${surface}`,
-          stacked && "dm-notification-card--stacked",
+          queued && "dm-notification-card--queued",
           className,
         ]
           .filter(Boolean)
           .join(" ")}
       >
-        {stacked && (
-          <span className="dm-notification-card__papers" aria-hidden="true">
-            <span />
-            <span />
-          </span>
-        )}
         <div className="dm-notification-card__sheet">
           <header className="dm-notification-card__header">
             <div className="dm-notification-card__metadata">
@@ -88,7 +82,7 @@ export const NotificationCard = forwardRef<HTMLElement, NotificationCardProps>(
             <h3 className="dm-notification-card__title" id={titleId}>
               {title}
             </h3>
-            {stacked && (
+            {queued && (
               <span className="dm-notification-card__count">
                 <span
                   className="dm-notification-card__count-dot"

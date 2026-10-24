@@ -897,6 +897,8 @@ export interface DialogProps extends Omit<
   icon?: ReactNode;
   /** Ink gives the header a high-contrast cap; the content remains on paper. */
   surface?: "paper" | "ink";
+  /** Fold a paper decision open, or use a quiet settle for utility dialogs. */
+  motion?: "fold" | "settle";
   /** Explicit opener for browsers where tapping a button does not focus it. */
   returnFocusRef?: RefObject<HTMLElement | null>;
 }
@@ -912,6 +914,7 @@ export function Dialog({
   eyebrow,
   icon,
   surface = "paper",
+  motion = "fold",
   returnFocusRef,
   children,
   className,
@@ -967,7 +970,6 @@ export function Dialog({
     if (open || motionState !== "closing" || !dialog?.open) return;
     // Read the rendered closing state so host styles and reduced motion determine
     // the actual exit duration. The native modal stays active through this exit.
-    const style = getComputedStyle(dialog);
     const milliseconds = (value: string) =>
       value
         .split(",")
@@ -976,8 +978,30 @@ export function Dialog({
             ? parseFloat(part)
             : parseFloat(part) * 1000,
         );
-    const duration = Math.max(0, ...milliseconds(style.transitionDuration));
-    const delay = Math.max(0, ...milliseconds(style.transitionDelay));
+    const regions = [
+      dialog,
+      ...dialog.querySelectorAll<HTMLElement>(
+        ":scope > .dm-dialog__header, :scope > .dm-dialog__body, :scope > .dm-dialog__footer",
+      ),
+    ];
+    const phaseEnd = (style: CSSStyleDeclaration) => {
+      const durations = milliseconds(style.transitionDuration);
+      const delays = milliseconds(style.transitionDelay);
+      return Math.max(
+        0,
+        ...durations.map(
+          (duration, index) => duration + delays[index % delays.length],
+        ),
+      );
+    };
+    // The shell covers the complete fold; also honor an owned region's longer
+    // host override or crease transition before releasing native modality.
+    const duration = Math.max(
+      ...regions.flatMap((region) => [
+        phaseEnd(getComputedStyle(region)),
+        phaseEnd(getComputedStyle(region, "::before")),
+      ]),
+    );
     const timeout = window.setTimeout(
       () => {
         if (openRef.current || !dialog.open) return;
@@ -987,10 +1011,10 @@ export function Dialog({
           returnFocusRef.current.focus({ preventScroll: true });
         setMotionState("closed");
       },
-      duration + delay + (duration ? 34 : 0),
+      duration + (duration ? 34 : 0),
     );
     return () => clearTimeout(timeout);
-  }, [open, motionState, returnFocusRef]);
+  }, [open, motionState, motion, returnFocusRef]);
   useEffect(() => {
     const dialog = ref.current;
     return () => {
@@ -1004,7 +1028,12 @@ export function Dialog({
     <dialog
       {...props}
       ref={ref}
-      className={cx("dm-dialog", `dm-dialog--${surface}`, className)}
+      className={cx(
+        "dm-dialog",
+        `dm-dialog--${surface}`,
+        `dm-dialog--${motion}`,
+        className,
+      )}
       data-state={motionState}
       aria-labelledby={`${id}-title`}
       aria-describedby={description ? `${id}-description` : undefined}
@@ -1085,13 +1114,14 @@ export function Dialog({
     </dialog>
   );
 }
-export interface DrawerProps extends DialogProps {
+export interface DrawerProps extends Omit<DialogProps, "motion"> {
   side?: "left" | "right";
 }
 export function Drawer({ side = "right", className, ...props }: DrawerProps) {
   return (
     <Dialog
       {...props}
+      motion="settle"
       className={cx("dm-drawer", `dm-drawer--${side}`, className)}
     />
   );

@@ -20,9 +20,7 @@
   border-radius: var(--dm-radius, 3px 7px 5px 4px);
   box-shadow: var(
     --dm-shadow-layer,
-    3px 3px 0 var(--dm-surface, #f7f3e9),
-    4.5px 4.5px 0 var(--dm-ink, #252b2e),
-    8px 8px 0 color-mix(in srgb, var(--dm-ink, #252b2e) 12%, transparent)
+    2px 3px 0 color-mix(in srgb, var(--dm-ink, #252b2e) 16%, transparent)
   );
   font-family: var(--dm-font-body, "Lexend", sans-serif);
   font-size: 14px;

@@ -13,6 +13,131 @@ type ProductionRoutingWindow = Window & {
   productionRouteSnapshots: Promise<ProductionRouteSnapshot>[];
 };
 
+test("production journal art wraps, draws and replays on a mobile viewport", async ({
+  page,
+}) => {
+  await page.addInitScript(() =>
+    localStorage.setItem("notebook-touch-feedback", "off"),
+  );
+  await page.goto("/#component/triple-banner");
+  await page.evaluate(() => document.fonts.ready);
+  const art = page.locator(".playground-canvas .dm-triple-banner");
+  await expect(art.locator(".dm-triple-banner__band")).toHaveCount(3);
+  await expect(art.locator(".dm-triple-banner__reverse")).toHaveCount(2);
+  await expect(art.locator(".dm-triple-banner__label").first()).toHaveCSS(
+    "font-family",
+    /Kalam/,
+  );
+  const replay = art.getByRole("button", {
+    name: "Replay Paper & patience, A little curiosity, Room to grow",
+    exact: true,
+  });
+  for (const theme of ["hybrid", "light", "dark"]) {
+    await page.evaluate(
+      (value) => (document.documentElement.dataset.theme = value),
+      theme,
+    );
+    const fit = await art.evaluate((element) => {
+      (element as HTMLElement).style.width = "180px";
+      const labels = [
+        ...element.querySelectorAll<HTMLElement>(".dm-triple-banner__label"),
+      ];
+      labels[0].textContent =
+        "A small collection of very good thoughts worth keeping";
+      return (
+        labels.every((label) => {
+          const band = label.closest(".dm-triple-banner__band")!;
+          return (
+            label.scrollWidth <= label.clientWidth + 1 &&
+            label.getBoundingClientRect().bottom <=
+              band.getBoundingClientRect().bottom
+          );
+        }) && element.scrollWidth <= element.clientWidth + 1
+      );
+    });
+    expect(fit).toBe(true);
+  }
+  const oldPath = await art
+    .locator(".dm-journal-art-line")
+    .first()
+    .elementHandle();
+  await replay.tap();
+  expect(await oldPath!.evaluate((path) => path.isConnected)).toBe(false);
+  await expect(replay).toBeFocused();
+  const path = art.locator(".dm-journal-art-line").first();
+  const start = await path.evaluate((element) =>
+    parseFloat(getComputedStyle(element).strokeDashoffset),
+  );
+  expect(start).toBeGreaterThan(0);
+  await expect
+    .poll(() =>
+      path.evaluate((element) =>
+        parseFloat(getComputedStyle(element).strokeDashoffset),
+      ),
+    )
+    .toBeLessThan(start);
+
+  await page.goto("/#component/bookmark-drawing");
+  const bookmark = page.locator(".dm-bookmark-drawing").first();
+  await expect(bookmark).toHaveAttribute("data-variant", "notched");
+  await expect(
+    page.locator('.dm-bookmark-drawing[data-variant="pointed"]'),
+  ).toHaveCount(1);
+  await expect(bookmark.locator(".dm-journal-art-seam")).toHaveCSS(
+    "stroke-width",
+    "0.85px",
+  );
+  const markerReplay = page.getByRole("button", {
+    name: "Replay A V-cut bookmark",
+    exact: true,
+  });
+  await markerReplay.tap();
+  await expect(bookmark).toHaveAttribute("data-replay", "1");
+  await expect(markerReplay).toBeFocused();
+  expect(
+    await bookmark.evaluate(
+      (element) => element.getBoundingClientRect().right <= innerWidth,
+    ),
+  ).toBe(true);
+});
+
+test("production journal ink and modal folds honor reduced motion", async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.addInitScript(() =>
+    localStorage.setItem("notebook-touch-feedback", "off"),
+  );
+  await page.goto("/#component/triple-banner");
+  const ribbon = page.locator(".dm-triple-banner").first();
+  await expect(ribbon).toHaveAttribute("data-quiet", "true");
+  await expect(ribbon.getByRole("button")).toBeDisabled();
+  await expect(ribbon.locator(".dm-journal-art-line").first()).toHaveCSS(
+    "animation-name",
+    "none",
+  );
+  await page.goto("/#layers");
+  await page
+    .getByRole("button", { name: "Open layered modal", exact: true })
+    .tap();
+  const dialog = page.getByRole("dialog", {
+    name: "A thought worth keeping",
+    exact: true,
+  });
+  await expect(dialog).toHaveClass(/dm-dialog--fold/);
+  await expect(dialog.locator(".dm-dialog__body")).toHaveCSS(
+    "transform",
+    "none",
+  );
+  await expect(dialog.locator(".dm-dialog__footer")).toHaveCSS(
+    "transition-delay",
+    "0s",
+  );
+  await expect(dialog).toHaveCSS("transition-duration", "0s");
+  await page.keyboard.press("Escape");
+  await expect(dialog).toBeHidden();
+});
+
 test("production paper layers retain their styles, viewport fit and nested focus behavior", async ({
   page,
 }) => {

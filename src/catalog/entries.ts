@@ -559,7 +559,7 @@ export const entries: Entry[] = [
     name: "Notification card",
     group: "Feedback",
     summary:
-      "A glanceable thought on its own sheet, with paper edges that hint at a waiting queue.",
+      "A glanceable thought on one clean sheet, with a fine accent seam and a readable queue count.",
     code: '<NotificationCard source="The garden" title="A small idea is ready to grow."\n  time="JUST NOW" count={3} surface="ink"\n  actions={<a href="/notes">Open your notes</a>}>\n  <p>Your thought is saved. Leave a little room for what comes next.</p>\n</NotificationCard>',
     props: [
       ["source / title", "string / ReactNode", "required"],
@@ -573,7 +573,7 @@ export const entries: Entry[] = [
       ["surface", "paper | ink; header treatment", "paper"],
     ],
     guidance:
-      "Use a strong title and a useful first line. Rear sheets appear only when count exceeds one. This named article does not interrupt or announce itself; the host owns the queue, dismissal, and a single appropriate live region. Keep important information available until the user has acted.",
+      "Use a strong title and a useful first line. A compact count appears when more than one message is waiting. This named article does not interrupt or announce itself; the host owns the queue, dismissal, and a single appropriate live region. Keep important information available until the user has acted.",
     origin: "Extended",
     usage:
       "Import NotificationCard and styles.css from @domlee/ui. Compose native links or Button actions, and pass the real queue count. No portal, automatic timeout, global manager, or extra copies of the content are created. See Layers & notifications for a working queue.",
@@ -652,6 +652,7 @@ export const entries: Entry[] = [
       ["surface", "paper | ink; header treatment", "paper"],
       ["children", "ReactNode", "—"],
       ["closeLabel", "string", "Close dialog"],
+      ["motion", "fold | settle; staged unfolding or a quiet arrival", "fold"],
       ["closeOnBackdrop", "boolean", "true"],
       [
         "returnFocusRef",
@@ -660,7 +661,7 @@ export const entries: Entry[] = [
       ],
     ],
     guidance:
-      "The native modal contains focus, supports Escape and returns focus when closed. Keep it mounted while open changes so its paper can settle and leave smoothly; modality persists until the exit finishes. Reduced motion skips movement. onClose must update open state. Supply a concise title and a visible close action.",
+      'The native modal contains focus, supports Escape and returns focus when closed. A single sheet unfolds through its header, body, and footer in 480ms, then folds away in 280ms. Use motion="settle" for a utility such as search. Keep it mounted while open changes so motion can reverse; modality persists until the exit finishes. Reduced motion skips movement. onClose must update open state. Supply a concise title and a visible close action.',
     origin: "Extended",
     usage:
       "Import Dialog and Button from @domlee/ui. The example defines open state and its opener. Native dialog attributes are supported; the component owns its DOM ref and open/showModal synchronization.",
@@ -696,7 +697,7 @@ export const entries: Entry[] = [
       "Use for supporting tasks that benefit from more room. Drawer uses Dialog behavior, including Escape, backdrop dismissal and focus restoration.",
     origin: "Extended",
     usage:
-      "Import Drawer and Button from @domlee/ui. The example defines open state. Drawer accepts all Dialog props plus side; onClose must update open state.",
+      "Import Drawer and Button from @domlee/ui. The example defines open state. Drawer accepts Dialog content and behavior props plus side, and preserves its edge slide rather than accepting motion. onClose must update open state.",
   },
   {
     id: "menu-toggle",
@@ -918,6 +919,67 @@ export const entries: Entry[] = [
     origin: "Adapted",
     usage:
       "Import the shown components from @domlee/ui. Standard className, style, aria-* and native element attributes are supported unless a narrower API is described here.",
+  },
+  {
+    id: "triple-banner",
+    name: "Triple banner",
+    group: "Brand",
+    summary:
+      "Three handwritten ribbon faces, joined by colored diagonal folds. A little journal ceremony.",
+    code: '<TripleBanner lines={["Paper & patience", "A little curiosity", "Room to grow"]}\n  tone="accent" animate replayOnClick />',
+    props: [
+      [
+        "lines",
+        "[ReactNode, ReactNode, ReactNode]; three visible labels",
+        "required",
+      ],
+      ["tone", "accent | sage | peach | ink", "accent"],
+      [
+        "animate / quiet",
+        "boolean; draw once / completed and still",
+        "false / false",
+      ],
+      ["speed", "0.5 | 1 | 1.5 | 2", "1"],
+      ["replayKey", "string | number; change to draw again", "0"],
+      [
+        "replayOnClick",
+        "boolean; stable native replay button (requires animate)",
+        "false",
+      ],
+      ["label", "string; replay button name", "plain text lines, otherwise triple banner"],
+      ["native div attributes", "HTMLAttributes except children", "—"],
+    ],
+    guidance:
+      "Give three related phrases one clear landmark. The front faces grow with their real HTML text; diagonal reverse folds bridge the changing heights. Keep labels short where possible. Use plain, noninteractive labels when replayOnClick wraps the artwork in a button. Quiet and reduced motion show the completed drawing.",
+    usage:
+      "Import TripleBanner and styles.css from @domlee/ui. Set width or max-width on its container. The illustration is original geometry inspired by bullet journal ribbons. Text remains selectable without replay; supply heading elements only when replay is off and the page hierarchy calls for them. Tap, click, Enter, or Space replays when enabled.",
+    origin: "Original",
+  },
+  {
+    id: "bookmark-drawing",
+    name: "Bookmark drawing",
+    group: "Brand",
+    summary:
+      "A fine ink bookmark hanging from a little rail, with a V-cut or pointed tip and a quiet teal seam.",
+    code: '<BookmarkDrawing variant="notched" replayOnClick\n  label="A little bookmark for a thought worth keeping" />\n<BookmarkDrawing variant="pointed" quiet />',
+    props: [
+      ["variant", "notched | pointed", "notched"],
+      ["label", "string; omit for decorative artwork", "—"],
+      [
+        "animate / quiet",
+        "boolean; draw once / completed and still",
+        "true / false",
+      ],
+      ["speed", "0.5 | 1 | 1.5 | 2", "1"],
+      ["replayKey", "string | number; change to draw again", "0"],
+      ["replayOnClick", "boolean; stable native replay button", "false"],
+      ["native SVG attributes", "SVGProps except children and speed", "—"],
+    ],
+    guidance:
+      "Leave room around the fine line work. A small color seam and a second light pen pass add depth without a solid block shadow. Keep it decorative beside equivalent visible copy, or give meaningful art a label. A bookmark drawing does not imply a working save control.",
+    usage:
+      "Import BookmarkDrawing and styles.css from @domlee/ui. SVG geometry scales to its container while the fine stroke keeps its weight. Enable replayOnClick for a persistent native button, or change replayKey from an external control. Quiet and reduced motion display finished ink.",
+    origin: "Original",
   },
   {
     id: "notebook-sketch",

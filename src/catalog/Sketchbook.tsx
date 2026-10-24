@@ -3,6 +3,7 @@ import { Button, Switch } from "../lib/components";
 import { HandwrittenNote, SketchArrow } from "../lib/brand";
 import { NotebookSketch, type NotebookSketchVariant } from "../lib/sketch";
 import { HairlineSketch, type HairlineSketchVariant } from "../lib/hairline";
+import { TripleBanner, BookmarkDrawing } from "../lib/journal-art";
 import { useTheme } from "../lib/theme";
 import { Icon } from "../Icons";
 import { CodeBlock, PageIntro } from "./Foundations";
@@ -80,7 +81,7 @@ const hairline: {
   },
 ];
 
-const exampleCode = `import { NotebookSketch, HairlineSketch } from '@domlee/ui';
+const exampleCode = `import { NotebookSketch, HairlineSketch, TripleBanner, BookmarkDrawing } from '@domlee/ui';
 import '@domlee/ui/styles.css';
 
 // Original notebook artwork. Change replayKey to draw again.
@@ -90,6 +91,12 @@ import '@domlee/ui/styles.css';
 // Actual Hairline artwork, with Domino's theme and motion rules.
 <HairlineSketch variant="riffle" intensity={0.35} replayOnClick
   label="A tray of notes" />
+
+// Real text grows each ribbon face. Colored folds join all three.
+<TripleBanner lines={['Paper & patience', 'A little curiosity', 'Room to grow']}
+  animate replayOnClick />
+<BookmarkDrawing variant="notched" replayOnClick
+  label="A bookmark for a thought worth keeping" />
 
 // Both honor prefers-reduced-motion. quiet also stops pointer motion.
 <NotebookSketch variant="garden" quiet />
@@ -186,6 +193,95 @@ export function SketchbookPage({ copy }: { copy: (text: string) => void }) {
         </p>
       </section>
 
+      <section
+        className="sketchbook-journal"
+        aria-labelledby="journal-art-heading"
+      >
+        <div className="section-heading sketchbook-section-heading">
+          <div>
+            <span className="sketchbook-kicker">02 / FOLDED INTO THE PAGE</span>
+            <h2 id="journal-art-heading">Paper folds & little markers</h2>
+          </div>
+          <a
+            className="sketchbook-component-link"
+            href="#component/triple-banner"
+          >
+            The triple banner <SketchArrow direction="up-right" />
+          </a>
+        </div>
+        <div className="sketchbook-grid sketchbook-journal-grid">
+          <figure className="sketchbook-card">
+            <div className="sketchbook-card-top">
+              <span>THREE GOOD THINGS</span>
+              <span>ORIGINAL INK</span>
+            </div>
+            <div className="sketchbook-stage sketchbook-journal-stage">
+              <TripleBanner
+                lines={[
+                  "Paper & patience",
+                  "A little curiosity",
+                  "Room to grow",
+                ]}
+                animate
+                quiet={quiet}
+                replayKey={replay}
+                replayOnClick
+              />
+            </div>
+            <figcaption>
+              <h3>A little ribbon ceremony</h3>
+              <span className="sketchbook-hand">
+                three thoughts, one winding ribbon
+              </span>
+            </figcaption>
+          </figure>
+          {(["notched", "pointed"] as const).map((variant) => (
+            <figure className="sketchbook-card" key={variant}>
+              <div className="sketchbook-card-top">
+                <span>
+                  {variant === "notched" ? "A LITTLE V-CUT" : "ONE FINE POINT"}
+                </span>
+                <span>ORIGINAL INK</span>
+              </div>
+              <div className="sketchbook-stage sketchbook-journal-stage">
+                <BookmarkDrawing
+                  variant={variant}
+                  label={
+                    variant === "notched"
+                      ? "A V-cut bookmark"
+                      : "A pointed bookmark"
+                  }
+                  quiet={quiet}
+                  replayKey={replay}
+                  replayOnClick
+                />
+              </div>
+              <figcaption>
+                <h3>
+                  {variant === "notched"
+                    ? "Keep your place"
+                    : "A thought to return to"}
+                </h3>
+                <span className="sketchbook-hand">
+                  a fine line, a little teal
+                </span>
+                <a
+                  className="sketchbook-download"
+                  href="#component/bookmark-drawing"
+                >
+                  Component & props <Icon name="arrow" size={12} />
+                </a>
+              </figcaption>
+            </figure>
+          ))}
+        </div>
+        <p className="sketchbook-section-note">
+          Original journal-inspired line work: pale ribbon faces, colored
+          reverse folds, and bookmarks drawn with a light hand. Each face grows
+          with its words. Tap a drawing to watch the ink find its way again.
+        </p>
+      </section>
+
       <aside className="sketchbook-margin" aria-label="Drawing style notes">
         <span className="sketchbook-hand">the little rules</span>
         <div>
@@ -207,7 +303,7 @@ export function SketchbookPage({ copy }: { copy: (text: string) => void }) {
       <section aria-labelledby="hairline-sketches-heading">
         <div className="section-heading sketchbook-section-heading">
           <div>
-            <span className="sketchbook-kicker">02 / ANOTHER KIND OF LINE</span>
+            <span className="sketchbook-kicker">03 / ANOTHER KIND OF LINE</span>
             <h2 id="hairline-sketches-heading">Hairline, on paper</h2>
           </div>
           <a

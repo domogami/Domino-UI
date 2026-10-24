@@ -789,6 +789,40 @@ export function Demo({
           <HeroName animate={!quiet} quiet={quiet} speed={speed} />
         </div>
       );
+    case "triple-banner":
+      return (
+        <div className="journal-art-demo journal-art-demo--ribbon">
+          <UI.TripleBanner
+            lines={["Paper & patience", "A little curiosity", "Room to grow"]}
+            animate={!quiet}
+            quiet={quiet}
+            speed={speed}
+            replayOnClick={!compact}
+          />
+        </div>
+      );
+    case "bookmark-drawing":
+      return (
+        <div className="journal-art-demo journal-art-demo--bookmarks">
+          {(["notched", "pointed"] as const)
+            .slice(0, compact ? 1 : 2)
+            .map((variant) => (
+              <UI.BookmarkDrawing
+                key={variant}
+                variant={variant}
+                label={
+                  variant === "notched"
+                    ? "A V-cut bookmark"
+                    : "A pointed bookmark"
+                }
+                animate={!quiet}
+                quiet={quiet}
+                speed={speed}
+                replayOnClick={!compact}
+              />
+            ))}
+        </div>
+      );
     case "notebook-sketch":
       return (
         <div className="sketchbook-component-demo">

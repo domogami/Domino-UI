@@ -127,6 +127,59 @@
   color: var(--dm-accent);
   text-underline-offset: 3px;
 }
+.sketchbook-journal {
+  margin-top: 44px;
+}
+.sketchbook-journal-grid > .sketchbook-card {
+  display: flex;
+  flex-direction: column;
+}
+.sketchbook-journal-grid .sketchbook-card-top,
+.sketchbook-journal-grid figcaption {
+  flex: none;
+  align-self: stretch;
+}
+.sketchbook-journal-stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 290px;
+  padding: 24px 22px;
+  box-sizing: border-box;
+  flex: 1;
+  width: 100%;
+}
+.sketchbook-journal-stage .dm-bookmark-drawing {
+  width: 100%;
+  max-width: 190px;
+  height: 230px;
+}
+.journal-art-demo {
+  width: 100%;
+  margin-inline: auto;
+}
+.journal-art-demo--ribbon {
+  max-width: 380px;
+}
+.journal-art-demo--bookmarks {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  max-width: 460px;
+}
+.journal-art-demo--bookmarks > * {
+  width: calc(50% - 10px);
+  min-width: 0;
+}
+.component-tile .journal-art-demo--ribbon {
+  max-width: 190px;
+  font-size: 0.7rem;
+}
+.component-tile .journal-art-demo--bookmarks {
+  max-width: 150px;
+  height: 150px;
+}
 .sketchbook-margin {
   display: flex;
   align-items: center;

@@ -1,5 +1,5 @@
 /* GENERATED from tokens/system.json — Domino UI 0.1.0.
-   Source SHA-256: 397198c3b7bfd2ef6c04910f96cc4b727788026c1a36dd0951b893906a37be5b
+   Source SHA-256: aea5553fcbdc422fb6fac50ba0ffd91dda09da98292d657520aa16c09d174492
    Edit the canonical source, then run npm run build:system. */
 :root {
   --dm-grid-size: 32px;
@@ -49,9 +49,11 @@
   --dm-banner-label-duration: 300ms;
   --dm-banner-label-delay: 1100ms;
   --dm-layer-duration: 240ms;
+  --dm-dialog-duration: 480ms;
+  --dm-dialog-exit-duration: 280ms;
   --dm-layer-exit-duration: 160ms;
   --dm-layer-easing: cubic-bezier(0.22, 1, 0.36, 1);
-  --dm-shadow-layer: 4px 4px 0 var(--dm-paper), 5px 5px 0 var(--dm-ink), 9px 9px 0 var(--dm-paper), 10px 10px 0 var(--dm-ink);
+  --dm-shadow-layer: 2px 3px 0 color-mix(in srgb, var(--dm-ink) 16%, transparent);
   --dm-paper: #efe7d7;
   --dm-surface: #f7f3e9;
   --dm-surface-raised: #fcf9f1;
@@ -127,9 +129,11 @@
   --dm-banner-label-duration: 300ms;
   --dm-banner-label-delay: 1100ms;
   --dm-layer-duration: 240ms;
+  --dm-dialog-duration: 480ms;
+  --dm-dialog-exit-duration: 280ms;
   --dm-layer-exit-duration: 160ms;
   --dm-layer-easing: cubic-bezier(0.22, 1, 0.36, 1);
-  --dm-shadow-layer: 4px 4px 0 var(--dm-paper), 5px 5px 0 var(--dm-ink), 9px 9px 0 var(--dm-paper), 10px 10px 0 var(--dm-ink);
+  --dm-shadow-layer: 2px 3px 0 color-mix(in srgb, var(--dm-ink) 16%, transparent);
   --dm-paper: #efe7d7;
   --dm-surface: #f7f3e9;
   --dm-surface-raised: #fcf9f1;
@@ -205,9 +209,11 @@
   --dm-banner-label-duration: 300ms;
   --dm-banner-label-delay: 1100ms;
   --dm-layer-duration: 240ms;
+  --dm-dialog-duration: 480ms;
+  --dm-dialog-exit-duration: 280ms;
   --dm-layer-exit-duration: 160ms;
   --dm-layer-easing: cubic-bezier(0.22, 1, 0.36, 1);
-  --dm-shadow-layer: 4px 4px 0 var(--dm-paper), 5px 5px 0 var(--dm-ink), 9px 9px 0 var(--dm-paper), 10px 10px 0 var(--dm-ink);
+  --dm-shadow-layer: 2px 3px 0 color-mix(in srgb, var(--dm-ink) 16%, transparent);
   --dm-paper: #efe7d7;
   --dm-surface: #f7f3e9;
   --dm-surface-raised: #fcf9f1;
@@ -283,9 +289,11 @@
   --dm-banner-label-duration: 300ms;
   --dm-banner-label-delay: 1100ms;
   --dm-layer-duration: 240ms;
+  --dm-dialog-duration: 480ms;
+  --dm-dialog-exit-duration: 280ms;
   --dm-layer-exit-duration: 160ms;
   --dm-layer-easing: cubic-bezier(0.22, 1, 0.36, 1);
-  --dm-shadow-layer: 4px 4px 0 var(--dm-paper), 5px 5px 0 var(--dm-ink), 9px 9px 0 var(--dm-paper), 10px 10px 0 var(--dm-ink);
+  --dm-shadow-layer: 2px 3px 0 color-mix(in srgb, var(--dm-ink) 16%, transparent);
   --dm-paper: #2b3034;
   --dm-surface: #323b3e;
   --dm-surface-raised: #394347;

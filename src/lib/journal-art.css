@@ -1,0 +1,190 @@
+/* Original journal silhouettes. The label remains real, reflowing text. */
+.dm-triple-banner {
+  --dm-triple-paper: var(--dm-surface-raised, #fcf9f1);
+  --dm-triple-label: var(--dm-accent, #0e7c79);
+  --dm-triple-reverse: color-mix(
+    in srgb,
+    var(--dm-accent, #0e7c79) 20%,
+    var(--dm-paper, #efe7d7)
+  );
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  inline-size: min(100%, 38rem);
+  max-inline-size: 100%;
+  min-inline-size: 0;
+  color: var(--dm-ink, #252b2e);
+}
+.dm-triple-banner,
+.dm-triple-banner * {
+  box-sizing: border-box;
+}
+.dm-triple-banner > .dm-sketch-replay {
+  display: grid;
+  max-width: none;
+  line-height: inherit;
+}
+.dm-triple-banner--sage {
+  --dm-triple-paper: color-mix(
+    in srgb,
+    var(--dm-sage, #d5e3cd) 65%,
+    var(--dm-surface, #f7f3e9)
+  );
+  --dm-triple-label: var(--dm-ink, #252b2e);
+  --dm-triple-reverse: color-mix(
+    in srgb,
+    var(--dm-sage, #d5e3cd) 80%,
+    var(--dm-ink, #252b2e)
+  );
+}
+.dm-triple-banner--peach {
+  --dm-triple-paper: color-mix(
+    in srgb,
+    var(--dm-peach, #eed5bf) 65%,
+    var(--dm-surface, #f7f3e9)
+  );
+  --dm-triple-label: var(--dm-ink, #252b2e);
+  --dm-triple-reverse: color-mix(
+    in srgb,
+    var(--dm-peach, #eed5bf) 80%,
+    var(--dm-ink, #252b2e)
+  );
+}
+.dm-triple-banner--ink {
+  --dm-triple-paper: var(--dm-ink, #252b2e);
+  --dm-triple-label: var(--dm-paper, #efe7d7);
+  --dm-triple-reverse: color-mix(
+    in srgb,
+    var(--dm-ink, #252b2e) 35%,
+    var(--dm-paper, #efe7d7)
+  );
+}
+.dm-triple-banner__band {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-inline-size: 0;
+  min-block-size: 3em;
+  padding: 0.55em calc(10.5% + 0.6em);
+  font-family: var(--dm-font-lettered, "Kalam", cursive);
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+.dm-triple-banner__paper {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+.dm-triple-banner__label {
+  position: relative;
+  display: block;
+  flex: 1;
+  min-inline-size: 0;
+  color: var(--dm-triple-label);
+  text-align: center;
+  overflow-wrap: anywhere;
+  text-wrap: balance;
+}
+.dm-triple-banner__label > :first-child {
+  margin-block-start: 0;
+}
+.dm-triple-banner__label > :last-child {
+  margin-block-end: 0;
+}
+.dm-triple-banner__reverse {
+  position: relative;
+  z-index: 0;
+  display: block;
+  inline-size: 100%;
+  block-size: clamp(30px, 6vw, 46px);
+  margin-block: -3px;
+  overflow: visible;
+  pointer-events: none;
+}
+.dm-triple-banner .dm-triple-banner__face {
+  fill: var(--dm-triple-paper);
+}
+.dm-triple-banner .dm-triple-banner__fold,
+.dm-triple-banner .dm-triple-banner__tail,
+.dm-triple-banner .dm-triple-banner__crease {
+  fill: var(--dm-triple-reverse);
+}
+.dm-triple-banner .dm-triple-banner__crease {
+  fill: color-mix(
+    in srgb,
+    var(--dm-triple-reverse) 85%,
+    var(--dm-ink, #252b2e)
+  );
+}
+.dm-bookmark-drawing {
+  display: block;
+  inline-size: 100%;
+  max-inline-size: 260px;
+  block-size: auto;
+  overflow: visible;
+  color: var(--dm-ink, #252b2e);
+}
+.dm-journal-art .dm-journal-art-line {
+  stroke-width: 1.15;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+  vector-effect: non-scaling-stroke;
+}
+.dm-journal-art .dm-journal-art-seam {
+  color: var(--dm-accent, #0e7c79);
+  stroke-width: 0.85;
+  opacity: 0.76;
+}
+.dm-journal-art .dm-journal-art-echo {
+  stroke-width: 0.7;
+  opacity: 0.2;
+}
+.dm-triple-banner--ink .dm-journal-art-echo {
+  color: var(--dm-triple-label);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .dm-journal-art[data-animate="true"] .dm-journal-art-line {
+    animation: dm-journal-art-draw
+      calc(var(--dm-sketch-duration, 1600ms) * var(--dm-drawing-rate, 1))
+      cubic-bezier(0.3, 0.08, 0.24, 1)
+      calc(
+        var(--dm-journal-art-step, 0) * var(--dm-sketch-stagger, 90ms) *
+          var(--dm-drawing-rate, 1)
+      )
+      backwards;
+  }
+}
+@keyframes dm-journal-art-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@media (forced-colors: active) {
+  .dm-triple-banner__label,
+  .dm-journal-art .dm-journal-art-line {
+    color: CanvasText;
+  }
+  .dm-triple-banner .dm-triple-banner__face,
+  .dm-triple-banner .dm-triple-banner__fold,
+  .dm-triple-banner .dm-triple-banner__tail,
+  .dm-triple-banner .dm-triple-banner__crease {
+    fill: Canvas;
+  }
+}
+@media print {
+  .dm-journal-art .dm-journal-art-line {
+    animation: none !important;
+    stroke-dashoffset: 0;
+  }
+}

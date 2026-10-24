@@ -16,7 +16,7 @@ Pebble's design guidance values quick comprehension, a few meaningful colors, pr
 | Quick View can partially cover an app while the remaining layout adjusts. [Unobstructed Area](https://developer.repebble.com/guides/user-interfaces/unobstructed-area/)                                                                              | Preserve context around a nonmodal layer, constrain it to the available viewport, and keep its body scrollable.                         |
 | Layouts should account for content size and avoid fixed content dimensions. [Content Size](https://developer.repebble.com/guides/user-interfaces/content-size/)                                                                                      | Wrap long copy and actions; let the viewport constrain the surface rather than clipping the message.                                    |
 
-**The adaptation boundary:** stacked paper shadows, imperfect pen outlines, Caveat annotations, warm paper, and teal accents are Domino decisions. They are not claimed as Pebble specifications. These references establish interaction and hierarchy; no Pebble font, icon, illustration, or application code is included. The study does not claim pixel fidelity to Pebble screenshots or hardware rendering.
+**The adaptation boundary:** single paper surfaces, fine pen outlines, unfolding motion, Caveat annotations, warm paper, and teal accents are Domino decisions. They are not claimed as Pebble specifications. These references establish interaction and hierarchy; no Pebble font, icon, illustration, or application code is included. The study does not claim pixel fidelity to Pebble screenshots or hardware rendering.
 
 ## Pick the smallest useful layer
 
@@ -97,6 +97,7 @@ export default function NotebookLayers() {
           returnFocusRef={opener}
           onClose={() => setConfirmOpen(false)}
           title="Keep this thought?"
+          motion="fold"
           eyebrow="A note for later"
           surface="ink"
           description="A focused decision, with a clear way back."
@@ -148,7 +149,7 @@ export default function NotebookLayers() {
 
 `source`, `title`, and `children` are required. Optional `time`, `icon`, and `actions` accept React content. `surface` is `"paper"` by default; `"ink"` gives its header an inverse semantic ink/paper treatment. This deliberately changes with the active theme.
 
-`count` represents the total application queue, including the current item. Values above one show readable **“N in queue”** text and two empty decorative backing sheets. They do not render or announce hidden messages. The host supplies the currently visible content and any navigation. Finite values are rounded down with a minimum of one; other values behave as one.
+`count` represents the total application queue, including the current item. Values above one show a readable **“N in queue”** badge on the same single sheet. There are no duplicate backing cards or hidden messages. A thin accent seam and one quiet ink edge give the surface presence without illustrating the queue as a stack. The host supplies the currently visible content and any navigation. Finite values are rounded down with a minimum of one; other values behave as one.
 
 Native article attributes and a forwarded `HTMLElement` ref are supported. The title supplies its accessible name unless the consumer provides `aria-label` or `aria-labelledby`. Custom icons are decorative; put any essential meaning in the title or body. Place the component in an application-owned live region only when delivery genuinely needs an announcement; do not announce an entire inbox on every render.
 
@@ -164,7 +165,7 @@ Where supported, the native Popover API places the surface in the browser's top 
 
 Pass `returnFocusRef` for an explicit opener, especially on Safari where tapping a button does not always focus it. The ref is used only after the modal closes and only while its target remains connected. Without it, the browser restores the previously focused element. Keep the opener available while a task is open.
 
-`Dialog` requires `open`, `onClose`, and `title`. It accepts `description`, `footer`, `closeLabel`, `eyebrow`, a decorative `icon`, and `surface="paper" | "ink"`, plus native dialog attributes. `Drawer` adds `side="left" | "right"` and inherits the same behavior.
+`Dialog` requires `open`, `onClose`, and `title`. It accepts `description`, `footer`, `closeLabel`, `eyebrow`, a decorative `icon`, `surface="paper" | "ink"`, and `motion="fold" | "settle"`, plus native dialog attributes. The default `"fold"` opens the header, body, and footer in sequence; closing folds them back in reverse. Choose `"settle"` for a quieter utility surface. `Drawer` adds `side="left" | "right"`, always uses settle motion, and does not expose a `motion` prop. The notebook command palette also uses settle motion.
 
 The native `showModal()` path provides top-layer placement, modal focus handling, background inertness, and focus restoration. `onClose` requests an update to application state; it is not a replacement for setting `open={false}`. Escape requests closure. `closeOnBackdrop` defaults to `true`; set it to `false` when an accidental outside tap must not abandon a task. A backdrop dismissal must begin and end outside the surface. The named close control remains available.
 
@@ -178,7 +179,7 @@ Toast does not set a timer, move focus, persist delivery, or manage a stack. The
 
 ## Surface and motion rules
 
-Shared layer tokens live in `tokens/system.json`: `layer-duration` is 240ms, `layer-exit-duration` is 160ms, and `layer-easing` is `cubic-bezier(0.22, 1, 0.36, 1)`. The semantic `shadow-layer` forms alternating paper/ink edges; `backdrop` changes by theme. Edit the canonical source and regenerate with `npm run build:system` rather than editing generated CSS.
+Shared layer tokens live in `tokens/system.json`: `layer-duration` is 240ms, `layer-exit-duration` is 160ms, and `layer-easing` is `cubic-bezier(0.22, 1, 0.36, 1)`. Popovers and settle dialogs use those durations. Folding dialogs use dedicated `dialog-duration` (**480ms**) and `dialog-exit-duration` (**280ms**) tokens, with staggered header/body/footer folds. The semantic `shadow-layer` is one subtle **2px / 3px ink edge**; `backdrop` changes by theme. Edit the canonical source and regenerate with `npm run build:system` rather than editing generated CSS.
 
 Layers use opaque surfaces and borders; they remain legible without a blur effect or a soft shadow. Reduced motion removes the entrance/exit movement. A static `NotificationCard` has no automatic entrance. Forced-color styles preserve the surface boundary when decorative depth disappears. Custom application transitions must preserve the same readable resting state.
 

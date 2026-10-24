@@ -1,4 +1,4 @@
-/* A complete note in the foreground; the two empty sheets only suggest its queue. */
+/* One paper surface. Queue size is a readable badge, never duplicate sheets. */
 .dm-notification-card,
 .dm-notification-card * {
   box-sizing: border-box;
@@ -14,28 +14,6 @@
   --dm-notification-header-background: var(--dm-surface-raised);
   --dm-notification-header-ink: var(--dm-ink);
 }
-.dm-notification-card--stacked {
-  padding-inline-end: 9px;
-  padding-block-end: 9px;
-}
-.dm-notification-card__papers {
-  position: absolute;
-  z-index: 0;
-  inset: 0 9px 9px 0;
-  pointer-events: none;
-}
-.dm-notification-card__papers > span {
-  position: absolute;
-  inset: 0;
-  border: 1.5px solid var(--dm-ink);
-  border-radius: var(--dm-radius);
-  background: var(--dm-paper);
-  transform: translate(8px, 8px);
-}
-.dm-notification-card__papers > span + span {
-  transform: translate(4px, 4px);
-  background: var(--dm-surface);
-}
 .dm-notification-card__sheet {
   position: relative;
   z-index: 1;
@@ -44,11 +22,15 @@
   border: 1.5px solid var(--dm-ink);
   border-radius: var(--dm-radius);
   background: var(--dm-surface-raised);
-  box-shadow: 2px 3px 0 #252b2e18;
+  box-shadow: var(
+    --dm-shadow-layer,
+    2px 3px 0 color-mix(in srgb, var(--dm-ink) 16%, transparent)
+  );
 }
 .dm-notification-card__header {
   padding: 17px 19px 16px;
   border-block-end: 1px solid var(--dm-border);
+  border-inline-start: 3px solid var(--dm-accent);
   color: var(--dm-notification-header-ink);
   background: var(--dm-notification-header-background);
 }
@@ -108,6 +90,9 @@
   align-items: center;
   gap: 6px;
   margin-block-start: 11px;
+  padding: 3px 8px;
+  border: 1px solid currentColor;
+  border-radius: 999px;
   font-family: var(--dm-font-mono);
   font-size: 10px;
   line-height: 1.5;
@@ -153,9 +138,7 @@
   }
 }
 @media (forced-colors: active) {
-  .dm-notification-card__sheet,
-  .dm-notification-card__papers > span,
-  .dm-notification-card__papers > span + span {
+  .dm-notification-card__sheet {
     border-color: CanvasText;
     color: CanvasText;
     background: Canvas;

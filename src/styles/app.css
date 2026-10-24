@@ -573,21 +573,6 @@ button {
   right: -30px;
   bottom: 5px;
 }
-.specimen-sticker {
-  position: absolute;
-  right: 0;
-  bottom: 17px;
-  transform: rotate(-9deg);
-  font: 700 20px/1.1 var(--dm-font-lettered);
-  padding: 10px 11px 6px;
-  background: var(--dm-peach);
-  color: var(--dm-ink);
-  box-shadow: var(--dm-shadow);
-  border: 1px solid color-mix(in srgb, var(--dm-ink) 15%, transparent);
-}
-.specimen-sticker > span {
-  font: 400 14px/1 var(--dm-font-hand);
-}
 .overview-stats {
   border-block: 1px solid var(--dm-border);
   padding: 16px 0;
@@ -2236,10 +2221,6 @@ button {
   }
   .specimen-caption {
     font-size: 15px;
-  }
-  .specimen-sticker {
-    font-size: 16px;
-    right: -5px;
   }
   .overview-stats {
     grid-template-columns: 1fr 1fr 1fr;

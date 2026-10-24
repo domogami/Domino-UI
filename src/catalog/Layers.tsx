@@ -107,8 +107,8 @@ export function LayersPage({ copy }: { copy: (text: string) => void }) {
             <br />A clear next step.
           </h2>
           <p>
-            A source, a strong title, a useful first line. The edge of another
-            sheet hints at what waits behind it.
+            A source, a strong title, a useful first line. One clean sheet, a
+            fine teal seam, and a clear count of what is waiting.
           </p>
           <Switch
             label="Ink header"
@@ -116,7 +116,7 @@ export function LayersPage({ copy }: { copy: (text: string) => void }) {
             onChange={(event) => setInk(event.target.checked)}
           />
           <span className="layers-hand-note">
-            the edge tells a little story <SketchArrow direction="right" />
+            a little ink, plenty of room <SketchArrow direction="right" />
           </span>
         </div>
         <div className="layers-stage">
@@ -251,8 +251,9 @@ export function LayersPage({ copy }: { copy: (text: string) => void }) {
           <span className="eyebrow">03 / A MOMENT OF FOCUS</span>
           <h2 id="dialog-study-title">One thing, on its own page.</h2>
           <p>
-            A modal is a deliberate pause. Clear actions, a visible exit, and a
-            paper edge give it presence.
+            A modal is a deliberate pause. One sheet unfolds from the heading
+            through the body to its actions, then gently folds away. Open it
+            again to replay the movement.
           </p>
           <div className="layers-example-actions">
             <Button onClick={openEditor}>
@@ -345,7 +346,7 @@ export function LayersPage({ copy }: { copy: (text: string) => void }) {
             [
               "02",
               "Make depth mean something",
-              "A rear paper edge suggests a queue. A contextual sheet stays near its trigger. A modal holds a decision.",
+              "A small count explains the queue. A contextual sheet stays near its trigger. A single unfolding page holds a decision.",
             ],
             [
               "03",
@@ -355,7 +356,7 @@ export function LayersPage({ copy }: { copy: (text: string) => void }) {
             [
               "04",
               "Move once, then rest",
-              "A short settle links the layers. Closing remains visible, and reduced motion reaches the same finished state immediately.",
+              "A quick settle welcomes context; a deliberate fold opens a decision. Closing stays reversible, and reduced motion shows the finished page immediately.",
             ],
           ].map(([number, title, description]) => (
             <article key={number}>
@@ -378,7 +379,7 @@ export function LayersPage({ copy }: { copy: (text: string) => void }) {
           <a href="https://developer.repebble.com/guides/user-interfaces/content-size/">
             content-aware sizing
           </a>
-          . The paper stack, teal details, and handwritten asides are our own
+          . The paper folds, teal details, and handwritten asides are our own
           translation. No Pebble artwork or fonts are included.
         </p>
       </section>

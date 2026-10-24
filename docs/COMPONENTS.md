@@ -10,9 +10,10 @@ This inventory defines the scope of Domino UI and the states its visual website 
 | `src/lib/components.tsx`        | Reusable controls, content, feedback, and navigation patterns                        |
 | `src/lib/theme.tsx`             | Theme context, persisted preference state, and theme controls                        |
 | `src/lib/brand.tsx`             | Exact name/brand drawings and reusable illustration patterns                         |
+| `src/lib/journal-art.tsx`       | Original three-face ribbon and notched/pointed bookmark drawings                    |
 | `src/lib/patterns.tsx`          | Annotations, timeline, polaroid stack, and flower progress                           |
 | `src/lib/popover.tsx`           | Anchored nonmodal dialog, native top layer, viewport positioning, focus/dismissal    |
-| `src/lib/notification-card.tsx` | Static notification surface with accessible queue count and decorative stack         |
+| `src/lib/notification-card.tsx` | Single-sheet notification surface with accessible queue badge         |
 | `src/styles/tokens.css`         | Shared semantic themes, type roles, spacing, radii, and durations                    |
 | `src/styles/fonts.css`          | Self-hosted font definitions                                                         |
 | `public/fonts/`                 | Font files and their individual license notices                                      |
@@ -25,9 +26,9 @@ The package root is `@domlee/ui`. Its shared CSS and fonts are separate assets; 
 
 Each component implementation imports the CSS required to render it; `components.tsx` also imports its switch motion. Do not put required component CSS only in the `index.ts` re-export barrel: production tree-shaking can discard the barrel’s side effects while preserving its named component exports. Verify both development and built-site previews with `npm test` and `npm run test:production`.
 
-The implemented public catalogue has **54 components**. The inventory below also records source patterns and composition goals; a table entry does not imply an additional exported component. For example, reading mode, a table of contents, quote composition, and graph panels remain source-pattern references. They are not documented as public React exports.
+The implemented public catalogue has **56 components**. The inventory below also records source patterns and composition goals; a table entry does not imply an additional exported component. For example, reading mode, a table of contents, quote composition, and graph panels remain source-pattern references. They are not documented as public React exports.
 
-`NotebookSketch` adds six original notebook scenes; `HairlineSketch` adapts three upstream Hairline figures to semantic paper and ink. Both have a dedicated catalog page and appear together in The sketchbook, with quiet/reduced motion, touch behavior, and attribution. [Sketch APIs and native SVG companions](SKETCHES.md).
+`NotebookSketch` adds six original notebook scenes; `HairlineSketch` adapts three upstream Hairline figures to semantic paper and ink. Both have a dedicated catalog page and appear together in The sketchbook, with quiet/reduced motion, touch behavior, and attribution. `TripleBanner` and `BookmarkDrawing` add two more public journal-art components with their own catalog entries: naturally wrapping three-face ribbons and notched/pointed bookmarks. [Sketch APIs and native SVG companions](SKETCHES.md).
 
 ## Every component's visual page
 
@@ -78,6 +79,8 @@ These are library scope categories. A complex custom combobox, date picker, file
 | Sticky note    | Single and layered, compact/long copy, optional fold                                 | Local tilt only; preserve readable body text                                      |
 | Notched banner | Short/long label, static and drawn, narrow layout                                    | Exact source strip geometry; Kalam label                                          |
 | Folded banner  | Tails/folds/front face, multiple paper roles, static/drawn                           | Preserve layered geometry and restrained shadow                                   |
+| TripleBanner   | Exactly three labels, four tones, narrow/long copy, static/drawn/replay             | Original connected ribbon geometry; real text grows each face naturally            |
+| BookmarkDrawing | Notched/pointed, decorative/named, static/drawn/replay                               | Fine original pen paths, faint echo, semantic seam, shared DrawingProps             |
 | Annotation     | Title-only/body, four arrow directions, start/end alignment, static/drawn            | Caveat short title, Lexend body, inline decorative arrow                          |
 | Callout/alert  | Informational, success/warning/error where supported, optional title                 | Meaning through text and icon; palette alone is insufficient                      |
 | Quote          | Quote and attribution, short/long copy, Hybrid blue paper                            | Selectable text and correct quotation semantics                                   |
@@ -113,13 +116,13 @@ Do not use menu roles for every collection of links. The showcase mobile navigat
 
 `Popover` and `NotificationCard` are public exports with dedicated catalog pages. The notebook's `/#layers` composition explores them beside refreshed `Dialog`, `Drawer`, and `Toast` surfaces. [Layer APIs and composition guidance](LAYERS.md) document their behavior and distinguish Pebble's published interaction principles from Domino's own paper treatment.
 
-`NotificationCard` is a static, named article with required `source`, `title`, and `children`, plus optional `time`, `icon`, `actions`, `count`, and `surface="paper" | "ink"`. The readable queue count and decorative back sheets do not create a live region or queue manager. `Popover` supplies an anchored nonmodal dialog with controlled/uncontrolled state, a ref-forwarding trigger, viewport-aware placement, Escape/outside dismissal, and a Tab path back into the page. Its native top-layer path has a portal fallback.
+`NotificationCard` is a static, named article with required `source`, `title`, and `children`, plus optional `time`, `icon`, `actions`, `count`, and `surface="paper" | "ink"`. Its readable queue badge does not create a live region or queue manager. The card stays one sheet at every queue size; there are no decorative backing cards. `Popover` supplies an anchored nonmodal dialog with controlled/uncontrolled state, a ref-forwarding trigger, viewport-aware placement, Escape/outside dismissal, and a Tab path back into the page. Its native top-layer path has a portal fallback.
 
-`Dialog` and `Drawer` retain native modal semantics while adding `eyebrow`, decorative `icon`, and an inverse ink header through `surface`. Their mounted paper and backdrop transition together; drive `open` to allow the exit to finish. `Toast` adds `eyebrow` and `action` content alongside existing tone/dismissal support. It announces status or a danger alert without taking focus or automatically removing itself.
+`Dialog` and `Drawer` retain native modal semantics while adding `eyebrow`, decorative `icon`, and an inverse ink header through `surface`. `Dialog` defaults to `motion="fold"`, with sequential header/body/footer folds over 480ms and a reverse 280ms close; `motion="settle"` uses the shared 240ms/160ms layer timing. `Drawer` always settles and omits the motion prop; the command palette also settles. Their mounted paper and backdrop transition together; drive `open` to allow the exit to finish. `Toast` adds `eyebrow` and `action` content alongside existing tone/dismissal support. It announces status or a danger alert without taking focus or automatically removing itself.
 
 | Pattern           | States/examples to expose                                                   | Native behavior expectations                                                            |
 | ----------------- | --------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
-| Dialog/drawer     | Paper/ink header, context mark, open/closed, long content, wrapping actions | Accessible title, native modality, Escape, return focus, reversible exit                |
+| Dialog/drawer     | Paper/ink header, fold/settle, context mark, open/closed, long content, wrapping actions | Accessible title, native modality, Escape, return focus, reversible exit                |
 | Tooltip           | Pointer and keyboard, long text, edge placement                             | Supplementary explanation only; dismissible when necessary                              |
 | Popover           | Top/bottom, start/center/end, open/closed, interactive content, long body   | Named nonmodal dialog; ref-forwarding trigger; Escape/close return focus, Tab may leave |
 | Notification card | Paper/ink, single/queued, source/time, long title/body, wrapping actions    | Static named article; readable count; host owns delivery and announcements              |

@@ -1,4 +1,4 @@
-/* Opaque paper, crisp edges, and a visible stack. Depth must read without color. */
+/* One opaque sheet. Depth comes from a paper hinge rather than duplicate cards. */
 body:has(.dm-dialog:modal) {
   overflow: hidden;
 }
@@ -16,10 +16,7 @@ body:has(.dm-dialog:modal) {
   color: var(--dm-ink);
   box-shadow: var(
     --dm-shadow-layer,
-    4px 4px 0 var(--dm-paper),
-    5px 5px 0 var(--dm-ink),
-    9px 9px 0 var(--dm-paper),
-    10px 10px 0 var(--dm-ink)
+    2px 3px 0 color-mix(in srgb, var(--dm-ink) 16%, transparent)
   );
   opacity: 0;
   transform: translateY(14px) scale(0.985);
@@ -49,6 +46,100 @@ body:has(.dm-dialog:modal) {
 }
 .dm-dialog[data-state="open"]::backdrop {
   opacity: 1;
+}
+/* Each section has its own hinge. Perspective lives in the transient transform
+   so an open, flat dialog does not become a containing block for popovers. */
+.dm-dialog--fold {
+  transform: perspective(1200px) translateY(18px) rotateX(-9deg)
+    scale(0.97, 0.9);
+  transform-origin: 50% 30%;
+  transition-duration:
+    calc(var(--dm-dialog-duration, 480ms) * 0.25),
+    var(--dm-dialog-duration, 480ms);
+}
+.dm-dialog--fold::backdrop {
+  transition-duration: var(--dm-dialog-duration, 480ms);
+}
+.dm-dialog--fold
+  > :is(.dm-dialog__header, .dm-dialog__body, .dm-dialog__footer) {
+  backface-visibility: hidden;
+  transition:
+    transform var(--dm-dialog-duration, 480ms)
+      var(--dm-layer-easing, cubic-bezier(0.22, 1, 0.36, 1)),
+    opacity var(--dm-dialog-duration, 480ms) ease;
+}
+.dm-dialog--fold > .dm-dialog__header {
+  transform-origin: 50% 100%;
+  transform: perspective(900px) rotateX(-58deg);
+  opacity: 0.85;
+  transition-duration: calc(var(--dm-dialog-duration, 480ms) * 0.72);
+}
+.dm-dialog--fold > .dm-dialog__body {
+  position: relative;
+  transform-origin: 50% 0;
+  transform: perspective(900px) rotateX(68deg);
+  opacity: 0.45;
+  transition-duration: calc(var(--dm-dialog-duration, 480ms) * 0.8);
+  transition-delay: calc(var(--dm-dialog-duration, 480ms) * 0.13);
+}
+.dm-dialog--fold > .dm-dialog__footer {
+  position: relative;
+  transform-origin: 50% 0;
+  transform: perspective(900px) rotateX(-76deg);
+  opacity: 0.4;
+  transition-duration: calc(var(--dm-dialog-duration, 480ms) * 0.65);
+  transition-delay: calc(var(--dm-dialog-duration, 480ms) * 0.25);
+}
+.dm-dialog--fold[data-state="open"]
+  > :is(.dm-dialog__header, .dm-dialog__body, .dm-dialog__footer) {
+  transform: none;
+  opacity: 1;
+}
+.dm-dialog--fold > :is(.dm-dialog__body, .dm-dialog__footer)::before {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  inset: 0 0 auto;
+  height: 14px;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--dm-ink) 16%, transparent),
+    color-mix(in srgb, var(--dm-surface-raised) 70%, transparent) 30%,
+    transparent
+  );
+  opacity: 0.8;
+  transform: scaleY(1);
+  transform-origin: top;
+  transition:
+    opacity var(--dm-dialog-duration, 480ms) ease,
+    transform var(--dm-dialog-duration, 480ms)
+      var(--dm-layer-easing, cubic-bezier(0.22, 1, 0.36, 1));
+}
+.dm-dialog--fold[data-state="open"]
+  > :is(.dm-dialog__body, .dm-dialog__footer)::before {
+  opacity: 0;
+  transform: scaleY(0.2);
+}
+.dm-dialog--fold[data-state="closing"],
+.dm-dialog--fold[data-state="closing"]::backdrop {
+  transition-duration: var(--dm-dialog-exit-duration, 280ms);
+}
+.dm-dialog--fold[data-state="closing"] > .dm-dialog__header {
+  transition-duration: calc(var(--dm-dialog-exit-duration, 280ms) * 0.7);
+  transition-delay: calc(var(--dm-dialog-exit-duration, 280ms) * 0.3);
+}
+.dm-dialog--fold[data-state="closing"] > .dm-dialog__body {
+  transition-duration: calc(var(--dm-dialog-exit-duration, 280ms) * 0.7);
+  transition-delay: calc(var(--dm-dialog-exit-duration, 280ms) * 0.13);
+}
+.dm-dialog--fold[data-state="closing"] > .dm-dialog__footer {
+  transition-duration: calc(var(--dm-dialog-exit-duration, 280ms) * 0.6);
+  transition-delay: 0s;
+}
+.dm-dialog--fold[data-state="closing"]
+  > :is(.dm-dialog__body, .dm-dialog__footer)::before {
+  transition-duration: var(--dm-dialog-exit-duration, 280ms);
 }
 .dm-dialog__header {
   display: flex;
@@ -178,17 +269,13 @@ body:has(.dm-dialog:modal) {
   left: auto;
   right: 0;
   border-right: 0;
-  box-shadow:
-    -5px 0 0 var(--dm-paper),
-    -7px 0 0 var(--dm-ink);
+  box-shadow: -3px 0 0 color-mix(in srgb, var(--dm-ink) 16%, transparent);
 }
 .dm-drawer--left {
   left: 0;
   right: auto;
   border-left: 0;
-  box-shadow:
-    5px 0 0 var(--dm-paper),
-    7px 0 0 var(--dm-ink);
+  box-shadow: 3px 0 0 color-mix(in srgb, var(--dm-ink) 16%, transparent);
   transform: translateX(-100%);
 }
 .dm-drawer .dm-dialog__header {
@@ -212,9 +299,10 @@ body:has(.dm-dialog:modal) {
   border-radius: 7px;
   background: var(--dm-surface-raised);
   color: var(--dm-ink);
-  box-shadow:
-    4px 4px 0 var(--dm-paper),
-    5px 5px 0 var(--dm-ink);
+  box-shadow: var(
+    --dm-shadow-layer,
+    2px 3px 0 color-mix(in srgb, var(--dm-ink) 16%, transparent)
+  );
 }
 .dm-toast__mark {
   display: grid;
@@ -325,10 +413,26 @@ body:has(.dm-dialog:modal) {
 @media (prefers-reduced-motion: reduce) {
   .dm-dialog,
   .dm-dialog::backdrop,
+  .dm-dialog--fold[data-state],
+  .dm-dialog--fold[data-state]::backdrop,
   .dm-dialog[data-state="closing"],
   .dm-dialog[data-state="closing"]::backdrop {
     transition-duration: 0s;
     transform: none;
+  }
+  .dm-dialog--fold[data-state]
+    > :is(.dm-dialog__header, .dm-dialog__body, .dm-dialog__footer) {
+    transform: none;
+    opacity: 1;
+    transition-duration: 0s;
+    transition-delay: 0s;
+  }
+  .dm-dialog--fold[data-state]
+    > :is(.dm-dialog__body, .dm-dialog__footer)::before {
+    opacity: 0;
+    transform: none;
+    transition-duration: 0s;
+    transition-delay: 0s;
   }
 }
 @media (forced-colors: active) {
