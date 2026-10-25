@@ -131,16 +131,8 @@
   fill: var(--dm-triple-paper);
 }
 .dm-triple-banner .dm-triple-banner__fold,
-.dm-triple-banner .dm-triple-banner__tail,
-.dm-triple-banner .dm-triple-banner__crease {
+.dm-triple-banner .dm-triple-banner__tail {
   fill: var(--dm-triple-reverse);
-}
-.dm-triple-banner .dm-triple-banner__crease {
-  fill: color-mix(
-    in srgb,
-    var(--dm-triple-reverse) 85%,
-    var(--dm-ink, #252b2e)
-  );
 }
 .dm-bookmark-drawing {
   display: block;
@@ -204,7 +196,7 @@
   .dm-triple-banner[data-animate="true"] .dm-triple-banner__label {
     animation: dm-ribbon-label
       calc(var(--dm-ribbon-label-duration, 320ms) * var(--dm-drawing-rate, 1))
-      var(--dm-layer-easing, cubic-bezier(0.22, 1, 0.36, 1))
+      linear
       calc(
         (
             var(--dm-ribbon-label-at) + var(--dm-ribbon-row, 0) *
@@ -233,12 +225,10 @@
 }
 @keyframes dm-ribbon-label {
   from {
-    opacity: 0.76;
-    transform: translateY(2px);
+    clip-path: inset(-0.2em 100% -0.2em 0);
   }
   to {
-    opacity: 1;
-    transform: none;
+    clip-path: inset(-0.2em -0.2em -0.2em -0.2em);
   }
 }
 @media (forced-colors: active) {
@@ -248,8 +238,7 @@
   }
   .dm-triple-banner .dm-triple-banner__face,
   .dm-triple-banner .dm-triple-banner__fold,
-  .dm-triple-banner .dm-triple-banner__tail,
-  .dm-triple-banner .dm-triple-banner__crease {
+  .dm-triple-banner .dm-triple-banner__tail {
     fill: Canvas;
   }
 }

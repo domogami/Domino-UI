@@ -1009,7 +1009,7 @@ function NotebookNav() {
       ["native div attributes", "HTMLAttributes except children", "—"],
     ],
     guidance:
-      "Give three related phrases one clear landmark. All faces share the width of the longest section, wrap at the available width, and grow vertically with their real text. Ink outlines draw first, paper and reverse folds fill next, then handwritten labels reveal. Keep labels plain and noninteractive when replayOnClick wraps the artwork in a button. Quiet and reduced motion show completed artwork immediately.",
+      "Give three related phrases one clear landmark. All faces share the width of the longest section, wrap at the available width, and grow vertically with their real text. Ink outlines draw first, paper and reverse folds fill next, then handwritten labels write on from left to right without moving. Keep labels plain and noninteractive when replayOnClick wraps the artwork in a button. Quiet and reduced motion show completed artwork immediately.",
     usage:
       "Import RibbonBanner (or its compatible TripleBanner name) and styles.css from @domlee/ui. Use a semantic tone, or override individual face, reverse, ink and outline colors through colors. Set max-width on its container. Text stays selectable without replay; use headings only when replay is off and the hierarchy calls for them. Tap, click, Enter, or Space replays when enabled. See docs/RIBBON-BANNER.md for sizing, timing and theming.",
     origin: "Original",

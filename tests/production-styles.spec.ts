@@ -1901,7 +1901,83 @@ test("production ribbon custom colors and shared faces survive responsive wrappi
   const oldLabel = await label.elementHandle();
   await page.getByRole("button", { name: "Replay ribbon", exact: true }).tap();
   expect(await oldLabel!.evaluate((element) => element.isConnected)).toBe(true);
+  const lettering = await art.evaluate((element) => {
+    const animations = element.getAnimations({ subtree: true });
+    const fills = animations.filter(
+      (animation) =>
+        animation instanceof CSSAnimation &&
+        animation.animationName === "dm-ribbon-fill",
+    );
+    const labels = animations.filter(
+      (animation) =>
+        animation instanceof CSSAnimation &&
+        animation.animationName === "dm-ribbon-label",
+    );
+    const lastFill = Math.max(
+      ...fills.map((animation) =>
+        Number(animation.effect!.getComputedTiming().endTime),
+      ),
+    );
+    const firstLabel = labels[0];
+    const timing = firstLabel.effect!.getTiming();
+    const label = (firstLabel.effect as KeyframeEffect).target as HTMLElement;
+    const seek = (time: number) => {
+      animations.forEach((animation) => {
+        animation.pause();
+        animation.currentTime = time;
+      });
+      const css = getComputedStyle(label);
+      const right =
+        css.clipPath.match(/calc\([^)]*\)|[+-]?[\d.]+(?:px|%)/g)?.[1] ?? "0px";
+      const width = label.getBoundingClientRect().width;
+      const rightPercent =
+        ([...right.replace(/\s/g, "").matchAll(/([+-]?[\d.]+)(px|%)/g)].reduce(
+          (sum, term) =>
+            sum + Number(term[1]) * (term[2] === "%" ? width / 100 : 1),
+          0,
+        ) /
+          width) *
+        100;
+      return {
+        clip: css.clipPath,
+        right: rightPercent,
+        transform: css.transform,
+        top: label.getBoundingClientRect().top,
+      };
+    };
+    const before = seek(lastFill - 1);
+    const writing = seek(Number(timing.delay) + Number(timing.duration) / 2);
+    const finished = seek(
+      Math.max(
+        ...animations.map((animation) =>
+          Number(animation.effect!.getComputedTiming().endTime),
+        ),
+      ),
+    );
+    return {
+      lastFill,
+      delay: Number(timing.delay),
+      before,
+      writing,
+      finished,
+      creases: element.querySelectorAll(".dm-triple-banner__crease").length,
+      tails: element.querySelectorAll(".dm-triple-banner__tail").length,
+    };
+  });
+  expect(lettering.delay + 0.01).toBeGreaterThanOrEqual(lettering.lastFill);
+  expect(lettering.before.clip).toContain("100%");
+  expect(lettering.writing.right).toBeGreaterThan(0);
+  expect(lettering.writing.right).toBeLessThan(100);
+  expect(lettering.finished.right).toBeLessThanOrEqual(0);
+  expect(lettering.before.transform).toBe("none");
+  expect(lettering.writing.transform).toBe("none");
+  expect(lettering.finished.transform).toBe("none");
+  expect(lettering.writing.top).toBe(lettering.before.top);
+  expect(lettering.finished.top).toBe(lettering.before.top);
+  expect(lettering.creases).toBe(0);
+  expect(lettering.tails).toBe(2);
   await page.emulateMedia({ reducedMotion: "reduce" });
   await expect(fill).toHaveCSS("animation-name", "none");
   await expect(label).toHaveCSS("opacity", "1");
+  await expect(label).toHaveCSS("clip-path", "none");
 });

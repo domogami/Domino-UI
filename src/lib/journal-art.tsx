@@ -82,7 +82,7 @@ function RibbonPiece({
 }: {
   d: string;
   step: number;
-  kind: "face" | "fold" | "tail" | "crease";
+  kind: "face" | "fold" | "tail";
 }) {
   return (
     <>
@@ -302,32 +302,18 @@ export function TripleBanner({
                   focusable="false"
                 >
                   {index === 0 && (
-                    <>
-                      <RibbonPiece
-                        kind="tail"
-                        step={0}
-                        d="M63 43 8 44 26 68 9 94 63 93Z"
-                      />
-                      <RibbonPiece
-                        kind="crease"
-                        step={0}
-                        d="M63 74 53 84 63 93Z"
-                      />
-                    </>
+                    <RibbonPiece
+                      kind="tail"
+                      step={0}
+                      d="M63 43 8 44 26 68 9 94 63 93Z"
+                    />
                   )}
                   {index === 2 && (
-                    <>
-                      <RibbonPiece
-                        kind="tail"
-                        step={4}
-                        d="M537 43 592 44 574 68 591 94 537 93Z"
-                      />
-                      <RibbonPiece
-                        kind="crease"
-                        step={4}
-                        d="M537 74 547 84 537 93Z"
-                      />
-                    </>
+                    <RibbonPiece
+                      kind="tail"
+                      step={4}
+                      d="M537 43 592 44 574 68 591 94 537 93Z"
+                    />
                   )}
                   <RibbonPiece
                     kind="face"

@@ -51,36 +51,114 @@ async function seek(ribbon: Locator, time: number) {
     const outline = css(".dm-triple-banner__outline");
     const fill = css(".dm-triple-banner__face");
     const label = css(".dm-triple-banner__label");
+    const labels = [
+      ...element.querySelectorAll(".dm-triple-banner__label"),
+    ].map((node) => {
+      const style = getComputedStyle(node);
+      const inset = style.clipPath
+        .match(/^inset\((.*)\)$/)?.[1]
+        .match(/calc\([^)]*\)|[^\s]+/g);
+      const rightToken = (inset?.[1] ?? inset?.[0] ?? "0px").replace(
+        /\s+/g,
+        "",
+      );
+      const width = node.getBoundingClientRect().width;
+      const right = [
+        ...rightToken.matchAll(/([+-]?(?:\d*\.)?\d+)(%|px)/g),
+      ].reduce(
+        (sum, term) =>
+          sum + Number(term[1]) * (term[2] === "%" ? 1 : 100 / width),
+        0,
+      );
+      const transform = new DOMMatrixReadOnly(
+        style.transform === "none" ? undefined : style.transform,
+      );
+      return {
+        right,
+        x: transform.e,
+        y: transform.f,
+        top: node.getBoundingClientRect().top,
+      };
+    });
     return {
       outline: Number.parseFloat(outline.strokeDashoffset),
       fill: Number.parseFloat(fill.opacity),
       label: Number.parseFloat(label.opacity),
       text: element.textContent,
+      labels,
     };
   }, time);
 }
 
-test("ribbon draws its outline, fills its paper, then settles readable lettering", async ({
+test("ribbon fills completely before lettering writes left to right in place", async ({
   page,
 }) => {
   const ribbon = await mountRibbon(page);
+  await expect(ribbon.locator(".dm-triple-banner__crease")).toHaveCount(0);
+  await expect(ribbon.locator(".dm-triple-banner__tail")).toHaveCount(2);
+  const choreography = await ribbon.evaluate((element) => {
+    const animations = element
+      .getAnimations({ subtree: true })
+      .filter(
+        (animation): animation is CSSAnimation =>
+          animation instanceof CSSAnimation,
+      );
+    const fills = animations.filter(
+      (animation) => animation.animationName === "dm-ribbon-fill",
+    );
+    const labels = animations.filter(
+      (animation) => animation.animationName === "dm-ribbon-label",
+    );
+    return {
+      fillEnd: Math.max(
+        ...fills.map((animation) =>
+          Number(animation.effect!.getComputedTiming().endTime),
+        ),
+      ),
+      labelStart: Math.min(
+        ...labels.map((animation) =>
+          Number(animation.effect!.getTiming().delay),
+        ),
+      ),
+      labelDuration: Number(labels[0].effect!.getTiming().duration),
+      labelEnd: Math.max(
+        ...labels.map((animation) =>
+          Number(animation.effect!.getComputedTiming().endTime),
+        ),
+      ),
+    };
+  });
+  expect(choreography.labelStart).toBeGreaterThanOrEqual(
+    choreography.fillEnd - 0.01,
+  );
   const outline = await seek(ribbon, 400);
   expect(outline.outline).toBeGreaterThan(0);
   expect(outline.outline).toBeLessThan(1);
   expect(outline.fill).toBe(0);
-  expect(outline.label).toBeGreaterThanOrEqual(0.76);
+  expect(outline.labels.every((label) => label.right === 100)).toBe(true);
   expect(outline.text).toContain("A few good pieces");
   const filling = await seek(ribbon, 1300);
   expect(filling.outline).toBe(0);
   expect(filling.fill).toBeGreaterThan(0);
   expect(filling.fill).toBeLessThan(1);
-  expect(filling.label).toBeCloseTo(0.76, 2);
-  const lettering = await seek(ribbon, 1720);
+  expect(filling.labels.every((label) => label.right === 100)).toBe(true);
+  const lettering = await seek(
+    ribbon,
+    choreography.labelStart + choreography.labelDuration / 2,
+  );
   expect(lettering.fill).toBe(1);
-  expect(lettering.label).toBeGreaterThan(0.76);
-  expect(lettering.label).toBeLessThan(1);
-  const finished = await seek(ribbon, 2200);
+  expect(lettering.labels[0].right).toBeGreaterThan(0);
+  expect(lettering.labels[0].right).toBeLessThan(100);
+  const finished = await seek(ribbon, choreography.labelEnd + 10);
   expect(finished).toMatchObject({ outline: 0, fill: 1, label: 1 });
+  expect(finished.labels.every((label) => label.right <= 0)).toBe(true);
+  for (const snapshot of [outline, filling, lettering, finished]) {
+    snapshot.labels.forEach((label, index) => {
+      expect(label.x).toBe(0);
+      expect(label.y).toBe(0);
+      expect(label.top).toBeCloseTo(outline.labels[index].top, 3);
+    });
+  }
   expect(
     await ribbon.evaluate((element) =>
       element
@@ -268,6 +346,7 @@ test("rapid replay preserves native focus and label identity while rewinding own
     const reset = await seek(ribbon, 20);
     expect(reset.fill).toBe(0);
     expect(reset.outline).toBeGreaterThan(0.5);
+    expect(reset.labels.every((label) => label.right === 100)).toBe(true);
   }
   await page.evaluate(() =>
     (window as any).ribbonFixture.update({ replayKey: 2 }),
@@ -349,5 +428,8 @@ test("quiet and reduced motion finish all three phases without hiding words", as
       label: 1,
     });
     await expect(ribbon).toContainText("A few good pieces");
+    expect(
+      (await seek(ribbon, 0)).labels.every((label) => label.right <= 0),
+    ).toBe(true);
   }
 });
