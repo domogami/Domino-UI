@@ -31,6 +31,8 @@ npm install 'git+https://github.com/domogami/Domino-UI.git#<FULL_COMMIT_SHA>'
 
 Replace the placeholder before running the command. The Git installation builds the library through its `prepare` script. Commit the resulting dependency declaration and lockfile in the consuming project when its release is authorized. Avoid tracking a moving `main` branch in a production dependency.
 
+For public builds without SSH credentials, check that both the dependency declaration and its lockfile `resolved` entry keep the full `git+https://github.com/domogami/Domino-UI.git#<FULL_COMMIT_SHA>` URL. Some npm versions normalize GitHub installations to a `github:` declaration and a `git+ssh:` lock entry. Preserve HTTPS in the declaration, the lockfile's root dependency, and the package's resolved URL, then verify a clean `npm ci` with `prepare` enabled. The personal-site integration has been checked with a fresh npm cache and SSH disabled.
+
 For local development, create the same distributable package explicitly:
 
 ```sh

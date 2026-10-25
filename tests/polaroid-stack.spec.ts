@@ -514,26 +514,99 @@ test.describe("trusted mobile gestures", () => {
     await session.detach();
   });
 
-  test("native pinch zoom remains available without cycling the prints", async ({
-    page,
-  }) => {
-    await fixture(page);
-    const session = await page.context().newCDPSession(page);
-    const box = (await surface(page).boundingBox())!;
-    const before = await page.evaluate(() => visualViewport?.scale ?? 1);
-    await session.send("Input.synthesizePinchGesture", {
-      x: box.x + box.width / 2,
-      y: box.y + box.height / 2,
-      scaleFactor: 1.3,
-      relativeSpeed: 300,
-      gestureSourceType: "touch",
+  test.describe("native browser pinch integration", () => {
+    // CI's default Chromium headless shell is a separate renderer from the full
+    // browser. Exercise native page-scale gestures in Chromium's new headless
+    // browser mode; local runs retain the configured installed Chrome channel.
+    if (process.env.CI) test.use({ channel: "chromium" });
+
+    test("native pinch zoom remains available without cycling the prints", async ({
+      page,
+      browser,
+    }) => {
+      await fixture(page);
+      await page.evaluate(() => document.fonts.ready);
+      await surface(page).scrollIntoViewIfNeeded();
+      await expect(surface(page)).toBeInViewport({ ratio: 1 });
+      const session = await page.context().newCDPSession(page);
+      try {
+        const diagnostics = await surface(page).evaluate((button) => {
+          const box = button.getBoundingClientRect();
+          const x = box.x + box.width / 2,
+            y = box.y + box.height / 2;
+          const hit = document.elementFromPoint(x, y);
+          return {
+            x,
+            y,
+            box: box.toJSON(),
+            hitWithinSurface: !!hit && button.contains(hit),
+            hitTag: hit?.tagName,
+            hitClass: hit?.className,
+            touchAction: getComputedStyle(button).touchAction,
+            viewport: {
+              width: innerWidth,
+              height: innerHeight,
+              scale: visualViewport?.scale,
+              offsetTop: visualViewport?.offsetTop,
+              offsetLeft: visualViewport?.offsetLeft,
+            },
+            maxTouchPoints: navigator.maxTouchPoints,
+            userAgent: navigator.userAgent,
+          };
+        });
+        const message = JSON.stringify({
+          browser: browser.version(),
+          channel: process.env.CI ? "chromium" : "configured Chrome",
+          ...diagnostics,
+        });
+        expect(diagnostics.hitWithinSurface, message).toBe(true);
+        expect(diagnostics.touchAction, message).toBe("pan-y pinch-zoom");
+        const before = await page.evaluate(() => visualViewport?.scale ?? 1);
+        const pinch = () =>
+          session.send("Input.synthesizePinchGesture", {
+            x: diagnostics.x,
+            y: diagnostics.y,
+            scaleFactor: 1.3,
+            relativeSpeed: 300,
+            gestureSourceType: "touch",
+          });
+        const previousAction = await surface(page).evaluate(
+          (button: HTMLElement) => {
+            const previous = button.style.touchAction;
+            button.style.touchAction = "none";
+            return previous;
+          },
+        );
+        await pinch();
+        await page.evaluate(
+          () =>
+            new Promise((resolve) =>
+              requestAnimationFrame(() => requestAnimationFrame(resolve)),
+            ),
+        );
+        expect(
+          await page.evaluate(() => visualViewport?.scale ?? 1),
+          `touch-action:none negative control: ${message}`,
+        ).toBeCloseTo(before, 2);
+        await surface(page).evaluate((button: HTMLElement, previous) => {
+          button.style.touchAction = previous;
+        }, previousAction);
+        await expect(surface(page)).toHaveCSS(
+          "touch-action",
+          "pan-y pinch-zoom",
+        );
+        await pinch();
+        await expect
+          .poll(() => page.evaluate(() => visualViewport?.scale ?? 1), {
+            message,
+          })
+          .toBeGreaterThan(before + 0.05);
+        await expect(stack(page)).toHaveAttribute("data-index", "0");
+        expect(await changes(page)).toEqual([]);
+      } finally {
+        await session.detach();
+      }
     });
-    await expect
-      .poll(() => page.evaluate(() => visualViewport?.scale ?? 1))
-      .toBeGreaterThan(before + 0.05);
-    await expect(stack(page)).toHaveAttribute("data-index", "0");
-    expect(await changes(page)).toEqual([]);
-    await session.detach();
   });
 
   test("quiet and reduced motion keep gestures useful without moving the paper", async ({
