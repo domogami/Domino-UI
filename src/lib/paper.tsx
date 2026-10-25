@@ -75,6 +75,27 @@ export function Paper({
       if (!frame) frame = requestAnimationFrame(draw);
     };
     const schedule = () => queueDraw(true);
+    const hasWriting = (element: Element) => {
+      const target = body.contains(element) ? element : body;
+      const walker = document.createTreeWalker(target, NodeFilter.SHOW_TEXT);
+      let text: Node | null;
+      while ((text = walker.nextNode())) {
+        if (!text.textContent?.trim() || !text.parentElement) continue;
+        const excluded = text.parentElement.closest(unruled);
+        if (excluded && body.contains(excluded)) continue;
+        if (getComputedStyle(text.parentElement).visibility !== "visible")
+          continue;
+        const range = document.createRange();
+        range.selectNodeContents(text);
+        if (
+          [...range.getClientRects()].some(
+            (rect) => rect.width > 0 && rect.height > 0,
+          )
+        )
+          return true;
+      }
+      return false;
+    };
     const hasMovingText = () => {
       if (typeof body.getAnimations !== "function") return false;
       let moving = false;
@@ -99,7 +120,7 @@ export function Paper({
           : typographyProperties;
         const excluded = target.closest(unruled);
         if (excluded && body.contains(excluded)) continue;
-        if (!target.textContent?.trim()) continue;
+        if (!hasWriting(target)) continue;
         if (
           !effect
             .getKeyframes()
@@ -209,7 +230,7 @@ export function Paper({
           clear("unsupported-writing-mode");
           return;
         }
-        if (style.transform !== "none") {
+        if (style.transform !== "none" && hasWriting(element)) {
           try {
             const transform = new DOMMatrixReadOnly(style.transform);
             if (

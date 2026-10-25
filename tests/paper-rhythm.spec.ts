@@ -2,7 +2,12 @@ import { expect, test, type Locator, type Page } from "@playwright/test";
 
 async function mountPaper(
   page: Page,
-  options: { padding?: string; ruleAlign?: string; mixed?: boolean } = {},
+  options: {
+    padding?: string;
+    ruleAlign?: string;
+    mixed?: boolean;
+    timeline?: boolean;
+  } = {},
 ) {
   await page.goto("/#component/paper");
   await page.evaluate(async (options) => {
@@ -11,6 +16,7 @@ async function mountPaper(
     const client = await import("/node_modules/.vite/deps/react-dom_client.js");
     const createRoot = client.createRoot ?? client.default.createRoot;
     const { Paper } = await import("/src/lib/paper.tsx");
+    const { Timeline } = await import("/src/lib/timeline.tsx");
     const target = window as any;
     target.paperFixture?.unmount();
     document.querySelector("#paper-rhythm-host")?.remove();
@@ -27,6 +33,8 @@ async function mountPaper(
       const [ruleAlign, setRuleAlign] = React.useState(
         options.ruleAlign ?? "between",
       );
+      const [timelineReplay, setTimelineReplay] = React.useState(0);
+      state.replayTimeline = setTimelineReplay;
       state.setPadding = setPadding;
       state.setRuleAlign = setRuleAlign;
       return e(
@@ -109,6 +117,29 @@ async function mountPaper(
             ),
             e("figcaption", null, "A sketch needs its own clear space."),
           ),
+        options.timeline &&
+          e(Timeline, {
+            label: "A thought taking shape",
+            replayKey: timelineReplay,
+            items: [
+              {
+                id: "begin",
+                title: "Begin with curiosity",
+                description: "A quietly growing thought takes its first shape.",
+              },
+              {
+                id: "gather",
+                title: "Gather a few good pieces",
+                description:
+                  "Keep typography and patient progress in the notebook.",
+              },
+              {
+                id: "share",
+                title: "Share the next chapter",
+                description: "One thoughtful step, then another.",
+              },
+            ],
+          }),
       );
     }
     const root = createRoot(host);
@@ -475,4 +506,45 @@ test("real rule and glyph paint never intersect, and the pixel detector catches 
   await paper
     .locator('[data-negative-control="true"]')
     .evaluate((path) => path.remove());
+});
+
+test("ruled Paper restores guides after an animated Timeline and a temporary rotated text ancestor settle", async ({
+  page,
+}) => {
+  const paper = await mountPaper(page, { timeline: true });
+  const timeline = paper.getByRole("list", { name: "A thought taking shape" });
+  const rules = paper.locator(".dm-paper__rules");
+  await timeline.scrollIntoViewIfNeeded();
+  await expect(timeline).toHaveAttribute("data-state", "finished");
+  await page.evaluate(() => (window as any).paperFixture.replayTimeline(1));
+  await expect(timeline).toHaveAttribute("data-state", "running");
+  await expect(rules).toHaveAttribute("data-rules-reason", "moving-text");
+  await expect(rules).toHaveAttribute("data-rules-ready", "false");
+  await expect(paper.locator(".dm-paper__rule-ink")).not.toHaveAttribute("d");
+  await expect(timeline).toHaveAttribute("data-state", "finished");
+  expect(
+    await timeline.evaluate(
+      (element) => element.getAnimations({ subtree: true }).length,
+    ),
+  ).toBe(0);
+  await expect(rules).toHaveAttribute("data-rules-reason", "measured");
+  await assertSafe(paper);
+  // Timeline's decorative node retains a slight rotation; it has no writing.
+  await expect(timeline.locator(".dm-timeline__node").first()).not.toHaveCSS(
+    "transform",
+    "none",
+  );
+  await page.locator("#paper-rhythm-host").evaluate((host) => {
+    host.style.transform = "rotate(-1deg)";
+  });
+  await expect(rules).toHaveAttribute(
+    "data-rules-reason",
+    "unsupported-transform",
+  );
+  await expect(rules).toHaveAttribute("data-rules-ready", "false");
+  await page.locator("#paper-rhythm-host").evaluate((host) => {
+    host.style.transform = "none";
+  });
+  await expect(rules).toHaveAttribute("data-rules-reason", "measured");
+  await assertSafe(paper);
 });
