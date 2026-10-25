@@ -1,5 +1,5 @@
 /* GENERATED from tokens/system.json — Domino UI 0.1.0.
-   Source SHA-256: cc1b61a92b55cb806671687eef821353fdc2d35ad5f733abcb6ef1c1e89312b1
+   Source SHA-256: 3833324a942ed060e58100d7cbca892f6ca907d8633067c64d82ed1a51c38091
    Edit the canonical source, then run npm run build:system. */
 :root {
   --dm-grid-size: 32px;
@@ -24,6 +24,12 @@
   --dm-duration-base: 240ms;
   --dm-menu-duration: 360ms;
   --dm-menu-easing: cubic-bezier(0.22, 1, 0.36, 1);
+  --dm-nav-duration: 420ms;
+  --dm-nav-easing: cubic-bezier(0.22, 0.8, 0.24, 1);
+  --dm-nav-icon-duration: 420ms;
+  --dm-checkbox-duration: 220ms;
+  --dm-radio-duration: 320ms;
+  --dm-control-press-duration: 100ms;
   --dm-switch-duration: 360ms;
   --dm-switch-easing: cubic-bezier(0.34, 1.4, 0.64, 1);
   --dm-switch-press-duration: 80ms;
@@ -51,6 +57,10 @@
   --dm-banner-fill-delay: 750ms;
   --dm-banner-label-duration: 300ms;
   --dm-banner-label-delay: 1100ms;
+  --dm-ribbon-outline-duration: 800ms;
+  --dm-ribbon-fill-duration: 360ms;
+  --dm-ribbon-label-duration: 320ms;
+  --dm-ribbon-stagger: 80ms;
   --dm-layer-duration: 240ms;
   --dm-dialog-duration: 360ms;
   --dm-dialog-exit-duration: 240ms;
@@ -112,6 +122,12 @@
   --dm-duration-base: 240ms;
   --dm-menu-duration: 360ms;
   --dm-menu-easing: cubic-bezier(0.22, 1, 0.36, 1);
+  --dm-nav-duration: 420ms;
+  --dm-nav-easing: cubic-bezier(0.22, 0.8, 0.24, 1);
+  --dm-nav-icon-duration: 420ms;
+  --dm-checkbox-duration: 220ms;
+  --dm-radio-duration: 320ms;
+  --dm-control-press-duration: 100ms;
   --dm-switch-duration: 360ms;
   --dm-switch-easing: cubic-bezier(0.34, 1.4, 0.64, 1);
   --dm-switch-press-duration: 80ms;
@@ -139,6 +155,10 @@
   --dm-banner-fill-delay: 750ms;
   --dm-banner-label-duration: 300ms;
   --dm-banner-label-delay: 1100ms;
+  --dm-ribbon-outline-duration: 800ms;
+  --dm-ribbon-fill-duration: 360ms;
+  --dm-ribbon-label-duration: 320ms;
+  --dm-ribbon-stagger: 80ms;
   --dm-layer-duration: 240ms;
   --dm-dialog-duration: 360ms;
   --dm-dialog-exit-duration: 240ms;
@@ -200,6 +220,12 @@
   --dm-duration-base: 240ms;
   --dm-menu-duration: 360ms;
   --dm-menu-easing: cubic-bezier(0.22, 1, 0.36, 1);
+  --dm-nav-duration: 420ms;
+  --dm-nav-easing: cubic-bezier(0.22, 0.8, 0.24, 1);
+  --dm-nav-icon-duration: 420ms;
+  --dm-checkbox-duration: 220ms;
+  --dm-radio-duration: 320ms;
+  --dm-control-press-duration: 100ms;
   --dm-switch-duration: 360ms;
   --dm-switch-easing: cubic-bezier(0.34, 1.4, 0.64, 1);
   --dm-switch-press-duration: 80ms;
@@ -227,6 +253,10 @@
   --dm-banner-fill-delay: 750ms;
   --dm-banner-label-duration: 300ms;
   --dm-banner-label-delay: 1100ms;
+  --dm-ribbon-outline-duration: 800ms;
+  --dm-ribbon-fill-duration: 360ms;
+  --dm-ribbon-label-duration: 320ms;
+  --dm-ribbon-stagger: 80ms;
   --dm-layer-duration: 240ms;
   --dm-dialog-duration: 360ms;
   --dm-dialog-exit-duration: 240ms;
@@ -288,6 +318,12 @@
   --dm-duration-base: 240ms;
   --dm-menu-duration: 360ms;
   --dm-menu-easing: cubic-bezier(0.22, 1, 0.36, 1);
+  --dm-nav-duration: 420ms;
+  --dm-nav-easing: cubic-bezier(0.22, 0.8, 0.24, 1);
+  --dm-nav-icon-duration: 420ms;
+  --dm-checkbox-duration: 220ms;
+  --dm-radio-duration: 320ms;
+  --dm-control-press-duration: 100ms;
   --dm-switch-duration: 360ms;
   --dm-switch-easing: cubic-bezier(0.34, 1.4, 0.64, 1);
   --dm-switch-press-duration: 80ms;
@@ -315,6 +351,10 @@
   --dm-banner-fill-delay: 750ms;
   --dm-banner-label-duration: 300ms;
   --dm-banner-label-delay: 1100ms;
+  --dm-ribbon-outline-duration: 800ms;
+  --dm-ribbon-fill-duration: 360ms;
+  --dm-ribbon-label-duration: 320ms;
+  --dm-ribbon-stagger: 80ms;
   --dm-layer-duration: 240ms;
   --dm-dialog-duration: 360ms;
   --dm-dialog-exit-duration: 240ms;

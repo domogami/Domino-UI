@@ -154,7 +154,7 @@ Use **Kalam** for a named section on a paper banner and **Caveat** for an aside 
 
 Reuse the exact SVG banners from `NotebookDrawings.tsx`: the standard notched strip and the folded ribbon with tails, folds, and a front face. Preserve the folding order. Labels must stay within the front panel at narrow widths and at enlarged text sizes. The garden's smaller graph banner uses Poppins; that is a contextual source variant.
 
-`TripleBanner` extends the family with three connected ribbon faces and two diagonal reverse folds. It uses new geometry inspired by the supplied reference, rather than copying the existing single-ribbon paths. Its three real-text labels determine the face heights and wrap naturally, including narrow layouts and long words. `BookmarkDrawing` adds original notched and pointed hanging-bookmark silhouettes with a fine teal seam and a faint second pen pass. Both share `DrawingProps`, semantic colors, quiet/reduced motion, and optional native-button replay; enable `animate` explicitly for a replayable triple ribbon. Keep replayable labels plain and noninteractive.
+`RibbonBanner` (the compatible `TripleBanner` export) extends the family with three connected ribbon faces and two diagonal reverse folds. It uses original reference-inspired geometry. All faces share the intrinsic width of the longest label, capped to the available space, with real text determining each face height. Its outline, color fill and handwritten label reveal form one finite sequence. `colors` can independently override face, reverse, ink and outline roles; semantic tones follow each theme. [Ribbon sizing, colors and replay](docs/RIBBON-BANNER.md). `BookmarkDrawing` adds original notched and pointed hanging-bookmark silhouettes with a fine teal seam and a faint second pen pass. Both share `DrawingProps`, semantic colors, quiet/reduced motion, and optional native-button replay; enable `animate` explicitly for a replayable triple ribbon. Keep replayable labels plain and noninteractive.
 
 Annotations have optional curved arrows pointing up, down, left, or right. Arrows travel inline with the title and wrap safely within the content column. They are decorative hints; actual references should use a descriptive link. Do not position an arrow across an unrelated control or use it to convey essential instructions by position alone. End-aligned and title-only annotations are valid. Collapsible annotation bodies retain regular body typography.
 
@@ -170,7 +170,7 @@ The canonical journal key contains **exactly five marks**, from the portfolio gu
 
 There is deliberately no scheduled-task symbol. Do not add `<` or priority asterisks to this key, and do not redefine an arrow as a generic marker for ongoing work. Article listings use note dashes. A displayed symbol needs visible text or an equivalent accessible description; shape and color must not be its only explanation. Native checkboxes are used when a user can actually change task completion.
 
-Navigation uses a separate small mint location dot alongside `aria-current="location"`. Its meaning is current reading location, not a new journal category. Keep it from shifting the link when it appears.
+Reading navigation can use a small location dot alongside `aria-current="location"`. Its meaning is current reading location, not a journal category. The component notebook uses `NavTrail`: one persistent highlight and accent edge follow `aria-current="page"`, moving across nested rows without shifting their contents. Selection and existing SVG icons animate once over 420ms, with immediate quiet/reduced-motion behavior. The original links retain focus, names and router behavior. [Navigation integration](docs/NAVIGATION.md).
 
 Other reusable motifs include a drawn potted plant, shared faceted crane, dotted leader, folio, outbound sketch arrow, layered note, and flower/petal progress. Decorations must not intercept pointer events or become extra keyboard stops. A replay control is an intentional exception and needs a real button.
 
@@ -186,17 +186,17 @@ Quiet mode and the operating system's reduced-motion setting leave both drawing 
 
 Motion describes a drawing becoming ink on paper. Avoid unrelated bounce, continuous drift, and repeated entrance effects on ordinary content. The portfolio and garden have different timing budgets, so preserve their identity while choosing a deliberate context.
 
-| Pattern                      | Source sequence                                                                                                                |
-| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| Portfolio name, **Dom Lee.** | Exact Poppins outlines over 2120ms; diagonal fill sweep 660ms starting at 1320ms; period lands for 180ms starting at 2060ms    |
-| Portfolio shared hero        | Name starts at 0; ribbon outline starts 160ms for 1020ms; fill begins 1180ms; label begins 1380ms; tagline 2300ms; copy 2920ms |
-| Ordinary portfolio banner    | Outline 800ms; fill 450ms beginning at 750ms; label follows                                                                    |
-| Garden compact banner        | Outline 600ms, then fill 240ms; label begins 840ms                                                                             |
-| Portfolio handwriting        | Clipped character reveal 70ms with 75ms stagger; preserve whole words                                                          |
-| Garden bounded handwriting   | 22ms step, 65ms glyph reveal, 650ms budget; cap long sequences                                                                 |
-| Plant                        | Staggered stem, leaves, and pot outlines with soft fills; full source sequence about 2.4s                                      |
-| Garden task                  | 220ms check drawing; 280ms wrapped strike                                                                                      |
-| Standard UI                  | Library extension: 160ms fast and 240ms base feedback                                                                          |
+| Pattern                      | Source sequence                                                                                                                                               |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Portfolio name, **Dom Lee.** | Exact Poppins outlines over 2120ms; diagonal fill sweep 660ms starting at 1320ms; period lands for 180ms starting at 2060ms                                   |
+| Portfolio shared hero        | Name starts at 0; ribbon outline starts 160ms for 1020ms; fill begins 1180ms; label begins 1380ms; tagline 2300ms; copy 2920ms                                |
+| Ordinary portfolio banner    | Outline 800ms; fill 450ms beginning at 750ms; label follows                                                                                                   |
+| Garden compact banner        | Outline 600ms, then fill 240ms; label begins 840ms                                                                                                            |
+| Portfolio handwriting        | Clipped character reveal 70ms with 75ms stagger; preserve whole words                                                                                         |
+| Garden bounded handwriting   | 22ms step, 65ms glyph reveal, 650ms budget; cap long sequences                                                                                                |
+| Plant                        | Staggered stem, leaves, and pot outlines with soft fills; full source sequence about 2.4s                                                                     |
+| Garden task                  | 220ms check drawing; 280ms wrapped strike                                                                                                                     |
+| Standard UI                  | Library extension: 160ms fast and 240ms base feedback                                                                                                         |
 | Folding dialog               | Library extension: whole-note right-side arrival/unfold over 360ms with 160ms entry fade; 240ms close with connected tuck and a shared 40ms hold / 200ms fade |
 
 The wordmark's period is part of the requested identity. The garden header intentionally omits it; use the portfolio's period-bearing variant for the library's main brand example. Use instance-specific SVG identifiers so several wordmarks can coexist on one page. Do not replace its geometry with live text in an approximately similar font.
@@ -207,7 +207,7 @@ Provide explicit replay and motion controls in the showcase. Keyboard focus and 
 
 ## Responsive composition
 
-Task completion retains the garden’s original 220ms curved check and 280ms ink strike, scoped to the task copy so descriptions remain clear. A springing switch uses a 360ms reversible settle and 80ms press deformation. Handwritten loading placeholders use nonverbal pen marks with a long write-and-rest cadence; their faint guide preserves layout context between passes. All use shared motion tokens and show static completed states under reduced motion. The banner face sizes from its label, with proportional artwork margins and natural wrapping rather than shrinking the handwriting to fit.
+Regular `Checkbox` and `TaskCheckbox` share the garden’s organic box and original 220ms curved check. Only task completion adds the 280ms ink strike, scoped to task copy so descriptions remain clear. Radios use a finite 320ms spreading ink bloom and reversible settled dot, with a 100ms press compression. Quiet or reduced motion preserves the selected state without movement. IconButton uses an explicitly square 36/44/50px target with a centered glyph and no text-button padding. A springing switch uses a 360ms reversible settle and 80ms press deformation. Handwritten loading placeholders use nonverbal pen marks with a long write-and-rest cadence; their faint guide preserves layout context between passes. All use shared motion tokens and show static completed states under reduced motion. The banner face sizes from its label, with proportional artwork margins and natural wrapping rather than shrinking the handwriting to fit.
 
 Reference breakpoints differ by application: the portfolio uses major changes at 1100px and 760px; the garden uses 1200px and 800px. They are evidence for layout transitions, not a reason to bake one page's dimensions into every primitive.
 
@@ -236,7 +236,6 @@ Touch is part of the shared interaction language. [HAPTICS.md](docs/HAPTICS.md) 
 Use the shared centered `Chevron` SVG for dropdown, select, breadcrumb, and disclosure affordances. Keep its square box aligned to the control center; do not substitute text glyphs or baseline offsets. Expanded controls rotate the persistent icon, with an immediate direction change under reduced motion. Keep hand-drawn SketchArrow marks for annotations.
 
 Sketches may opt into `replayOnClick`: one stable native button redraws its own ink on click, tap, Enter, or Space. Other drawings remain at rest. Preserve button focus during replay, allow vertical touch scrolling, and disable replay when quiet or reduced motion is active. The notebook set includes six scenes; Hairline replays an ink sweep while its guided tour remains separately opt in.
-
 
 ## Drawn timelines
 

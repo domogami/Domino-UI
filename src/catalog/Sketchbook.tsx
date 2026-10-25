@@ -206,7 +206,7 @@ export function SketchbookPage({ copy }: { copy: (text: string) => void }) {
             className="sketchbook-component-link"
             href="#component/triple-banner"
           >
-            The triple banner <SketchArrow direction="up-right" />
+            The ribbon component <SketchArrow direction="up-right" />
           </a>
         </div>
         <div className="sketchbook-grid sketchbook-journal-grid">

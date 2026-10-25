@@ -66,13 +66,22 @@ Keep these design decisions consistent:
   restrained irregular corners, thin rounded ink, and generous reading space.
   Use shared controls, Chevron icons, drawings, and motion rather than
   duplicating them or substituting a generic handwritten aesthetic.
-- Reuse TaskCheckbox for the garden's drawn check and text strike in React.
-  Preserve the native checkbox state, label, and keyboard behavior.
+- Checkbox and TaskCheckbox share the garden's organic box and drawn check;
+  TaskCheckbox also strikes completed copy. Preserve native state and keyboard
+  behavior. RadioGroup has a finite ink fill and optional quiet mode.
+- RibbonBanner (compatible name TripleBanner) is a standalone three-face
+  Notebook ribbon. Use semantic tone or colors={face,reverse,ink,outline};
+  all faces share the longest section width and wrap to their container.
+  Enable animate plus replayOnClick for staged outline/fill/text replay.
 - Use Popover for short contextual details, Dialog/Drawer for a modal task,
   and NotificationCard for an application-owned queue. Give each layer a clear
   title and actions; pass Dialog returnFocusRef for an explicit touch opener.
   Keep surfaces mounted through exit and preserve native top-layer behavior.
-- Keep navigation stationary during page changes. If the framework does not
+- Use NavTrail inside a dm-nav-trail-host for one moving selection surface
+  across native links or buttons. Pass the host ref and committed activeKey;
+  retain aria-current and router behavior. Optional dm-nav-icon SVGs have
+  finite hover/focus/selection gestures; quiet/reduced motion settles instantly.
+- Keep the navigation rail stationary during page changes. If the framework does not
   already own View Transitions, use createPageTransition around a synchronous
   route commit and one dm-page-transition content wrapper. Preserve history,
   scroll and focus, guard obsolete callbacks, and honor reduced motion.

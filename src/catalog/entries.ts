@@ -195,7 +195,7 @@ export const entries: Entry[] = [
       ["id", "string", "generated with useId"],
     ],
     guidance:
-      "Use checkboxes for independent choices. Group related choices under a visible legend. Set the native indeterminate property through the forwarded input ref; there is no indeterminate prop.",
+      "Use checkboxes for independent choices. The organic box and 220ms drawn check match TaskCheckbox; ordinary choices keep their label intact. Group related choices under a visible legend. Set the native indeterminate property through the forwarded input ref; there is no indeterminate prop. Reduced motion keeps a completed static mark.",
     origin: "Adapted",
     usage:
       "Import the shown components from @domlee/ui. Standard className, style, aria-* and native element attributes are supported unless a narrower API is described here.",
@@ -231,7 +231,7 @@ export const entries: Entry[] = [
     name: "Radio group",
     group: "Inputs",
     summary:
-      "A small set of alternatives that deserve to be read side by side.",
+      "An ink-filled choice with a soft press, a spreading color bloom, and a settled dot.",
     code: "<RadioGroup label=\"Reading pace\"\n  options={[{value:'slow', label:'Slow & steady'},\n  {value:'quick', label:'A quick look'}]}\n  defaultValue=\"slow\" />",
     props: [
       ["label", "ReactNode; fieldset legend", "required"],
@@ -250,10 +250,11 @@ export const entries: Entry[] = [
       ],
       ["onValueChange", "(value: string) => void", "—"],
       ["orientation", "horizontal | vertical", "vertical"],
+      ["quiet", "boolean; settle instantly without animation", "false"],
       ["disabled / required", "boolean", "false"],
     ],
     guidance:
-      "Keep choices mutually exclusive. Give every option a stable, unique value, which also supplies its React key. onValueChange receives the value string.",
+      "Keep choices mutually exclusive. A 320ms color bloom and reversible dot settle respond to selection, with a short press compression. Give every option a stable, unique value, which also supplies its React key. onValueChange receives the value string. Native arrow keys and shared-name grouping are preserved. Quiet and reduced motion show a finished mark immediately.",
     origin: "Extended",
     usage:
       "Import the shown components from @domlee/ui. Standard className, style, aria-* and native element attributes are supported unless a narrower API is described here.",
@@ -700,6 +701,54 @@ export const entries: Entry[] = [
       "Import Drawer and Button from @domlee/ui. The example defines open state. Drawer accepts Dialog content and behavior props plus side, and preserves its edge slide rather than accepting motion. onClose must update open state.",
   },
   {
+    id: "nav-trail",
+    name: "Navigation trail",
+    group: "Navigation",
+    summary:
+      "One paper highlight glides between native links, with a small drawn gesture from each icon.",
+    code: `import { useRef, useState } from "react";
+import { NavTrail } from "@domlee/ui";
+
+function NotebookNav() {
+  const nav = useRef<HTMLElement>(null);
+  const [current, setCurrent] = useState("notes");
+  return <nav ref={nav} className="dm-nav-trail-host" aria-label="Notebook">
+    <NavTrail containerRef={nav} activeKey={current} />
+    {["notes", "ideas", "kept"].map(id =>
+      <button key={id} type="button" style={{ display: "block", padding: 12 }}
+        aria-current={current === id ? "page" : undefined}
+        onClick={() => setCurrent(id)}>{id}</button>
+    )}
+  </nav>;
+}`,
+    props: [
+      [
+        "containerRef",
+        "RefObject<HTMLElement | null>; scrollable positioned host",
+        "required",
+      ],
+      ["activeKey", "string | number; committed route or selection", "—"],
+      [
+        "activeSelector",
+        "string; one selected element inside the host",
+        "[aria-current=page]",
+      ],
+      ["itemSelector", "string; native interactive rows", "a[href],button"],
+      ["iconSelector", "string; SVG inside each row", ".dm-nav-icon"],
+      ["quiet", "boolean; immediate selection and no icon gesture", "false"],
+      [
+        "native span attributes",
+        "HTMLAttributes except children; decorative marker only",
+        "—",
+      ],
+    ],
+    guidance:
+      "Use a single persistent marker inside a dm-nav-trail-host. Keep links, buttons, focus and aria-current on the original rows. It retargets from its current position during fast navigation and follows nested indentation, wrapping, scroll and resize. A small icon gesture runs once on hover, focus or selection; quiet and reduced motion move instantly.",
+    usage:
+      "Import NavTrail and styles.css from @domlee/ui. The host must be positioned and contain one matching active item. Give SVGs dm-nav-icon and optional data-nav-icon=pen, heart, sparkle, ruler, type, play or code on the row for personal gestures. The consuming router still owns URLs, focus, history and drawer behavior. See docs/NAVIGATION.md.",
+    origin: "Extended",
+  },
+  {
     id: "menu-toggle",
     name: "Menu toggle",
     group: "Navigation",
@@ -923,11 +972,11 @@ export const entries: Entry[] = [
   },
   {
     id: "triple-banner",
-    name: "Triple banner",
-    group: "Brand",
+    name: "Ribbon banner",
+    group: "Notebook",
     summary:
-      "Three handwritten ribbon faces, joined by colored diagonal folds. A little journal ceremony.",
-    code: '<TripleBanner lines={["Paper & patience", "A little curiosity", "Room to grow"]}\n  tone="accent" animate replayOnClick />',
+      "Three connected paper faces draw, fill, and reveal their handwritten thoughts. One width follows the longest section.",
+    code: '<RibbonBanner lines={["Paper & patience", "A little curiosity", "Room to grow"]}\n  tone="accent" animate replayOnClick\n  colors={{ face: "#fbf9f1", reverse: "#bfd0c4", ink: "#0e7c79", outline: "#272d30" }} />',
     props: [
       [
         "lines",
@@ -935,6 +984,11 @@ export const entries: Entry[] = [
         "required",
       ],
       ["tone", "accent | sage | peach | ink", "accent"],
+      [
+        "colors",
+        "{ face?, reverse?, ink?, outline? }; CSS color values",
+        "semantic tone colors",
+      ],
       [
         "animate / quiet",
         "boolean; draw once / completed and still",
@@ -955,9 +1009,9 @@ export const entries: Entry[] = [
       ["native div attributes", "HTMLAttributes except children", "—"],
     ],
     guidance:
-      "Give three related phrases one clear landmark. The front faces grow with their real HTML text; diagonal reverse folds bridge the changing heights. Keep labels short where possible. Use plain, noninteractive labels when replayOnClick wraps the artwork in a button. Quiet and reduced motion show the completed drawing.",
+      "Give three related phrases one clear landmark. All faces share the width of the longest section, wrap at the available width, and grow vertically with their real text. Ink outlines draw first, paper and reverse folds fill next, then handwritten labels reveal. Keep labels plain and noninteractive when replayOnClick wraps the artwork in a button. Quiet and reduced motion show completed artwork immediately.",
     usage:
-      "Import TripleBanner and styles.css from @domlee/ui. Set width or max-width on its container. The illustration is original geometry inspired by bullet journal ribbons. Text remains selectable without replay; supply heading elements only when replay is off and the page hierarchy calls for them. Tap, click, Enter, or Space replays when enabled.",
+      "Import RibbonBanner (or its compatible TripleBanner name) and styles.css from @domlee/ui. Use a semantic tone, or override individual face, reverse, ink and outline colors through colors. Set max-width on its container. Text stays selectable without replay; use headings only when replay is off and the hierarchy calls for them. Tap, click, Enter, or Space replays when enabled. See docs/RIBBON-BANNER.md for sizing, timing and theming.",
     origin: "Original",
   },
   {

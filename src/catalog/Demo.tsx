@@ -110,6 +110,139 @@ function PaperDemo({ compact }: { compact: boolean }) {
   );
 }
 
+function NavTrailDemo({ quiet }: { quiet: boolean }) {
+  const nav = useRef<HTMLElement>(null);
+  const [selected, setSelected] = useState("notes");
+  return (
+    <nav
+      ref={nav}
+      className="dm-nav-trail-host nav-trail-demo"
+      aria-label="Try the moving notebook selection"
+    >
+      <UI.NavTrail containerRef={nav} activeKey={selected} quiet={quiet} />
+      {(
+        [
+          ["notes", "Notes worth keeping", "book"],
+          ["ideas", "A little room for ideas", "pen"],
+          ["kept", "Made & loved", "heart"],
+        ] as const
+      ).map(([id, label, icon]) => (
+        <button
+          key={id}
+          type="button"
+          data-nav-icon={icon}
+          aria-current={selected === id ? "page" : undefined}
+          onClick={() => setSelected(id)}
+        >
+          <Icon name={icon} size={18} className="dm-nav-icon" />
+          <span>{label}</span>
+        </button>
+      ))}
+    </nav>
+  );
+}
+
+function RibbonBannerDemo({
+  compact,
+  quiet,
+  speed,
+}: {
+  compact: boolean;
+  quiet: boolean;
+  speed: DrawingSpeed;
+}) {
+  const [tone, setTone] = useState<"accent" | "sage" | "peach" | "ink">(
+    "accent",
+  );
+  const reduced = useSyncExternalStore(
+    subscribeDemoMotion,
+    readDemoMotion,
+    demoMotionOnServer,
+  );
+  const [custom, setCustom] = useState(false);
+  const [replay, setReplay] = useState(0);
+  const [colors, setColors] = useState({
+    face: "#fbf9f1",
+    reverse: "#bfd0c4",
+    ink: "#0e7c79",
+    outline: "#272d30",
+  });
+  return (
+    <div className="ribbon-banner-demo demo-stack">
+      <div className="journal-art-demo journal-art-demo--ribbon">
+        <UI.RibbonBanner
+          lines={["Paper & patience", "A little curiosity", "Room to grow"]}
+          tone={tone}
+          colors={custom ? colors : undefined}
+          animate={!quiet}
+          quiet={quiet}
+          speed={speed}
+          replayKey={replay}
+          replayOnClick={!compact}
+        />
+      </div>
+      {!compact && (
+        <div className="ribbon-banner-demo__controls">
+          <div className="demo-row">
+            <UI.Button
+              variant="secondary"
+              size="sm"
+              disabled={quiet || reduced}
+              icon={<Icon name="replay" size={15} />}
+              onClick={() => setReplay((value) => value + 1)}
+            >
+              Replay ribbon
+            </UI.Button>
+            <UI.Select
+              label="Ribbon palette"
+              value={tone}
+              disabled={custom}
+              onChange={(event) => setTone(event.target.value as typeof tone)}
+            >
+              <option value="accent">Teal & paper</option>
+              <option value="sage">Sage</option>
+              <option value="peach">Peach</option>
+              <option value="ink">Ink</option>
+            </UI.Select>
+          </div>
+          <UI.Switch
+            label="Use custom ribbon colors"
+            checked={custom}
+            onChange={(event) => setCustom(event.target.checked)}
+          />
+          {custom && (
+            <div className="ribbon-banner-demo__colors">
+              {(
+                [
+                  ["face", "Paper"],
+                  ["reverse", "Folds"],
+                  ["ink", "Text"],
+                  ["outline", "Outline"],
+                ] as const
+              ).map(([key, label]) => (
+                <label key={key}>
+                  <input
+                    type="color"
+                    aria-label={`Ribbon ${label.toLowerCase()} color`}
+                    value={colors[key]}
+                    onChange={(event) =>
+                      setColors((value) => ({
+                        ...value,
+                        [key]: event.target.value,
+                      }))
+                    }
+                  />
+                  <span>{label}</span>
+                </label>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 const timelineMilestones: readonly UI.TimelineItem[] = [
   {
     id: "begin",
@@ -137,14 +270,14 @@ const timelineMilestones: readonly UI.TimelineItem[] = [
     ),
   },
 ];
-const timelineMotionQuery = "(prefers-reduced-motion: reduce)";
-function subscribeTimelineMotion(update: () => void) {
-  const media = window.matchMedia(timelineMotionQuery);
+const demoMotionQuery = "(prefers-reduced-motion: reduce)";
+function subscribeDemoMotion(update: () => void) {
+  const media = window.matchMedia(demoMotionQuery);
   media.addEventListener("change", update);
   return () => media.removeEventListener("change", update);
 }
-const readTimelineMotion = () => window.matchMedia(timelineMotionQuery).matches;
-const timelineMotionOnServer = () => true;
+const readDemoMotion = () => window.matchMedia(demoMotionQuery).matches;
+const demoMotionOnServer = () => true;
 
 function TimelineDemo({
   compact,
@@ -156,9 +289,9 @@ function TimelineDemo({
   const [replay, setReplay] = useState(0);
   const [still, setStill] = useState(false);
   const reduced = useSyncExternalStore(
-    subscribeTimelineMotion,
-    readTimelineMotion,
-    timelineMotionOnServer,
+    subscribeDemoMotion,
+    readDemoMotion,
+    demoMotionOnServer,
   );
   return (
     <div className={`timeline-demo ${compact ? "timeline-demo--compact" : ""}`}>
@@ -446,8 +579,7 @@ export function Demo({
             <>
               <UI.Checkbox label="A thought for another day" disabled />
               <a className="text-link" href="#component/task-checkbox">
-                Try the garden’s drawn task checkbox{" "}
-                <Icon name="arrow" size={14} />
+                Add the garden’s task strike <Icon name="arrow" size={14} />
               </a>
             </>
           )}
@@ -459,6 +591,7 @@ export function Demo({
       return (
         <UI.RadioGroup
           label="A little reading time"
+          quiet={quiet}
           defaultValue="slow"
           options={[
             { value: "slow", label: "Slow & steady" },
@@ -819,6 +952,8 @@ export function Demo({
           </UI.Drawer>
         </>
       );
+    case "nav-trail":
+      return <NavTrailDemo quiet={quiet} />;
     case "menu-toggle":
       return (
         <div className="demo-stack">
@@ -986,17 +1121,7 @@ export function Demo({
         </div>
       );
     case "triple-banner":
-      return (
-        <div className="journal-art-demo journal-art-demo--ribbon">
-          <UI.TripleBanner
-            lines={["Paper & patience", "A little curiosity", "Room to grow"]}
-            animate={!quiet}
-            quiet={quiet}
-            speed={speed}
-            replayOnClick={!compact}
-          />
-        </div>
-      );
+      return <RibbonBannerDemo compact={compact} quiet={quiet} speed={speed} />;
     case "bookmark-drawing":
       return (
         <div className="journal-art-demo journal-art-demo--bookmarks">

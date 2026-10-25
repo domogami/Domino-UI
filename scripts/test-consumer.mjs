@@ -122,13 +122,14 @@ try {
     `import { useMemo, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import { createRoot } from "react-dom/client";
-import { BookmarkDrawing, Button, Card, Chevron, Dialog, HairlineSketch, NotebookSketch, NotificationCard, Paper, PolaroidStack, Popover, Skeleton, TaskCheckbox, ThemeProvider, ThemeToggle, Timeline, TouchFeedbackProvider, TripleBanner, createPageTransition, type DrawingProps, type PolaroidPhoto, type TimelineItem } from "@domlee/ui";
+import { BookmarkDrawing, Button, Card, Chevron, Dialog, HairlineSketch, NotebookSketch, NotificationCard, NavTrail, Paper, PolaroidStack, Popover, Skeleton, RadioGroup, Checkbox, RibbonBanner, TaskCheckbox, ThemeProvider, ThemeToggle, Timeline, TouchFeedbackProvider, TripleBanner, createPageTransition, type DrawingProps, type PolaroidPhoto, type TimelineItem } from "@domlee/ui";
 import "@domlee/ui/styles.css";
 import "@domlee/ui/fonts.css";
 function App() {
   const [open, setOpen] = useState(false);
   const [heading, setHeading] = useState("A shared notebook");
   const returnFocusRef = useRef<HTMLButtonElement>(null);
+  const navRef = useRef<HTMLElement>(null);
   const photos: readonly PolaroidPhoto[] = [
     {id: "first", src: "/photos/first.jpg", alt: "Package first photo", caption: "A first keepsake"},
     {id: "second", src: "/photos/second.jpg", alt: "Package second photo", objectPosition: "50% 25%"},
@@ -145,6 +146,10 @@ function App() {
     <Timeline items={milestones} label="Package milestones" animate quiet={false} replayKey={heading} start={2} data-consumer="timeline" />
     <Paper pattern="lined" ruleAlign="between" padding="sm" data-consumer="ruled-paper"><h2>Room for the words</h2><p>Guides stay clear when the paragraph wraps.</p></Paper>
     <Paper pattern="lined" ruleAlign="baseline" padding="lg"><p>A closer writing guide.</p></Paper>
+    <nav ref={navRef} className="dm-nav-trail-host"><NavTrail containerRef={navRef} activeKey="notes" quiet /><a href="#notes" aria-current="page">Notes</a></nav>
+    <RadioGroup label="Consumer radio" quiet defaultValue="one" options={[{value:"one", label:"One"}, {value:"two", label:"Two"}]} />
+    <Checkbox label="Consumer checkbox" defaultChecked />
+    <RibbonBanner {...drawing} lines={["Paper", "A longest middle label", "Ink"]} colors={{face:"#fbf9f1", reverse:"#bfd0c4", ink:"#0e7c79", outline:"#272d30"}} replayOnClick />
     <TripleBanner {...drawing} lines={["One good thought", "room to let it grow", "a few good pieces"]} tone="sage" replayOnClick label="Three thoughts on one ribbon" />
     <BookmarkDrawing {...drawing} variant="notched" replayOnClick label="A place kept for later" /><BookmarkDrawing {...drawing} variant="pointed" quiet label="A pointed bookmark" />
     <Popover title="A thought in the margin" eyebrow="A closer look" trigger={<Button variant="secondary">Show context</Button>} footer={<Button size="sm">Keep this thought</Button>}><p>Supporting context stays close to its source.</p></Popover>
@@ -200,6 +205,11 @@ createRoot(document.getElementById("root")!).render(<App />);
     ".dm-popover",
     ".dm-popover__body",
     ".dm-notification-card__count",
+    ".dm-nav-trail",
+    ".dm-nav-trail-host",
+    ".dm-checkbox",
+    ".dm-radio",
+    "--dm-radio-duration",
     ".dm-triple-banner",
     ".dm-triple-banner__band",
     ".dm-bookmark-drawing",
@@ -266,7 +276,7 @@ createRoot(document.getElementById("root")!).render(<App />);
     `import assert from "node:assert/strict";
 import { createElement as h } from "react";
 import { renderToString } from "react-dom/server";
-import { BookmarkDrawing, Button, Card, Chevron, Dialog, HairlineSketch, NotebookSketch, NotificationCard, Paper, PolaroidStack, Popover, Skeleton, TaskCheckbox, ThemeProvider, Timeline, TripleBanner, createPageTransition } from "@domlee/ui";
+import { BookmarkDrawing, Button, Card, Chevron, Dialog, HairlineSketch, NotebookSketch, NotificationCard, NavTrail, Paper, PolaroidStack, Popover, Skeleton, RadioGroup, Checkbox, RibbonBanner, TaskCheckbox, ThemeProvider, Timeline, TripleBanner, createPageTransition } from "@domlee/ui";
 assert.equal(typeof document, "undefined");
 const pageTransition = createPageTransition();
 let committed = false;
@@ -278,6 +288,9 @@ pageTransition.cancel();
 const html = renderToString(h(ThemeProvider, {}, h(Card, {title: "A shared notebook"},
   h(TaskCheckbox, {label:"A little progress"}), h(NotebookSketch, {variant:"notebook", quiet:true}), h(HairlineSketch, {variant:"riffle", quiet:true}), h(Skeleton, {width:"70%"}), h(Chevron),
   h(PolaroidStack, {label:"Package photo stack", quiet:true, photos:[{id:"first", src:"/photos/first.jpg", alt:"Package first photo"}, {id:"second", src:"/photos/second.jpg", alt:"Package second photo"}, {id:"third", src:"/photos/third.jpg", alt:"Package third photo"}]}),
+  h(RibbonBanner, {lines:["Paper", "A longest middle label", "Ink"], colors:{face:"#fbf9f1", reverse:"#bfd0c4", ink:"#0e7c79", outline:"#272d30"}, animate:true}),
+  h(NavTrail, {containerRef:{current:null}, activeKey:"notes", quiet:true}),
+  h(RadioGroup, {label:"Consumer radio", quiet:true, defaultValue:"one", options:[{value:"one", label:"One"}]}), h(Checkbox, {label:"Consumer checkbox", defaultChecked:true}),
   h(TripleBanner, {lines:["One good thought", "room to let it grow", "a few good pieces"], animate:true, replayOnClick:true, label:"Three thoughts on one ribbon"}),
   h(BookmarkDrawing, {variant:"notched", replayOnClick:true, label:"A place kept for later"}), h(BookmarkDrawing, {variant:"pointed", quiet:true, label:"A pointed bookmark"}),
   h(Popover, {title:"A thought in the margin", trigger:h(Button, {}, "Show context")}, h("p", {}, "Supporting context stays close to its source.")),
@@ -296,9 +309,12 @@ assert(html.includes("An initially open margin"));
 assert(html.includes("dm-notification-card--queued"));
 assert(!html.includes("dm-notification-card__papers"));
 assert(!html.includes("dm-notification-card--stacked"));
-assert.equal((html.match(/class="dm-triple-banner__band"/g) ?? []).length, 3);
+assert.equal((html.match(/class="dm-triple-banner__band"/g) ?? []).length, 6);
 assert(html.includes("One good thought"));
 assert(html.includes("dm-bookmark-drawing"));
+assert(html.includes("dm-nav-trail"));
+assert(html.includes("Consumer checkbox"));
+assert(html.includes("A longest middle label"));
 assert(html.includes('data-variant="notched"'));
 assert(html.includes('data-variant="pointed"'));
 assert(html.includes("dm-dialog--fold"));

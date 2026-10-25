@@ -23,7 +23,7 @@
 
 ![Domino UI: paper surfaces, fine ink, handwritten notes, and original notebook artwork](docs/images/domino-ui-cover.png)
 
-Domino UI brings the visual language of [dominicklee.net](https://dominicklee.net/) and [the Quartz garden](https://domogami.github.io/) into one reusable system: **56 documented React components**, semantic tokens, original SVG artwork, and native CSS adapters. The visual notebook puts working examples, React code, props, and usage guidance beside each component.
+Domino UI brings the visual language of [dominicklee.net](https://dominicklee.net/) and [the Quartz garden](https://domogami.github.io/) into one reusable system: **57 documented React components**, semantic tokens, original SVG artwork, and native CSS adapters. The visual notebook puts working examples, React code, props, and usage guidance beside each component.
 
 **Hybrid comes first:** charcoal navigation around warm paper, with teal `#0e7c79` accents. Light and Dark share the same structure, typography, and interaction rules.
 
@@ -32,8 +32,8 @@ Domino UI brings the visual language of [dominicklee.net](https://dominicklee.ne
 | Layer                  | What is included                                                                                                           |
 | ---------------------- | -------------------------------------------------------------------------------------------------------------------------- |
 | **Useful controls**    | Buttons, inputs, selects, checkboxes, switches, sliders, menus, tabs, dialogs, drawers, and feedback states                |
-| **Paper layers**       | Anchored popovers, single-sheet notification cards, unfolding modal decisions, edge drawers, and actionable status notes                  |
-| **Notebook patterns**  | Paper cards, sticky notes, callouts, wrapping triple ribbons, bookmark drawings, annotations, and swipeable photo stacks             |
+| **Paper layers**       | Anchored popovers, single-sheet notification cards, unfolding modal decisions, edge drawers, and actionable status notes   |
+| **Notebook patterns**  | Paper cards, sticky notes, callouts, wrapping triple ribbons, bookmark drawings, annotations, and swipeable photo stacks   |
 | **Original identity**  | The **Dom Lee.** name animation, crane, plant, sketch arrows, six notebook scenes, and handwritten loading marks           |
 | **Deliberate motion**  | Morphing hamburger/X, spring switches, the garden's drawn check and text strike, and per-drawing click/tap/keyboard replay |
 | **Shared foundations** | Three themes, five typography roles, a 32px dot grid, spacing and motion tokens, and generated platform adapters           |
@@ -161,11 +161,19 @@ export function NotebookPieces() {
     <>
       <BrandBanner folded>Paper, patience & curiosity</BrandBanner>
       <TripleBanner
-        lines={["A few good pieces", "room for a longer thought", "kept together"]}
+        lines={[
+          "A few good pieces",
+          "room for a longer thought",
+          "kept together",
+        ]}
         animate
         replayOnClick
       />
-      <BookmarkDrawing variant="notched" replayOnClick label="A place kept for later" />
+      <BookmarkDrawing
+        variant="notched"
+        replayOnClick
+        label="A place kept for later"
+      />
       <HandwrittenNote>a small thought in the margin</HandwrittenNote>
       <HeroName replayKey={0} />
       <TaskCheckbox label="Leave a little room to explore" />
@@ -177,6 +185,10 @@ export function NotebookPieces() {
   );
 }
 ```
+
+`Checkbox` shares the garden task control’s organic box and drawn check, while `TaskCheckbox` also crosses out completed copy. `RadioGroup` adds a spreading ink fill, a soft press and an optional `quiet` mode. Icon buttons use centered, square 36/44/50px targets.
+
+`NavTrail` brings the notebook’s fluid sidebar highlight to other projects, with interrupted-motion support and small animated SVG gestures. [Try navigation](https://ui.dominicklee.net/#component/nav-trail) · [Integration guide](docs/NAVIGATION.md).
 
 `PolaroidStack` now accepts any number of photos, with touch/pen flicking, a source-derived slide-and-tuck, arrows, keyboard navigation, and quiet/reduced motion. [Add photos and reuse the stack](docs/POLAROID-STACK.md).
 
@@ -201,7 +213,7 @@ The **Paper layers** notebook route (`/#layers`) brings them together in all thr
 
 `NotebookSketch` offers **notebook, flight, garden, camera, keyboard, and compass**. Fine rounded strokes, loose curves, sparse color, and Caveat captions keep the drawings in the same notebook. Click, tap, Enter, or Space replays just that drawing while its button keeps focus.
 
-`TripleBanner` adds three connected ribbon faces whose real labels wrap naturally; `BookmarkDrawing` offers notched and pointed hanging bookmarks. Their original reference-inspired geometry uses the same fine pen, teal seam, and quiet replay behavior. Set `animate` as well as `replayOnClick` for a replayable triple ribbon.
+`RibbonBanner` (also exported as `TripleBanner`) is a standalone Notebook component: three faces share the longest label’s width, wrap naturally, then draw their outlines, fill their paper, and reveal handwritten text. Choose a semantic tone or customize paper, folds, text, and outline with `colors`. [Try the ribbon and its color controls](https://ui.dominicklee.net/#component/triple-banner) · [Reuse the component](docs/RIBBON-BANNER.md). `BookmarkDrawing` offers notched and pointed hanging bookmarks.
 
 `HairlineSketch` adds three actual [Hairline](https://github.com/lucasmarkes/hairline) figures—**riffle, branches, and loupe**—in the shared palette. Replay draws an ink sweep; the guided pointer tour is a separate opt-in. Both treatments honor quiet and reduced motion.
 

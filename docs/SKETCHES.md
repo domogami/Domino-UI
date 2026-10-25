@@ -11,9 +11,9 @@ The [sketch gallery](http://127.0.0.1:5173/#sketchbook) brings related drawing t
 | `notebook` | Open notebook and pen, with layered paper and a marginal thought         |
 | `flight`   | Folded paper plane and a curved flight trail                             |
 | `garden`   | Leafy growth from notebook pages, encouragement, and a curved annotation |
-| `camera` | Camera with two photo keepsakes |
-| `keyboard` | Mechanical keyboard, a few accent keys, and a curly cable |
-| `compass` | Open compass, folded map, and a wandering trail |
+| `camera`   | Camera with two photo keepsakes                                          |
+| `keyboard` | Mechanical keyboard, a few accent keys, and a curly cable                |
+| `compass`  | Open compass, folded map, and a wandering trail                          |
 
 ```tsx
 import { NotebookSketch } from "@domlee/ui";
@@ -22,17 +22,17 @@ import { NotebookSketch } from "@domlee/ui";
 <NotebookSketch variant="notebook" quiet />
 ```
 
-| Prop                 | Default      | Behavior                                                                 |
-| -------------------- | ------------ | ------------------------------------------------------------------------ |
-| `variant`            | `"notebook"` | `"notebook"`, `"flight"`, `"garden"`, `"camera"`, `"keyboard"`, or `"compass"`                                  |
-| `animate`            | `true`       | Reveals the strokes once; `false` starts with finished art               |
-| `quiet`              | `false`      | Finished art with no entrance motion or pointer response                 |
-| `interactive`        | `true`       | Allows a restrained response to pointer or touch                         |
-| `speed`              | `1`          | Shared drawing rate: `0.5`, `1`, `1.5`, or `2`                           |
-| `replayKey`          | `0`          | Changing the key restarts the drawing                                    |
-| `replayOnClick` | `false` | Adds a native replay button for click, tap, Enter, and Space |
-| `label`              | omitted      | Adds one accessible image description; omit beside an equivalent caption |
-| `className`, `style` | omitted      | Layout and local CSS customization                                       |
+| Prop                 | Default      | Behavior                                                                       |
+| -------------------- | ------------ | ------------------------------------------------------------------------------ |
+| `variant`            | `"notebook"` | `"notebook"`, `"flight"`, `"garden"`, `"camera"`, `"keyboard"`, or `"compass"` |
+| `animate`            | `true`       | Reveals the strokes once; `false` starts with finished art                     |
+| `quiet`              | `false`      | Finished art with no entrance motion or pointer response                       |
+| `interactive`        | `true`       | Allows a restrained response to pointer or touch                               |
+| `speed`              | `1`          | Shared drawing rate: `0.5`, `1`, `1.5`, or `2`                                 |
+| `replayKey`          | `0`          | Changing the key restarts the drawing                                          |
+| `replayOnClick`      | `false`      | Adds a native replay button for click, tap, Enter, and Space                   |
+| `label`              | omitted      | Adds one accessible image description; omit beside an equivalent caption       |
+| `className`, `style` | omitted      | Layout and local CSS customization                                             |
 
 The shared `sketch-duration` token is **1600ms**, with **90ms** between stroke groups. These are one-time reveals followed by rest, not looping pen jitter. Main lines stay 1.1 CSS pixels; hatching stays 0.75px through non-scaling SVG strokes. Pointer movement is clamped to ±4px per axis on the nearest layer, with smaller movement behind it; it never moves the surrounding layout. `animate={false}` still permits pointer response; use `quiet` for wholly still art.
 
@@ -40,7 +40,7 @@ When `replayOnClick` is enabled, each illustration owns its replay count. Only t
 
 ## Journal ribbons and bookmarks
 
-`TripleBanner` and `BookmarkDrawing` are original reference-inspired additions in `src/lib/journal-art.tsx`. They share the notebook's fine rounded pen, a semantic accent seam, and a faint second pass. Their SVG geometry was authored for this system from the supplied ribbon and bookmark references; it is separate from the exact portfolio artwork.
+`RibbonBanner` (also exported as `TripleBanner`) and `BookmarkDrawing` are original reference-inspired additions in `src/lib/journal-art.tsx`. They share the notebook's fine rounded pen, a semantic accent seam, and a faint second pass. Their SVG geometry was authored for this system from the supplied ribbon and bookmark references; it is separate from the exact portfolio artwork.
 
 ```tsx
 import { BookmarkDrawing, TripleBanner, type DrawingProps } from "@domlee/ui";
@@ -58,11 +58,11 @@ const drawing: DrawingProps = { animate: true, speed: 1, quiet: false, replayKey
 <BookmarkDrawing variant="pointed" quiet label="A pointed bookmark" />
 ```
 
-`TripleBanner.lines` is an exact three-item tuple of React nodes. Each face grows around real text, with natural wrapping for long copy and narrow widths; the drawing does not impose a fixed label height. `tone` is `"accent"` (default), `"sage"`, `"peach"`, or `"ink"`. `animate` defaults to **false**: pass `animate` together with `replayOnClick` to enable replay. Replayable lines must be plain text or noninteractive inline content; avoid links, controls, and headings inside the native replay button. An optional `label` names that replay control; by default, plain string/number lines form its accessible name. Supply `label` when styled inline nodes need a meaningful replay name.
+`TripleBanner.lines` is an exact three-item tuple of React nodes. All faces share the intrinsic width of the longest label, capped by the available space. Each grows vertically around real text and wraps naturally; the drawing does not impose a fixed label height. `colors={{face, reverse, ink, outline}}` overrides individual roles without changing its geometry. [Ribbon customization and timing](RIBBON-BANNER.md). `tone` is `"accent"` (default), `"sage"`, `"peach"`, or `"ink"`. `animate` defaults to **false**: pass `animate` together with `replayOnClick` to enable replay. Replayable lines must be plain text or noninteractive inline content; avoid links, controls, and headings inside the native replay button. An optional `label` names that replay control; by default, plain string/number lines form its accessible name. Supply `label` when styled inline nodes need a meaningful replay name.
 
 `BookmarkDrawing.variant` is `"notched"` (default) or `"pointed"`; `animate` defaults to **true**. Omit `label` beside an equivalent caption to keep a noninteractive bookmark decorative, or provide it for one accessible image description. `replayOnClick` adds a stable native replay button.
 
-Both components accept common `DrawingProps`: `animate`, `quiet`, `speed` (`0.5`, `1`, `1.5`, or `2`), and `replayKey`. Changing the key redraws their ink. Quiet and reduced motion retain completed strokes and disable click/tap/keyboard replay. The reveal uses the shared sketch duration and stagger. These components are currently React drawings; the eighteen static SVG companions below still cover only the six `NotebookSketch` scenes.
+Both components accept common `DrawingProps`: `animate`, `quiet`, `speed` (`0.5`, `1`, `1.5`, or `2`), and `replayKey`. Changing the key redraws their ink. Quiet and reduced motion retain completed strokes and disable click/tap/keyboard replay. The bookmark uses the shared sketch duration and stagger. The ribbon uses separate canonical outline/fill/label/stagger tokens to draw, fill, and reveal text in about 2.12 seconds. These components are currently React drawings; the eighteen static SVG companions below still cover only the six `NotebookSketch` scenes.
 
 ## Actual Hairline figures
 
@@ -87,8 +87,8 @@ import { HairlineSketch } from "@domlee/ui";
 | `variant`                            | `"riffle"`                  | `"riffle"`, `"branches"`, or `"loupe"`                             |
 | `label`                              | description for the variant | One accessible image description                                   |
 | `play`                               | `false`                     | Opts into Hairline's guided tour; real input pauses it             |
-| `replayOnClick` | `false` | Adds a native button and replays a one-time ink sweep |
-| `replayKey` | `0` | External ink-sweep replay control |
+| `replayOnClick`                      | `false`                     | Adds a native button and replays a one-time ink sweep              |
+| `replayKey`                          | `0`                         | External ink-sweep replay control                                  |
 | `intensity`                          | `0.35`                      | Pointer response, clamped to 0–1                                   |
 | `quiet`                              | `false`                     | Resting figure, with autoplay and pointer response disabled        |
 | `onRead`                             | omitted                     | Receives upstream caption updates for an optional external readout |

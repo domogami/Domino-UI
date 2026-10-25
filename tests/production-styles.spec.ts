@@ -62,7 +62,7 @@ test("production journal art wraps, draws and replays on a mobile viewport", asy
     .first()
     .elementHandle();
   await replay.tap();
-  expect(await oldPath!.evaluate((path) => path.isConnected)).toBe(false);
+  expect(await oldPath!.evaluate((path) => path.isConnected)).toBe(true);
   await expect(replay).toBeFocused();
   const path = art.locator(".dm-journal-art-line").first();
   const start = await path.evaluate((element) =>
@@ -1698,4 +1698,210 @@ test("production ruled Paper remeasures larger fonts, zoom and narrow wrapped te
       (element) => element.scrollWidth <= element.clientWidth + 1,
     ),
   ).toBe(true);
+});
+
+test("production icon squares and drawn choices retain their native behavior", async ({
+  page,
+}) => {
+  await page.goto("/#component/icon-button");
+  const icons = page.locator(".playground-canvas .dm-icon-button");
+  await expect(icons).toHaveCount(3);
+  for (const button of await icons.all()) {
+    const geometry = await button.evaluate((element) => {
+      const button = element.getBoundingClientRect();
+      const glyph = element.querySelector("svg")!.getBoundingClientRect();
+      return {
+        width: button.width,
+        height: button.height,
+        dx: Math.abs(button.x + button.width / 2 - glyph.x - glyph.width / 2),
+        dy: Math.abs(button.y + button.height / 2 - glyph.y - glyph.height / 2),
+      };
+    });
+    expect(geometry.width).toBe(44);
+    expect(geometry.height).toBe(44);
+    expect(geometry.dx).toBeLessThan(0.6);
+    expect(geometry.dy).toBeLessThan(0.6);
+  }
+  await page.goto("/#component/checkbox");
+  const choice = page.getByRole("checkbox", {
+    name: "Try something a little different",
+    exact: true,
+  });
+  await choice.check();
+  await expect(choice).toBeChecked();
+  await expect
+    .poll(() =>
+      choice.evaluate(
+        (element) => getComputedStyle(element, "::after").clipPath,
+      ),
+    )
+    .toBe("inset(0px)");
+  const box = await choice.evaluate((element) => ({
+    radius: getComputedStyle(element).borderRadius,
+    mask: getComputedStyle(element, "::after").maskImage,
+  }));
+  expect(box.radius).not.toBe("0px");
+  expect(box.mask).toContain("svg");
+  expect(
+    await choice
+      .locator("..")
+      .locator(".dm-choice__label")
+      .evaluate((element) => getComputedStyle(element).textDecorationLine),
+  ).toBe("none");
+  await choice.focus();
+  await page.keyboard.press("Space");
+  await expect(choice).not.toBeChecked();
+});
+
+test("production radio color blooms then settles and quiet motion remains static", async ({
+  page,
+}) => {
+  await page.goto("/#component/radio-group");
+  const group = page.locator(".playground-canvas .dm-radio-group");
+  const quick = group.getByRole("radio", {
+    name: "Just a quick look",
+    exact: true,
+  });
+  await quick.tap();
+  await expect(quick).toBeChecked();
+  const bloom = await quick.evaluate((element) => {
+    const animation = element
+      .getAnimations({ subtree: true })
+      .find(
+        (animation) =>
+          animation instanceof CSSAnimation &&
+          animation.animationName === "dm-radio-ink-bloom",
+      );
+    if (!animation) return null;
+    animation.pause();
+    animation.currentTime = 176;
+    const style = getComputedStyle(element, "::before");
+    return {
+      opacity: Number(style.opacity),
+      scale: new DOMMatrixReadOnly(style.transform).a,
+      fill: style.backgroundColor,
+    };
+  });
+  expect(bloom).not.toBeNull();
+  expect(bloom!.opacity).toBeGreaterThan(0.1);
+  expect(bloom!.scale).toBeGreaterThan(1);
+  expect(bloom!.fill).not.toBe("rgba(0, 0, 0, 0)");
+  await quick.focus();
+  await page.keyboard.press("ArrowDown");
+  const later = group.getByRole("radio", {
+    name: "Save it for later",
+    exact: true,
+  });
+  await expect(later).toBeChecked();
+  await expect(quick).not.toBeChecked();
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await quick.tap();
+  await expect(quick).toBeChecked();
+  expect(
+    await quick.evaluate((element) => ({
+      name: getComputedStyle(element, "::before").animationName,
+      duration: getComputedStyle(element, "::after").transitionDuration,
+    })),
+  ).toEqual({ name: "none", duration: "0s" });
+});
+
+test("production navigation uses a persistent moving marker and honors reduced motion", async ({
+  page,
+}) => {
+  await page.goto("/#component/nav-trail");
+  const nav = page.getByRole("navigation", {
+    name: "Try the moving notebook selection",
+  });
+  const marker = nav.locator(".dm-nav-trail");
+  await expect(marker).toHaveAttribute("data-nav-ready", "true");
+  const original = await marker.elementHandle();
+  await nav.getByRole("button", { name: "A little room for ideas" }).tap();
+  await expect(
+    nav.getByRole("button", { name: "A little room for ideas" }),
+  ).toHaveAttribute("aria-current", "page");
+  await expect
+    .poll(() =>
+      marker.evaluate((element) => {
+        const row = element
+          .parentElement!.querySelector('[aria-current="page"]')!
+          .getBoundingClientRect();
+        const box = element.getBoundingClientRect();
+        return Math.max(
+          Math.abs(row.x - box.x),
+          Math.abs(row.y - box.y),
+          Math.abs(row.width - box.width),
+          Math.abs(row.height - box.height),
+        );
+      }),
+    )
+    .toBeLessThan(0.8);
+  expect(await original!.evaluate((element) => element.isConnected)).toBe(true);
+  await expect(marker).toHaveCount(1);
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await nav.getByRole("button", { name: "Made & loved" }).tap();
+  await expect(marker).toHaveCSS("transition-duration", "0s");
+  expect(
+    await nav.evaluate(
+      (element) => element.querySelectorAll("a,button").length,
+    ),
+  ).toBe(3);
+});
+
+test("production ribbon custom colors and shared faces survive responsive wrapping", async ({
+  page,
+}) => {
+  await page.goto("/#component/triple-banner");
+  const art = page.locator(".playground-canvas .dm-triple-banner");
+  const label = art.locator(".dm-triple-banner__label").nth(1);
+  await label.evaluate((element) => {
+    element.textContent =
+      "A much longer middle thought with room for every word";
+  });
+  await expect
+    .poll(() =>
+      art.evaluate((element) => {
+        const bands = [
+          ...element.querySelectorAll<HTMLElement>(".dm-triple-banner__band"),
+        ];
+        const widths = bands.map((band) => band.getBoundingClientRect().width);
+        return Math.max(...widths) - Math.min(...widths);
+      }),
+    )
+    .toBeLessThan(0.6);
+  expect(
+    await art.evaluate((element) =>
+      [
+        ...element.querySelectorAll<HTMLElement>(".dm-triple-banner__label"),
+      ].every(
+        (label) =>
+          label.scrollWidth <= label.clientWidth + 1 &&
+          label.getBoundingClientRect().bottom <=
+            label.closest(".dm-triple-banner__band")!.getBoundingClientRect()
+              .bottom,
+      ),
+    ),
+  ).toBe(true);
+  await page.getByText("Use custom ribbon colors", { exact: true }).tap();
+  await expect(
+    page.getByRole("switch", { name: "Use custom ribbon colors", exact: true }),
+  ).toBeChecked();
+  const color = page.getByLabel("Ribbon text color", { exact: true });
+  await color.evaluate((element: HTMLInputElement) => {
+    Object.getOwnPropertyDescriptor(
+      HTMLInputElement.prototype,
+      "value",
+    )!.set!.call(element, "#73539c");
+    element.dispatchEvent(new Event("input", { bubbles: true }));
+    element.dispatchEvent(new Event("change", { bubbles: true }));
+  });
+  await expect(label).toHaveCSS("color", "rgb(115, 83, 156)");
+  const fill = art.locator(".dm-triple-banner__face").first();
+  await expect(fill).toHaveCSS("animation-name", "dm-ribbon-fill");
+  await expect(label).toHaveCSS("animation-name", "dm-ribbon-label");
+  const oldLabel = await label.elementHandle();
+  await page.getByRole("button", { name: "Replay ribbon", exact: true }).tap();
+  expect(await oldLabel!.evaluate((element) => element.isConnected)).toBe(true);
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await expect(fill).toHaveCSS("animation-name", "none");
+  await expect(label).toHaveCSS("opacity", "1");
 });

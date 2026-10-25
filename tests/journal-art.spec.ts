@@ -78,7 +78,7 @@ test("three ribbon faces keep real wrapped labels inside their painted paper", a
   }
   const short = measurements.find((item) => item.width === 900)!;
   const wrapped = measurements.find(
-    (item) => item.width === 180 && item.copy === short.copy,
+    (item) => item.width === 96 && item.copy === short.copy,
   )!;
   expect(wrapped.bandHeight).toBeGreaterThan(short.bandHeight);
   expect(wrapped.lines.length).toBeGreaterThan(short.lines.length);

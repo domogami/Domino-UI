@@ -21,3 +21,5 @@ export * from "./popover";
 export * from "./notification-card";
 export * from "./page-transition";
 export * from "./journal-art";
+
+export * from "./nav-trail";

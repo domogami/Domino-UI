@@ -2,6 +2,8 @@
 
 Routes feel like related sheets in one notebook. The document changes with a short fade and a small vertical settle while the navigation rail, theme control, and other persistent chrome keep their place. Content remains usable when the browser cannot capture a transition.
 
+The persistent sidebar now uses a separate `NavTrail` to carry one highlight between destinations over 420ms, with finite icon gestures. This keeps route selection continuous while the rail itself stays still. [Navigation integration](NAVIGATION.md).
+
 The live notebook uses this behavior throughout its hash routes. Start at `/#motion`, follow a page link, and use Back or Forward to try it. A modal or mobile drawer keeps its own existing motion instead of adding a second page animation.
 
 ## The shared rule

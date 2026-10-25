@@ -2,6 +2,15 @@
 .dm-triple-banner {
   --dm-triple-paper: var(--dm-surface-raised, #fcf9f1);
   --dm-triple-label: var(--dm-accent, #0e7c79);
+  --dm-triple-outline: var(--dm-ink, #252b2e);
+  --dm-ribbon-fill-at: calc(
+    var(--dm-ribbon-outline-duration, 800ms) + 4 *
+      var(--dm-ribbon-stagger, 80ms)
+  );
+  --dm-ribbon-label-at: calc(
+    var(--dm-ribbon-fill-at) + var(--dm-ribbon-fill-duration, 360ms) + 2 *
+      var(--dm-ribbon-stagger, 80ms)
+  );
   --dm-triple-reverse: color-mix(
     in srgb,
     var(--dm-accent, #0e7c79) 20%,
@@ -10,7 +19,8 @@
   position: relative;
   isolation: isolate;
   display: grid;
-  inline-size: min(100%, 38rem);
+  grid-auto-rows: max-content;
+  inline-size: min(100%, var(--dm-ribbon-preferred-width, 38rem));
   max-inline-size: 100%;
   min-inline-size: 0;
   color: var(--dm-ink, #252b2e);
@@ -21,6 +31,7 @@
 }
 .dm-triple-banner > .dm-sketch-replay {
   display: grid;
+  grid-auto-rows: max-content;
   max-width: none;
   line-height: inherit;
 }
@@ -90,6 +101,8 @@
   text-align: center;
   overflow-wrap: anywhere;
   text-wrap: balance;
+  opacity: 1;
+  transform: none;
 }
 .dm-triple-banner__label > :first-child {
   margin-block-start: 0;
@@ -103,9 +116,16 @@
   display: block;
   inline-size: 100%;
   block-size: clamp(30px, 6vw, 46px);
-  margin-block: -3px;
-  overflow: visible;
+  margin-block: -1px;
+  overflow: hidden;
   pointer-events: none;
+}
+.dm-triple-banner__fill {
+  opacity: 1;
+}
+.dm-triple-banner .dm-triple-banner__outline {
+  color: var(--dm-triple-outline);
+  fill: none;
 }
 .dm-triple-banner .dm-triple-banner__face {
   fill: var(--dm-triple-paper);
@@ -147,9 +167,6 @@
   stroke-width: 0.7;
   opacity: 0.2;
 }
-.dm-triple-banner--ink .dm-journal-art-echo {
-  color: var(--dm-triple-label);
-}
 @media (prefers-reduced-motion: no-preference) {
   .dm-journal-art[data-animate="true"] .dm-journal-art-line {
     animation: dm-journal-art-draw
@@ -161,6 +178,42 @@
       )
       backwards;
   }
+  .dm-triple-banner[data-animate="true"] .dm-journal-art-line {
+    animation-duration: calc(
+      var(--dm-ribbon-outline-duration, 800ms) * var(--dm-drawing-rate, 1)
+    );
+    animation-delay: calc(
+      var(--dm-journal-art-step, 0) * var(--dm-ribbon-stagger, 80ms) *
+        var(--dm-drawing-rate, 1)
+    );
+    animation-fill-mode: both;
+  }
+  .dm-triple-banner[data-animate="true"] .dm-triple-banner__fill {
+    animation: dm-ribbon-fill
+      calc(var(--dm-ribbon-fill-duration, 360ms) * var(--dm-drawing-rate, 1))
+      ease-in-out
+      calc(
+        (
+            var(--dm-ribbon-fill-at) + var(--dm-journal-art-step, 0) *
+              var(--dm-ribbon-stagger, 80ms) / 2
+          ) *
+          var(--dm-drawing-rate, 1)
+      )
+      both;
+  }
+  .dm-triple-banner[data-animate="true"] .dm-triple-banner__label {
+    animation: dm-ribbon-label
+      calc(var(--dm-ribbon-label-duration, 320ms) * var(--dm-drawing-rate, 1))
+      var(--dm-layer-easing, cubic-bezier(0.22, 1, 0.36, 1))
+      calc(
+        (
+            var(--dm-ribbon-label-at) + var(--dm-ribbon-row, 0) *
+              var(--dm-ribbon-stagger, 80ms)
+          ) *
+          var(--dm-drawing-rate, 1)
+      )
+      both;
+  }
 }
 @keyframes dm-journal-art-draw {
   from {
@@ -168,6 +221,24 @@
   }
   to {
     stroke-dashoffset: 0;
+  }
+}
+@keyframes dm-ribbon-fill {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes dm-ribbon-label {
+  from {
+    opacity: 0.76;
+    transform: translateY(2px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
   }
 }
 @media (forced-colors: active) {
@@ -183,8 +254,12 @@
   }
 }
 @media print {
-  .dm-journal-art .dm-journal-art-line {
+  .dm-journal-art .dm-journal-art-line,
+  .dm-triple-banner__fill,
+  .dm-triple-banner__label {
     animation: none !important;
     stroke-dashoffset: 0;
+    opacity: 1;
+    transform: none;
   }
 }

@@ -1,0 +1,14 @@
+/* One journal box and pen stroke for independent choices and completed tasks. */
+.dm-checkbox,
+.dm-task-checkbox__input {
+  --dm-checkbox-check-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 12Q6 15 9 19Q14 10 22 3' fill='none' stroke='black' stroke-width='2.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  border: 1.5px solid var(--dm-muted);
+  border-radius: 3px 5px 2px 4px;
+  background: transparent;
+  color: var(--dm-accent);
+}
+.dm-checkbox:checked,
+.dm-task-checkbox__input:checked {
+  border-color: var(--dm-accent);
+  background: color-mix(in srgb, var(--dm-accent) 8%, transparent);
+}

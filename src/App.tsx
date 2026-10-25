@@ -17,6 +17,7 @@ import type { DrawingSpeed } from "./lib/brand";
 import { DominoMark, Icon } from "./Icons";
 import { entries, groups, findEntry, type Entry } from "./catalog/entries";
 import { Demo } from "./catalog/Demo";
+import { NavTrail } from "./lib/nav-trail";
 import { HapticsPage } from "./catalog/HapticsPage";
 import { SharedSystemPage } from "./catalog/SharedSystem";
 import { SketchbookPage } from "./catalog/Sketchbook";
@@ -121,6 +122,7 @@ export default function App() {
   const route = useRoute();
   const { theme } = useTheme();
   const navigation = useRef<HTMLDivElement>(null);
+  const sidebarNav = useRef<HTMLElement>(null);
   const searchInput = useRef<HTMLInputElement>(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -244,15 +246,15 @@ export default function App() {
       href={`#${id}`}
       className={`nav-link ${route === id ? "is-active" : ""}`}
       aria-current={route === id ? "page" : undefined}
+      data-nav-icon={icon}
     >
       {icon ? (
-        <Icon name={icon} size={16} />
+        <Icon name={icon} size={16} className="dm-nav-icon" />
       ) : (
         <span className="nav-bullet">–</span>
       )}
       <span>{name}</span>
       {count !== undefined && <small>{count}</small>}
-      {route === id && <i />}
     </a>
   );
   const detailTab = selected?.group || category;
@@ -317,7 +319,8 @@ export default function App() {
             <span>Find a little something…</span>
             <kbd>⌘ K</kbd>
           </button>
-          <nav>
+          <nav ref={sidebarNav} className="dm-nav-trail-host">
+            <NavTrail containerRef={sidebarNav} activeKey={route} />
             <div className="nav-group">
               {navItem("overview", "Overview", "book")}
               {navItem("getting-started", "Getting started", "code")}
@@ -849,7 +852,10 @@ function ComponentDetail({
   const [quiet, setQuiet] = useState(false);
   const [speed, setSpeed] = useState<DrawingSpeed>(1);
   const tabs = ["preview", "react", "props", "guidelines"];
-  const isMotion = entry.group === "Brand";
+  const isDrawingMotion =
+    entry.group === "Brand" || entry.id === "triple-banner";
+  const isMotion =
+    isDrawingMotion || ["radio-group", "nav-trail"].includes(entry.id);
   return (
     <>
       <div className="detail-breadcrumb">
@@ -958,9 +964,11 @@ function ComponentDetail({
                 <span>Try it. These pieces are made to be used.</span>
                 <span>
                   {isMotion
-                    ? entry.id === "hairline-sketch"
-                      ? "HAIRLINE · POINTER + SVG"
-                      : "ORIGINAL MOTION · CSS + SVG"
+                    ? !isDrawingMotion
+                      ? "FINITE INTERACTION · CSS"
+                      : entry.id === "hairline-sketch"
+                        ? "HAIRLINE · POINTER + SVG"
+                        : "ORIGINAL MOTION · CSS + SVG"
                     : "LIVE REACT COMPONENT"}
                 </span>
               </div>
@@ -972,10 +980,10 @@ function ComponentDetail({
                   checked={quiet}
                   onChange={(e) => {
                     setQuiet(e.target.checked);
-                    setReplay((v) => v + 1);
+                    if (isDrawingMotion) setReplay((v) => v + 1);
                   }}
                 />
-                {entry.id !== "hairline-sketch" && (
+                {isDrawingMotion && entry.id !== "hairline-sketch" && (
                   <Select
                     label="Playback speed"
                     value={speed}
@@ -990,13 +998,15 @@ function ComponentDetail({
                     <option value="2">2×</option>
                   </Select>
                 )}
-                <Button
-                  variant="secondary"
-                  onClick={() => setReplay((v) => v + 1)}
-                >
-                  <Icon name="replay" size={15} />
-                  Replay
-                </Button>
+                {isDrawingMotion && (
+                  <Button
+                    variant="secondary"
+                    onClick={() => setReplay((v) => v + 1)}
+                  >
+                    <Icon name="replay" size={15} />
+                    Replay
+                  </Button>
+                )}
               </div>
             )}
             <div className="detail-summary">
@@ -1069,6 +1079,7 @@ function ComponentDetail({
                             ? "patterns.tsx"
                             : [
                                   "menu-toggle",
+                                  "nav-trail",
                                   "task-checkbox",
                                   "skeleton",
                                   "popover",

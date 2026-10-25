@@ -95,7 +95,11 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
         title={props.title ?? label}
         className={cx("dm-icon-button", className)}
       >
-        <span aria-hidden="true">{children}</span>
+        {!props.loading && (
+          <span className="dm-icon-button__icon" aria-hidden="true">
+            {children}
+          </span>
+        )}
       </Button>
     );
   },
@@ -315,7 +319,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
             ) || undefined
           }
         />
-        <span>
+        <span className="dm-choice__copy">
           <span id={`${fieldId}-label`} className="dm-choice__label">
             {label}
           </span>
@@ -352,6 +356,8 @@ export interface RadioGroupProps extends Omit<
   disabled?: boolean;
   required?: boolean;
   orientation?: "horizontal" | "vertical";
+  /** Show the finished ink state immediately, without selection motion. */
+  quiet?: boolean;
 }
 export function RadioGroup({
   options,
@@ -363,6 +369,7 @@ export function RadioGroup({
   disabled,
   required,
   orientation = "vertical",
+  quiet = false,
   className,
   ...props
 }: RadioGroupProps) {
@@ -373,6 +380,7 @@ export function RadioGroup({
     <fieldset
       {...props}
       disabled={disabled}
+      data-quiet={quiet || undefined}
       className={cx(
         "dm-radio-group",
         `dm-radio-group--${orientation}`,
@@ -402,7 +410,7 @@ export function RadioGroup({
                 onValueChange?.(option.value);
               }}
             />
-            <span>
+            <span className="dm-choice__copy">
               <span className="dm-choice__label">{option.label}</span>
               {option.description && (
                 <span className="dm-choice__description">
@@ -1220,7 +1228,6 @@ export function Toast({
         <IconButton
           label="Dismiss notification"
           variant="ghost"
-          size="sm"
           onClick={onDismiss}
         >
           <svg

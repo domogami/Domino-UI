@@ -1,3 +1,5 @@
+@import "./checkbox-ink.css";
+
 /* Domino components are scoped. Colors come from the host's semantic tokens. */
 .dm-sr-only {
   position: absolute !important;
@@ -134,18 +136,40 @@
   height: 17px;
 }
 .dm-icon-button {
+  flex: 0 0 auto;
   min-width: 44px;
+  min-height: 44px;
   width: 44px;
-  padding: 8px;
-  font-size: 22px;
+  height: 44px;
+  padding: 0;
+  gap: 0;
+  font-size: 20px;
+  line-height: 1;
 }
 .dm-icon-button.dm-button--sm {
   width: 36px;
+  height: 36px;
   min-width: 36px;
+  min-height: 36px;
+  padding: 0;
+  font-size: 18px;
 }
 .dm-icon-button.dm-button--lg {
   width: 50px;
+  height: 50px;
   min-width: 50px;
+  min-height: 50px;
+  padding: 0;
+  font-size: 24px;
+}
+.dm-icon-button__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+.dm-icon-button__icon svg {
+  display: block;
 }
 
 .dm-tone--sage {
@@ -309,6 +333,10 @@
   display: block;
   padding-top: 1px;
 }
+.dm-choice__copy {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
 .dm-choice__description {
   display: block;
   margin-top: 3px;
@@ -319,48 +347,116 @@
 .dm-checkbox,
 .dm-radio {
   appearance: none;
+  position: relative;
   box-sizing: border-box;
   flex: none;
-  display: grid;
-  place-content: center;
   width: 18px;
   height: 18px;
   margin: 3px 0 0;
-  border: 1.5px solid var(--dm-muted);
-  border-radius: 3px;
-  background: var(--dm-surface-raised);
-  color: var(--dm-accent-ink);
   cursor: inherit;
 }
-.dm-checkbox:checked,
-.dm-radio:checked {
-  border-color: var(--dm-accent);
-  background: var(--dm-accent);
+.dm-checkbox {
+  transform: rotate(-3deg);
 }
 .dm-checkbox::after {
   content: "";
-  width: 8px;
-  height: 4px;
-  border: solid currentColor;
-  border-width: 0 0 2px 2px;
-  transform: translateY(-1px) rotate(-45deg) scale(0);
+  position: absolute;
+  inset: -4px -3px -1px 0;
+  transform: rotate(3deg);
+  background: currentColor;
+  mask: var(--dm-checkbox-check-mask) center / contain no-repeat;
+  clip-path: inset(0 100% 0 0);
+  transition: clip-path var(--dm-checkbox-duration, 220ms) ease-out;
 }
-.dm-checkbox:checked::after {
-  transform: translateY(-1px) rotate(-45deg) scale(1);
+.dm-checkbox:checked:not(:indeterminate)::after {
+  clip-path: inset(0);
+}
+.dm-checkbox::before {
+  content: "";
+  position: absolute;
+  inset: calc(50% - 1px) 3px auto;
+  height: 2px;
+  border-radius: 2px;
+  background: currentColor;
+  transform: rotate(3deg) scaleX(0);
+  transition: transform var(--dm-checkbox-duration, 220ms) ease-out;
+}
+.dm-checkbox:indeterminate {
+  border-color: var(--dm-accent);
+  background: color-mix(in srgb, var(--dm-accent) 8%, transparent);
+}
+.dm-checkbox:indeterminate::before {
+  transform: rotate(3deg) scaleX(1);
 }
 .dm-radio {
+  isolation: isolate;
+  border: 1.5px solid var(--dm-muted);
   border-radius: 50%;
+  background: var(--dm-surface-raised);
+  color: var(--dm-accent);
+  transition:
+    border-color var(--dm-radio-duration, 320ms),
+    background var(--dm-radio-duration, 320ms),
+    transform var(--dm-control-press-duration, 100ms) ease-out;
 }
+.dm-radio::before,
 .dm-radio::after {
   content: "";
-  width: 6px;
-  height: 6px;
+  position: absolute;
+  inset: 2px;
   border-radius: 50%;
   background: currentColor;
+  pointer-events: none;
+}
+.dm-radio::before {
+  inset: -4px;
+  opacity: 0;
+  transform: scale(0.2);
+}
+.dm-radio::after {
   transform: scale(0);
+  transition: transform var(--dm-radio-duration, 320ms)
+    cubic-bezier(0.22, 1.6, 0.36, 1);
+}
+.dm-radio:checked {
+  border-color: var(--dm-accent);
+  background: color-mix(in srgb, var(--dm-accent) 8%, var(--dm-surface-raised));
+}
+.dm-radio:checked::before {
+  animation: dm-radio-ink-bloom var(--dm-radio-duration, 320ms) ease-out;
 }
 .dm-radio:checked::after {
-  transform: scale(1);
+  transform: scale(0.72);
+}
+.dm-choice:active .dm-radio:not(:disabled),
+.dm-radio:active:not(:disabled) {
+  transform: scale(0.88);
+}
+@keyframes dm-radio-ink-bloom {
+  0% {
+    opacity: 0.25;
+    transform: scale(0.2);
+  }
+  55% {
+    opacity: 0.2;
+    transform: scale(1.12);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+}
+.dm-radio-group[data-quiet] .dm-radio,
+.dm-radio-group[data-quiet] .dm-radio::after {
+  transition: none;
+}
+.dm-radio-group[data-quiet] .dm-radio::before {
+  animation: none;
+}
+.dm-radio-group[data-quiet] .dm-radio,
+.dm-radio-group[data-quiet] .dm-choice:active .dm-radio:not(:disabled),
+.dm-radio-group[data-quiet] .dm-radio:active:not(:disabled) {
+  transform: none;
 }
 .dm-radio-group {
   padding: 0;
@@ -381,6 +477,35 @@
   flex-direction: row;
   flex-wrap: wrap;
   gap: 12px 24px;
+}
+@media (prefers-reduced-motion: reduce), print {
+  .dm-checkbox::before,
+  .dm-checkbox::after,
+  .dm-radio,
+  .dm-radio::after {
+    transition: none;
+  }
+  .dm-radio::before,
+  .dm-radio:checked::before {
+    animation: none;
+  }
+  .dm-choice:active .dm-radio:not(:disabled),
+  .dm-radio:active:not(:disabled) {
+    transform: none;
+  }
+}
+@media (forced-colors: active) {
+  .dm-checkbox,
+  .dm-radio {
+    appearance: auto;
+    transform: none;
+  }
+  .dm-checkbox::before,
+  .dm-checkbox::after,
+  .dm-radio::before,
+  .dm-radio::after {
+    display: none;
+  }
 }
 .dm-switch__input {
   position: absolute;
