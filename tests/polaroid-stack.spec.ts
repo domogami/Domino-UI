@@ -529,6 +529,13 @@ test.describe("trusted mobile gestures", () => {
       await expect(surface(page)).toBeInViewport({ ratio: 1 });
       const session = await page.context().newCDPSession(page);
       try {
+        // Playwright's generic touch context advertises one touch point. A phone
+        // pinch needs actual multitouch capability, not just a mobile viewport.
+        await session.send("Emulation.setTouchEmulationEnabled", {
+          enabled: true,
+          maxTouchPoints: 5,
+        });
+        expect(await page.evaluate(() => navigator.maxTouchPoints)).toBe(5);
         const diagnostics = await surface(page).evaluate((button) => {
           const box = button.getBoundingClientRect();
           const x = box.x + box.width / 2,
