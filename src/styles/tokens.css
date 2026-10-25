@@ -1,5 +1,5 @@
 /* GENERATED from tokens/system.json — Domino UI 0.1.0.
-   Source SHA-256: e9f5c5b8cbbe3a6d630b4b7fa1e2b59b8f60c24765b0c4472e4c3f6b5d9d4069
+   Source SHA-256: 9b22d3f10ce3526211629322dbc4af984d2fd3611e958fc733b427b117c4abea
    Edit the canonical source, then run npm run build:system. */
 :root {
   --dm-grid-size: 32px;
@@ -54,6 +54,8 @@
   --dm-polaroid-duration: 480ms;
   --dm-polaroid-return-duration: 220ms;
   --dm-polaroid-easing: cubic-bezier(0.4, 0, 0.2, 1);
+  --dm-timeline-duration: 480ms;
+  --dm-timeline-stagger: 120ms;
   --dm-layer-exit-duration: 160ms;
   --dm-layer-easing: cubic-bezier(0.22, 1, 0.36, 1);
   --dm-shadow-layer: 2px 3px 0 color-mix(in srgb, var(--dm-ink) 16%, transparent);
@@ -137,6 +139,8 @@
   --dm-polaroid-duration: 480ms;
   --dm-polaroid-return-duration: 220ms;
   --dm-polaroid-easing: cubic-bezier(0.4, 0, 0.2, 1);
+  --dm-timeline-duration: 480ms;
+  --dm-timeline-stagger: 120ms;
   --dm-layer-exit-duration: 160ms;
   --dm-layer-easing: cubic-bezier(0.22, 1, 0.36, 1);
   --dm-shadow-layer: 2px 3px 0 color-mix(in srgb, var(--dm-ink) 16%, transparent);
@@ -220,6 +224,8 @@
   --dm-polaroid-duration: 480ms;
   --dm-polaroid-return-duration: 220ms;
   --dm-polaroid-easing: cubic-bezier(0.4, 0, 0.2, 1);
+  --dm-timeline-duration: 480ms;
+  --dm-timeline-stagger: 120ms;
   --dm-layer-exit-duration: 160ms;
   --dm-layer-easing: cubic-bezier(0.22, 1, 0.36, 1);
   --dm-shadow-layer: 2px 3px 0 color-mix(in srgb, var(--dm-ink) 16%, transparent);
@@ -303,6 +309,8 @@
   --dm-polaroid-duration: 480ms;
   --dm-polaroid-return-duration: 220ms;
   --dm-polaroid-easing: cubic-bezier(0.4, 0, 0.2, 1);
+  --dm-timeline-duration: 480ms;
+  --dm-timeline-stagger: 120ms;
   --dm-layer-exit-duration: 160ms;
   --dm-layer-easing: cubic-bezier(0.22, 1, 0.36, 1);
   --dm-shadow-layer: 2px 3px 0 color-mix(in srgb, var(--dm-ink) 16%, transparent);

@@ -1375,3 +1375,163 @@ async function assertPolaroidPaintOutsideStack(
     stack.locator(".dm-polaroid-stack__photo--outgoing"),
   ).toHaveCount(0);
 }
+
+test("production Timeline retains drawing CSS, paints connector growth and replays without remounting", async ({
+  page,
+}) => {
+  await page.goto("/#component/timeline");
+  await page.evaluate(() => document.fonts.ready);
+  const timeline = page.locator(
+    ".playground-canvas .timeline-demo .dm-timeline",
+  );
+  await timeline.scrollIntoViewIfNeeded();
+  await expect(timeline).toHaveRole("list");
+  await expect(timeline.getByRole("listitem")).toHaveCount(3);
+  await expect(timeline.getByRole("heading", { level: 3 })).toHaveCount(3);
+  await expect(timeline).toHaveAttribute("data-state", "finished");
+  const originalList = await timeline.elementHandle();
+  const firstItem = timeline.getByRole("listitem").first();
+  const originalItem = await firstItem.elementHandle();
+  const previous = await timeline.getAttribute("data-replay");
+  const replay = page.getByRole("button", {
+    name: "Replay timeline",
+    exact: true,
+  });
+  await replay.focus();
+  await replay.press("Enter");
+  await expect(timeline).not.toHaveAttribute("data-replay", previous!);
+  await expect(timeline).toHaveAttribute("data-state", "running");
+  const line = timeline.locator(".dm-timeline__line").first();
+  const connector = timeline.locator(".dm-timeline__connector").first();
+  await expect(line).toHaveCSS("fill", "none");
+  await expect(line).toHaveCSS("stroke-width", "1.5px");
+  expect(await line.evaluate((path) => getComputedStyle(path).stroke)).not.toBe(
+    "rgb(0, 0, 0)",
+  );
+  const timing = await timeline.evaluate((root) => {
+    const animations = root.getAnimations({ subtree: true });
+    for (const animation of animations) animation.pause();
+    const path = root.querySelector(".dm-timeline__line")!;
+    const connector = path
+      .getAnimations()
+      .find(
+        (animation) =>
+          animation instanceof CSSAnimation &&
+          animation.animationName === "dm-timeline-connector",
+      )!;
+    (window as any).timelineProductionAnimations = animations;
+    (window as any).timelineProductionConnector = connector;
+    return {
+      duration: connector.effect!.getTiming().duration,
+      delay: connector.effect!.getTiming().delay,
+    };
+  });
+  expect(timing.duration).toBe(480);
+  expect(timing.delay).toBe(120);
+  const frame = async (fraction: number) => {
+    await page.evaluate((fraction) => {
+      const animation = (window as any).timelineProductionConnector;
+      const timing = animation.effect.getTiming();
+      animation.currentTime = timing.delay + Number(timing.duration) * fraction;
+    }, fraction);
+    return {
+      offset: await line.evaluate((path) =>
+        parseFloat(getComputedStyle(path).strokeDashoffset),
+      ),
+      pixels: await connector.screenshot({ animations: "allow" }),
+    };
+  };
+  const early = await frame(0.1),
+    complete = await frame(0.99);
+  expect(early.offset).toBeGreaterThan(complete.offset + 0.5);
+  expect(early.pixels.equals(complete.pixels)).toBe(false);
+  await page.evaluate(async () => {
+    const animations: Animation[] = (window as any)
+      .timelineProductionAnimations;
+    for (const animation of animations) {
+      const timing = animation.effect!.getTiming();
+      animation.currentTime =
+        Number(timing.delay) + Number(timing.duration) - 1;
+      animation.play();
+    }
+    await Promise.allSettled(animations.map((animation) => animation.finished));
+  });
+  await expect(timeline).toHaveAttribute("data-state", "finished");
+  await expect(replay).toBeFocused();
+  expect(
+    await timeline.evaluate(
+      (element, saved) => element === saved,
+      originalList,
+    ),
+  ).toBe(true);
+  expect(
+    await firstItem.evaluate(
+      (element, saved) => element === saved,
+      originalItem,
+    ),
+  ).toBe(true);
+});
+
+test("production Timeline quiet and reduced motion keep milestones readable and responsive", async ({
+  page,
+}) => {
+  await page.goto("/#component/timeline");
+  const timeline = page.locator(
+    ".playground-canvas .timeline-demo .dm-timeline",
+  );
+  const replay = page.getByRole("button", {
+    name: "Replay timeline",
+    exact: true,
+  });
+  const quiet = page.getByRole("switch", {
+    name: "Quiet timeline motion",
+    exact: true,
+  });
+  await quiet.locator("..").tap();
+  await expect(quiet).toBeChecked();
+  await expect(timeline).toHaveAttribute("data-state", "finished");
+  await expect(replay).toBeDisabled();
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await quiet.locator("..").tap();
+  await expect(quiet).not.toBeChecked();
+  await expect(timeline).toHaveAttribute("data-state", "finished");
+  await expect(replay).toBeDisabled();
+  for (const content of await timeline.locator(".dm-timeline__content").all()) {
+    await expect(content).toHaveCSS("opacity", "1");
+    await expect(content).toHaveCSS("transform", "none");
+  }
+  for (const path of await timeline
+    .locator(".dm-timeline__line, .dm-timeline__node-ink")
+    .all()) {
+    await expect(path).toHaveCSS("animation-name", "none");
+    await expect(path).toHaveCSS("stroke-dashoffset", "0px");
+  }
+  await timeline
+    .locator(".dm-timeline__title")
+    .first()
+    .evaluate((heading) => {
+      heading.textContent =
+        "A much longer heading and averylongunbrokentitlethatmuststillwrapnaturally.";
+      (heading as HTMLElement).style.fontSize = "34px";
+    });
+  for (const width of [320, 390]) {
+    await page.setViewportSize({ width, height: 844 });
+    await timeline.scrollIntoViewIfNeeded();
+    for (const element of await timeline
+      .locator(
+        ".dm-timeline__content, .dm-timeline__meta, .dm-timeline__title, .dm-timeline__description",
+      )
+      .all())
+      expect(
+        await element.evaluate(
+          (node) => node.scrollWidth <= node.clientWidth + 1,
+        ),
+      ).toBe(true);
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= innerWidth,
+      ),
+    ).toBe(true);
+  }
+  await expect(timeline.getByRole("heading", { level: 3 })).toHaveCount(3);
+});

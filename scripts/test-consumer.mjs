@@ -122,7 +122,7 @@ try {
     `import { useMemo, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import { createRoot } from "react-dom/client";
-import { BookmarkDrawing, Button, Card, Chevron, Dialog, HairlineSketch, NotebookSketch, NotificationCard, PolaroidStack, Popover, Skeleton, TaskCheckbox, ThemeProvider, ThemeToggle, TouchFeedbackProvider, TripleBanner, createPageTransition, type DrawingProps, type PolaroidPhoto } from "@domlee/ui";
+import { BookmarkDrawing, Button, Card, Chevron, Dialog, HairlineSketch, NotebookSketch, NotificationCard, PolaroidStack, Popover, Skeleton, TaskCheckbox, ThemeProvider, ThemeToggle, Timeline, TouchFeedbackProvider, TripleBanner, createPageTransition, type DrawingProps, type PolaroidPhoto, type TimelineItem } from "@domlee/ui";
 import "@domlee/ui/styles.css";
 import "@domlee/ui/fonts.css";
 function App() {
@@ -134,10 +134,15 @@ function App() {
     {id: "second", src: "/photos/second.jpg", alt: "Package second photo", objectPosition: "50% 25%"},
     {id: "third", src: "/photos/third.jpg", alt: "Package third photo"},
   ];
+  const milestones: readonly TimelineItem[] = [
+    {id: "idea", title: <span>A useful beginning</span>, meta: <time dateTime="2026-01-01">January</time>, description: <p>A short note with <a href="/notes/idea">its own destination</a>.</p>},
+    {id: "kept", title: "A thought worth keeping", description: <p>A little room to grow.</p>},
+  ];
   const drawing: DrawingProps = { animate: true, quiet: false, speed: 1, replayKey: 0 };
   const pageTransition = useMemo(() => createPageTransition(), []);
   return <ThemeProvider><TouchFeedbackProvider><ThemeToggle /><Card title={heading} className="dm-page-transition"><Button ref={returnFocusRef} trailingIcon={<Chevron />} onClick={() => setOpen(true)}>Keep going</Button><Button variant="secondary" onClick={() => { void pageTransition.run(() => flushSync(() => setHeading("A new notebook page"))); }}>Turn page</Button><TaskCheckbox label="A little progress" /><NotebookSketch variant="flight" replayOnClick /><HairlineSketch variant="branches" /><Skeleton width="70%" />
     <PolaroidStack photos={photos} label="Package photo stack" quiet aspectRatio={16 / 9} onIndexChange={(index, photo) => void [index, photo.id]} />
+    <Timeline items={milestones} label="Package milestones" animate quiet={false} replayKey={heading} start={2} data-consumer="timeline" />
     <TripleBanner {...drawing} lines={["One good thought", "room to let it grow", "a few good pieces"]} tone="sage" replayOnClick label="Three thoughts on one ribbon" />
     <BookmarkDrawing {...drawing} variant="notched" replayOnClick label="A place kept for later" /><BookmarkDrawing {...drawing} variant="pointed" quiet label="A pointed bookmark" />
     <Popover title="A thought in the margin" eyebrow="A closer look" trigger={<Button variant="secondary">Show context</Button>} footer={<Button size="sm">Keep this thought</Button>}><p>Supporting context stays close to its source.</p></Popover>
@@ -199,6 +204,15 @@ createRoot(document.getElementById("root")!).render(<App />);
     ".dm-journal-art-line",
     ".dm-dialog--fold",
     ".dm-dialog__leaf",
+    ".dm-timeline",
+    ".dm-timeline__item",
+    ".dm-timeline__node",
+    ".dm-timeline__line",
+    ".dm-timeline__node-ink",
+    "dm-timeline-connector",
+    "dm-timeline-content",
+    "--dm-timeline-duration",
+    "--dm-timeline-stagger",
     ".dm-polaroid-stack__surface",
     ".dm-polaroid-stack__photo--outgoing",
     "dm-polaroid-cycle",
@@ -243,7 +257,7 @@ createRoot(document.getElementById("root")!).render(<App />);
     `import assert from "node:assert/strict";
 import { createElement as h } from "react";
 import { renderToString } from "react-dom/server";
-import { BookmarkDrawing, Button, Card, Chevron, Dialog, HairlineSketch, NotebookSketch, NotificationCard, PolaroidStack, Popover, Skeleton, TaskCheckbox, ThemeProvider, TripleBanner, createPageTransition } from "@domlee/ui";
+import { BookmarkDrawing, Button, Card, Chevron, Dialog, HairlineSketch, NotebookSketch, NotificationCard, PolaroidStack, Popover, Skeleton, TaskCheckbox, ThemeProvider, Timeline, TripleBanner, createPageTransition } from "@domlee/ui";
 assert.equal(typeof document, "undefined");
 const pageTransition = createPageTransition();
 let committed = false;
@@ -291,6 +305,18 @@ assert(html.includes("dm-notification-card__actions"));
 assert(html.includes("dm-dialog--ink"));
 assert(html.includes("dm-dialog__eyebrow"));
 assert(html.includes("A thought worth keeping"));
+const timeline = renderToString(h(Timeline, {label:"Server milestones", start:2, replayKey:0, items:[
+  {id:"first", title:"A server-rendered beginning", description:h("a", {href:"/notes/first"}, "Read the original note")},
+  {id:"second", title:h("span", {}, "A second milestone"), description:h("p", {}, "Present before JavaScript runs."), meta:h("time", {dateTime:"2026-01-01"}, "January")},
+]}));
+assert(timeline.startsWith("<ol "));
+assert(timeline.includes('aria-label="Server milestones"'));
+assert(timeline.includes('start="2"'));
+assert.equal((timeline.match(/class="dm-timeline__item"/g) ?? []).length, 2);
+assert(timeline.includes(">A server-rendered beginning</h3>"));
+assert(timeline.includes('href="/notes/first"'));
+assert(timeline.includes("Present before JavaScript runs."));
+assert(!timeline.includes('role="button"'));
 `,
   );
   run(process.execPath, ["ssr.mjs"]);

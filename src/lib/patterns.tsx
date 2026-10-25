@@ -110,40 +110,7 @@ export function Annotation({
   );
 }
 
-export interface TimelineItem {
-  id: string;
-  title: ReactNode;
-  description: ReactNode;
-  meta?: ReactNode;
-}
-
-export interface TimelineProps {
-  items: TimelineItem[];
-  label?: string;
-  className?: string;
-}
-
-/** Ordered milestones. Supply dates or stages through meta; the component invents neither. */
-export function Timeline({
-  items,
-  label = "Timeline",
-  className,
-}: TimelineProps) {
-  return (
-    <ol className={cx("dm-timeline", className)} aria-label={label}>
-      {items.map((item) => (
-        <li className="dm-timeline__item" key={item.id}>
-          <span className="dm-timeline__node" aria-hidden="true" />
-          {item.meta != null && (
-            <div className="dm-timeline__meta">{item.meta}</div>
-          )}
-          <h3 className="dm-timeline__title">{item.title}</h3>
-          <div className="dm-timeline__description">{item.description}</div>
-        </li>
-      ))}
-    </ol>
-  );
-}
+export { Timeline, type TimelineItem, type TimelineProps } from "./timeline";
 
 export {
   PolaroidStack,

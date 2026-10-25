@@ -180,6 +180,8 @@ export function NotebookPieces() {
 
 `PolaroidStack` now accepts any number of photos, with touch/pen flicking, a source-derived slide-and-tuck, arrows, keyboard navigation, and quiet/reduced motion. [Add photos and reuse the stack](docs/POLAROID-STACK.md).
 
+`Timeline` draws a fine ink line through each milestone, then letters in the next node and its content. It plays once as it enters view, supports explicit replay, and keeps the story readable throughout. [Animate a timeline](docs/TIMELINE.md).
+
 Every catalog entry documents its real API, origin, meaningful states, and composition guidance. [Browse the component inventory](docs/COMPONENTS.md) or run the notebook below to use the live examples.
 
 [Open the component notebook](https://ui.dominicklee.net/) · [Paper layers](https://ui.dominicklee.net/#layers) · [Motion & page flow](https://ui.dominicklee.net/#motion)

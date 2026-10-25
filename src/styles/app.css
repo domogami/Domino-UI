@@ -3170,8 +3170,9 @@ button {
   width: 8px;
   height: 8px;
 }
-.tile-preview .dm-timeline__item:not(:last-child):before {
-  left: 3px;
+.tile-preview .dm-timeline__connector {
+  width: 8px;
+  top: 13px;
 }
 .tile-preview .dm-polaroid-stack {
   width: 180px;
@@ -3202,10 +3203,6 @@ button {
 }
 .tile-preview .dm-flower-progress__count {
   font-size: 23px;
-}
-.playground-canvas > .dm-timeline {
-  max-width: 500px;
-  width: 100%;
 }
 .playground-canvas > .dm-annotation {
   max-width: 420px;
@@ -3243,6 +3240,30 @@ button {
 }
 .motion-controls > .dm-button {
   align-self: center;
+}
+
+.timeline-demo {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+  max-width: 500px;
+  min-width: 0;
+}
+.timeline-demo__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  padding-inline-start: 32px;
+}
+.timeline-demo__link {
+  color: var(--dm-accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.timeline-demo--compact {
+  max-width: 100%;
 }
 
 .polaroid-demo {

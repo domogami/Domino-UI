@@ -1,0 +1,194 @@
+/* A finished, readable ordered list is the baseline, including SSR and no JS. */
+.dm-timeline {
+  position: relative;
+  box-sizing: border-box;
+  max-width: 100%;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  color: var(--dm-ink);
+  font-family: var(--dm-font-body);
+  list-style: none;
+}
+.dm-timeline__item {
+  --dm-timeline-at: calc(
+    var(--dm-timeline-index, 0) *
+      (var(--dm-timeline-duration, 480ms) + var(--dm-timeline-stagger, 120ms))
+  );
+  position: relative;
+  margin: 0;
+  padding: 0 0 28px 32px;
+  overflow-wrap: anywhere;
+}
+.dm-timeline__item:last-child {
+  padding-bottom: 0;
+}
+.dm-timeline__connector {
+  display: block;
+  position: absolute;
+  top: 15px;
+  left: 0;
+  width: 12px;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+.dm-timeline__line,
+.dm-timeline__node-ink {
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+}
+.dm-timeline__line {
+  fill: none;
+  stroke: var(--dm-border);
+}
+.dm-timeline__node {
+  display: block;
+  position: absolute;
+  top: 9px;
+  left: 0;
+  box-sizing: border-box;
+  width: 12px;
+  height: 12px;
+  transform: rotate(-7deg);
+  pointer-events: none;
+}
+.dm-timeline__node > svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.dm-timeline__node-ink {
+  fill: var(--dm-paper);
+  stroke: var(--dm-accent);
+  vector-effect: non-scaling-stroke;
+}
+.dm-timeline__content {
+  opacity: 1;
+  transform: none;
+}
+.dm-timeline__meta {
+  margin: 0 0 5px;
+  color: var(--dm-muted);
+  font: 400 10px/1.6 var(--dm-font-mono);
+  letter-spacing: 0.04em;
+}
+.dm-timeline__title {
+  margin: 0;
+  color: var(--dm-ink);
+  font: 700 22px/1.5 var(--dm-font-lettered);
+}
+.dm-timeline__description {
+  margin-top: 6px;
+  color: var(--dm-muted);
+  font: 400 13px/1.85 var(--dm-font-body);
+}
+.dm-timeline__description > :first-child {
+  margin-top: 0;
+}
+.dm-timeline__description > :last-child {
+  margin-bottom: 0;
+}
+.dm-timeline[data-state="running"] .dm-timeline__line {
+  animation: dm-timeline-connector var(--dm-timeline-duration, 480ms) linear
+    calc(var(--dm-timeline-at) + var(--dm-timeline-stagger, 120ms)) both;
+}
+.dm-timeline[data-state="running"] .dm-timeline__node {
+  animation: dm-timeline-node var(--dm-timeline-stagger, 120ms)
+    var(--dm-layer-easing, cubic-bezier(0.22, 1, 0.36, 1)) var(--dm-timeline-at)
+    both;
+}
+.dm-timeline[data-state="running"] .dm-timeline__node-ink {
+  animation: dm-timeline-ink var(--dm-timeline-stagger, 120ms) linear
+    var(--dm-timeline-at) both;
+}
+.dm-timeline[data-state="running"] .dm-timeline__content {
+  animation: dm-timeline-content calc(var(--dm-timeline-duration, 480ms) / 2)
+    var(--dm-layer-easing, cubic-bezier(0.22, 1, 0.36, 1)) var(--dm-timeline-at)
+    both;
+}
+@keyframes dm-timeline-connector {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes dm-timeline-ink {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes dm-timeline-node {
+  from {
+    opacity: 0;
+    transform: rotate(-7deg) scale(0.72);
+  }
+  to {
+    opacity: 1;
+    transform: rotate(-7deg);
+  }
+}
+@keyframes dm-timeline-content {
+  from {
+    opacity: 0.76;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.dm-timeline:is([data-quiet="true"], [data-animate="false"])
+  :is(
+    .dm-timeline__line,
+    .dm-timeline__node,
+    .dm-timeline__node-ink,
+    .dm-timeline__content
+  ) {
+  animation: none !important;
+}
+@media (max-width: 480px) {
+  .dm-timeline__item {
+    padding-left: 26px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dm-timeline
+    :is(
+      .dm-timeline__line,
+      .dm-timeline__node,
+      .dm-timeline__node-ink,
+      .dm-timeline__content
+    ) {
+    animation: none !important;
+  }
+}
+@media print {
+  .dm-timeline
+    :is(
+      .dm-timeline__line,
+      .dm-timeline__node,
+      .dm-timeline__node-ink,
+      .dm-timeline__content
+    ) {
+    animation: none !important;
+  }
+}
+@media (forced-colors: active) {
+  .dm-timeline__line {
+    stroke: CanvasText;
+  }
+  .dm-timeline__node-ink {
+    fill: Canvas;
+    stroke: CanvasText;
+  }
+}

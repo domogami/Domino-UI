@@ -1237,17 +1237,40 @@ entries.push(
     name: "Timeline",
     group: "Notebook",
     summary:
-      "A line through a few meaningful milestones. Hand-lettered headings, quiet details, and no invented dates.",
-    code: "<Timeline label=\"An illustrative creative process\" items={[\n  {id:'begin', meta:'01 / BEGIN', title:'A small idea',\n   description:'Write down the thing you keep thinking about.'},\n  {id:'grow', meta:'02 / GROW', title:'A little momentum',\n   description:'Keep the pieces that feel useful.'}\n]} />",
+      "A line of ink that draws through meaningful milestones, with hand-lettered headings and a replayable reveal.",
+    code: `import { useState } from 'react';
+import { Button, Timeline } from '@domlee/ui';
+
+export function Milestones() {
+  const [replay, setReplay] = useState(0);
+  return <>
+    <Timeline label="An illustrative creative process" replayKey={replay}
+      items={[
+        {id:'begin', meta:'01 / BEGIN', title:'A small idea',
+         description:'Write down the thing you keep thinking about.'},
+        {id:'grow', meta:'02 / GROW', title:'A little momentum',
+         description:'Keep the pieces that feel useful.'}
+      ]} />
+    <Button onClick={() => setReplay(value => value + 1)}>Replay timeline</Button>
+  </>;
+}`,
     props: [
-      ["items", "TimelineItem[]; {id, title, description, meta?}", "required"],
+      [
+        "items",
+        "readonly TimelineItem[]; {id, title, description, meta?}",
+        "required",
+      ],
       ["label", "string; accessible list name", "Timeline"],
+      ["animate", "boolean; draw once on first viewport entry", "true"],
+      ["quiet", "boolean; show the completed timeline immediately", "false"],
+      ["replayKey", "string | number; change to draw again", "0"],
       ["className", "string", "—"],
+      ["Native ol attributes", "OlHTMLAttributes<HTMLOListElement>", "—"],
     ],
     guidance:
-      "Use a stable id for each milestone. Supply real dates when relevant; stage labels are useful for illustrative processes. Keep the sequence meaningful.",
+      "Use stable milestone IDs and a meaningful chronological sequence. The hand-drawn connector reaches each node before the next milestone inks in; content remains readable throughout. The sequence plays once on first viewport entry. A separate Replay button can change replayKey without replacing list items or stealing link focus. Quiet and reduced motion show finished ink immediately. Supply real dates when relevant; sample stage labels describe an illustrative process.",
     usage:
-      "Import Timeline from @domlee/ui. The component renders an ordered list; heading content is h3. Check heading hierarchy in your surrounding page. Example milestones describe an illustrative process, not personal history.",
+      "Import Timeline and styles.css from @domlee/ui. It renders an ordered list with h3 headings and ordinary interactive content. Keep replay controls separate from the list, and change replayKey to redraw. animate={false}, quiet, and reduced motion keep it static. Full API, viewport behavior, and canonical timing are in docs/TIMELINE.md. Example milestones describe an illustrative process, not personal history.",
     origin: "Adapted",
   },
   {

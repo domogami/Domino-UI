@@ -1,4 +1,4 @@
-import { useId, useRef, useState } from "react";
+import { useId, useRef, useState, useSyncExternalStore } from "react";
 import * as UI from "../lib";
 import {
   HeroName,
@@ -60,6 +60,87 @@ function TaskCheckboxDemo({ compact = false }: { compact?: boolean }) {
             From the Quartz garden · 220ms drawn check · 280ms ink strike
           </small>
         </>
+      )}
+    </div>
+  );
+}
+
+const timelineMilestones: readonly UI.TimelineItem[] = [
+  {
+    id: "begin",
+    meta: "01 / BEGIN",
+    title: "A small idea",
+    description: "Write down the thing you keep thinking about.",
+  },
+  {
+    id: "grow",
+    meta: "02 / GROW",
+    title: "A little momentum",
+    description: "Keep the pieces that feel useful.",
+  },
+  {
+    id: "keep",
+    meta: "03 / KEEP",
+    title: "Something worth sharing",
+    description: (
+      <>
+        Let your idea find a little place in the world.{" "}
+        <a className="timeline-demo__link" href="#getting-started">
+          Try it in a project.
+        </a>
+      </>
+    ),
+  },
+];
+const timelineMotionQuery = "(prefers-reduced-motion: reduce)";
+function subscribeTimelineMotion(update: () => void) {
+  const media = window.matchMedia(timelineMotionQuery);
+  media.addEventListener("change", update);
+  return () => media.removeEventListener("change", update);
+}
+const readTimelineMotion = () => window.matchMedia(timelineMotionQuery).matches;
+const timelineMotionOnServer = () => true;
+
+function TimelineDemo({
+  compact,
+  quiet,
+}: {
+  compact: boolean;
+  quiet: boolean;
+}) {
+  const [replay, setReplay] = useState(0);
+  const [still, setStill] = useState(false);
+  const reduced = useSyncExternalStore(
+    subscribeTimelineMotion,
+    readTimelineMotion,
+    timelineMotionOnServer,
+  );
+  return (
+    <div className={`timeline-demo ${compact ? "timeline-demo--compact" : ""}`}>
+      <UI.Timeline
+        label="An illustrative creative process"
+        items={compact ? timelineMilestones.slice(0, 2) : timelineMilestones}
+        animate={!compact}
+        quiet={quiet || still || compact}
+        replayKey={replay}
+      />
+      {!compact && (
+        <div className="timeline-demo__actions">
+          <UI.Button
+            size="sm"
+            variant="secondary"
+            disabled={quiet || still || reduced}
+            onClick={() => setReplay((value) => value + 1)}
+          >
+            <Icon name="replay" size={15} />
+            Replay timeline
+          </UI.Button>
+          <UI.Switch
+            label="Quiet timeline motion"
+            checked={still}
+            onChange={(event) => setStill(event.target.checked)}
+          />
+        </div>
       )}
     </div>
   );
@@ -1017,36 +1098,7 @@ export function Demo({
         </UI.Annotation>
       );
     case "timeline":
-      return (
-        <UI.Timeline
-          label="An illustrative creative process"
-          items={[
-            {
-              id: "begin",
-              meta: "01 / BEGIN",
-              title: "A small idea",
-              description: "Write down the thing you keep thinking about.",
-            },
-            {
-              id: "grow",
-              meta: "02 / GROW",
-              title: "A little momentum",
-              description: "Keep the pieces that feel useful.",
-            },
-            ...(!compact
-              ? [
-                  {
-                    id: "keep",
-                    meta: "03 / KEEP",
-                    title: "Something worth sharing",
-                    description:
-                      "Let your idea find a little place in the world.",
-                  },
-                ]
-              : []),
-          ]}
-        />
-      );
+      return <TimelineDemo compact={compact} quiet={quiet} />;
     case "polaroid-stack":
       return <PolaroidStackDemo compact={compact} quiet={quiet} />;
     case "flower-progress":

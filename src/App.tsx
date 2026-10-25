@@ -1057,19 +1057,15 @@ function ComponentDetail({
                 src/lib/
                 {["touch-feedback-setting", "ink-switch"].includes(entry.id)
                   ? "haptics.tsx"
-                  : entry.id === "polaroid-stack"
-                    ? "polaroid-stack.tsx"
+                  : ["polaroid-stack", "timeline"].includes(entry.id)
+                    ? `${entry.id}.tsx`
                     : ["triple-banner", "bookmark-drawing"].includes(entry.id)
                       ? "journal-art.tsx"
                       : entry.group === "Brand"
                         ? "brand.tsx"
                         : entry.id === "theme-toggle"
                           ? "theme.tsx"
-                          : [
-                                "annotation",
-                                "timeline",
-                                "flower-progress",
-                              ].includes(entry.id)
+                          : ["annotation", "flower-progress"].includes(entry.id)
                             ? "patterns.tsx"
                             : [
                                   "menu-toggle",

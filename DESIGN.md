@@ -232,6 +232,12 @@ Use the shared centered `Chevron` SVG for dropdown, select, breadcrumb, and disc
 Sketches may opt into `replayOnClick`: one stable native button redraws its own ink on click, tap, Enter, or Space. Other drawings remain at rest. Preserve button focus during replay, allow vertical touch scrolling, and disable replay when quiet or reduced motion is active. The notebook set includes six scenes; Hairline replays an ink sweep while its guided tour remains separately opt in.
 
 
+## Drawn timelines
+
+`Timeline` carries the notebook's hand-lettered milestones into a finite pen-drawn sequence. Organic nodes ink in, a fine connector draws down to the next milestone, and its readable copy settles gently into place. The ordered list and its links remain present throughout; drawing never gates chronology or essential information.
+
+Play once on first viewport entry. An explicit external control can change `replayKey` to draw again while preserving the list, milestone identity, and focus. Do not loop or erase the timeline as a reader scrolls away. Quiet mode, `animate={false}`, and reduced motion show the finished timeline immediately. Canonical `timeline-duration` (480ms per connector) and `timeline-stagger` (120ms milestone dwell) produce 600ms milestone starts and a 1440ms three-item sequence. See [timeline motion and adoption](docs/TIMELINE.md).
+
 ## Reusable photo stacks
 
 `PolaroidStack` carries the personal site's actual hand-drawn arrows and slide-and-tuck movement into a reusable N-photo stack. It shows real following prints, keeps a stable image window with naturally wrapping Caveat captions, and preserves the selected photo by a stable ID when the list changes. The default landscape window is 16:9; collections can choose another ratio and per-photo object position. Do not force a tall mobile height onto a narrow landscape photo.

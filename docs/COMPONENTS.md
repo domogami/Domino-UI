@@ -4,23 +4,24 @@ This inventory defines the scope of Domino UI and the states its visual website 
 
 ## Source map
 
-| Location                        | Responsibility                                                                       |
-| ------------------------------- | ------------------------------------------------------------------------------------ |
-| `src/lib/index.ts`              | Public React exports                                                                 |
-| `src/lib/components.tsx`        | Reusable controls, content, feedback, and navigation patterns                        |
-| `src/lib/theme.tsx`             | Theme context, persisted preference state, and theme controls                        |
-| `src/lib/brand.tsx`             | Exact name/brand drawings and reusable illustration patterns                         |
-| `src/lib/journal-art.tsx`       | Original three-face ribbon and notched/pointed bookmark drawings                    |
-| `src/lib/patterns.tsx`          | Annotations, timeline, and flower progress; compatibility re-export for PolaroidStack                           |
-| `src/lib/popover.tsx`           | Anchored nonmodal dialog, native top layer, viewport positioning, focus/dismissal    |
-| `src/lib/notification-card.tsx` | Single-sheet notification surface with accessible queue badge         |
-| `src/styles/tokens.css`         | Shared semantic themes, type roles, spacing, radii, and durations                    |
-| `src/styles/fonts.css`          | Self-hosted font definitions                                                         |
-| `public/fonts/`                 | Font files and their individual license notices                                      |
-| `src/App.tsx`                   | Visual documentation website composition                                             |
-| `src/catalog/`                  | Live component catalog, examples, and reference content                              |
-| `DESIGN.md`                     | Visual principles, source provenance, exact reference values, and library extensions |
-| `docs/ACCESSIBILITY.md`         | Interaction and accessibility requirements                                           |
+| Location                        | Responsibility                                                                           |
+| ------------------------------- | ---------------------------------------------------------------------------------------- |
+| `src/lib/index.ts`              | Public React exports                                                                     |
+| `src/lib/components.tsx`        | Reusable controls, content, feedback, and navigation patterns                            |
+| `src/lib/theme.tsx`             | Theme context, persisted preference state, and theme controls                            |
+| `src/lib/brand.tsx`             | Exact name/brand drawings and reusable illustration patterns                             |
+| `src/lib/journal-art.tsx`       | Original three-face ribbon and notched/pointed bookmark drawings                         |
+| `src/lib/patterns.tsx`          | Annotations and flower progress; compatibility re-exports for Timeline and PolaroidStack |
+| `src/lib/timeline.tsx`          | Semantic ordered milestones, viewport ink drawing, quiet/reduced motion, and replay      |
+| `src/lib/popover.tsx`           | Anchored nonmodal dialog, native top layer, viewport positioning, focus/dismissal        |
+| `src/lib/notification-card.tsx` | Single-sheet notification surface with accessible queue badge                            |
+| `src/styles/tokens.css`         | Shared semantic themes, type roles, spacing, radii, and durations                        |
+| `src/styles/fonts.css`          | Self-hosted font definitions                                                             |
+| `public/fonts/`                 | Font files and their individual license notices                                          |
+| `src/App.tsx`                   | Visual documentation website composition                                                 |
+| `src/catalog/`                  | Live component catalog, examples, and reference content                                  |
+| `DESIGN.md`                     | Visual principles, source provenance, exact reference values, and library extensions     |
+| `docs/ACCESSIBILITY.md`         | Interaction and accessibility requirements                                               |
 
 The package root is `@domlee/ui`. Its shared CSS and fonts are separate assets; applications must serve the `/fonts/` paths used by the bundled font stylesheet. Consult `package.json` and the generated API reference for the implemented import surface.
 
@@ -73,24 +74,24 @@ These are library scope categories. A complex custom combobox, date picker, file
 
 ## Content and paper
 
-| Pattern        | States/examples to expose                                                            | Design guidance                                                                   |
-| -------------- | ------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------- |
-| Paper/card     | Plain, sage, peach, blue/lavender where supported; titled and untitled; long content | Real silhouette for folds; content grows naturally                                |
-| Sticky note    | Single and layered, compact/long copy, optional fold                                 | Local tilt only; preserve readable body text                                      |
-| Notched banner | Short/long label, static and drawn, narrow layout                                    | Exact source strip geometry; Kalam label                                          |
-| Folded banner  | Tails/folds/front face, multiple paper roles, static/drawn                           | Preserve layered geometry and restrained shadow                                   |
-| TripleBanner   | Exactly three labels, four tones, narrow/long copy, static/drawn/replay             | Original connected ribbon geometry; real text grows each face naturally            |
-| BookmarkDrawing | Notched/pointed, decorative/named, static/drawn/replay                               | Fine original pen paths, faint echo, semantic seam, shared DrawingProps             |
-| Annotation     | Title-only/body, four arrow directions, start/end alignment, static/drawn            | Caveat short title, Lexend body, inline decorative arrow                          |
-| Callout/alert  | Informational, success/warning/error where supported, optional title                 | Meaning through text and icon; palette alone is insufficient                      |
-| Quote          | Quote and attribution, short/long copy, Hybrid blue paper                            | Selectable text and correct quotation semantics                                   |
-| Badge/tag      | Neutral/accent/status, long label, removable only if implemented                     | Tags and status are different meanings; removal is a named button                 |
-| Divider/leader | Horizontal rule, dotted leader, label/folio                                          | Decorative separators do not replace headings                                     |
-| Code block     | Long line, multi-line, filename/language, copy feedback                              | Selectable code, contained overflow, actual copy action                           |
-| Data table     | Header, caption, multiple columns, narrow overflow, empty state                      | Preserve table semantics and readable relationships                               |
-| Avatar         | Image, initials/fallback, accessible context                                         | Useful alternative when image fails; decorative duplicates hidden                 |
-| Empty state    | Title, explanatory copy, relevant action                                             | Describe the state without inventing a failing backend                            |
-| Skeleton       | Text/card shapes if supported, reduced motion                                        | Hide decorative shapes from assistive technology; announce actual loading context |
+| Pattern         | States/examples to expose                                                            | Design guidance                                                                   |
+| --------------- | ------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------- |
+| Paper/card      | Plain, sage, peach, blue/lavender where supported; titled and untitled; long content | Real silhouette for folds; content grows naturally                                |
+| Sticky note     | Single and layered, compact/long copy, optional fold                                 | Local tilt only; preserve readable body text                                      |
+| Notched banner  | Short/long label, static and drawn, narrow layout                                    | Exact source strip geometry; Kalam label                                          |
+| Folded banner   | Tails/folds/front face, multiple paper roles, static/drawn                           | Preserve layered geometry and restrained shadow                                   |
+| TripleBanner    | Exactly three labels, four tones, narrow/long copy, static/drawn/replay              | Original connected ribbon geometry; real text grows each face naturally           |
+| BookmarkDrawing | Notched/pointed, decorative/named, static/drawn/replay                               | Fine original pen paths, faint echo, semantic seam, shared DrawingProps           |
+| Annotation      | Title-only/body, four arrow directions, start/end alignment, static/drawn            | Caveat short title, Lexend body, inline decorative arrow                          |
+| Callout/alert   | Informational, success/warning/error where supported, optional title                 | Meaning through text and icon; palette alone is insufficient                      |
+| Quote           | Quote and attribution, short/long copy, Hybrid blue paper                            | Selectable text and correct quotation semantics                                   |
+| Badge/tag       | Neutral/accent/status, long label, removable only if implemented                     | Tags and status are different meanings; removal is a named button                 |
+| Divider/leader  | Horizontal rule, dotted leader, label/folio                                          | Decorative separators do not replace headings                                     |
+| Code block      | Long line, multi-line, filename/language, copy feedback                              | Selectable code, contained overflow, actual copy action                           |
+| Data table      | Header, caption, multiple columns, narrow overflow, empty state                      | Preserve table semantics and readable relationships                               |
+| Avatar          | Image, initials/fallback, accessible context                                         | Useful alternative when image fails; decorative duplicates hidden                 |
+| Empty state     | Title, explanatory copy, relevant action                                             | Describe the state without inventing a failing backend                            |
+| Skeleton        | Text/card shapes if supported, reduced motion                                        | Hide decorative shapes from assistive technology; announce actual loading context |
 
 ## Navigation and disclosure
 
@@ -120,32 +121,32 @@ Do not use menu roles for every collection of links. The showcase mobile navigat
 
 `Dialog` and `Drawer` retain native modal semantics while adding `eyebrow`, decorative `icon`, and an inverse ink header through `surface`. `Dialog` defaults to `motion="fold"`: a single connected note arrives from the right with a shared 160ms fade during its 360ms unfolding motion. Its attached body/footer fold is gentle; the header stays locally flat and shares the whole-note movement and opacity. Closing begins immediately with a rightward slide and connected 200ms tuck; group opacity holds for 40ms, then fades over 200ms to complete the 240ms exit. No stationary rear sheet or duplicated content is added. `motion="settle"` uses the shared 240ms/160ms layer timing. `Drawer` always settles and omits the motion prop; the command palette also settles. Keep the modal mounted and drive `open` so motion can reverse; native modality persists through its full exit. Reduced motion shows the finished state immediately. `Toast` adds `eyebrow` and `action` content alongside existing tone/dismissal support. It announces status or a danger alert without taking focus or automatically removing itself.
 
-| Pattern           | States/examples to expose                                                   | Native behavior expectations                                                            |
-| ----------------- | --------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| Pattern           | States/examples to expose                                                                | Native behavior expectations                                                            |
+| ----------------- | ---------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
 | Dialog/drawer     | Paper/ink header, fold/settle, context mark, open/closed, long content, wrapping actions | Accessible title, native modality, Escape, return focus, reversible exit                |
-| Tooltip           | Pointer and keyboard, long text, edge placement                             | Supplementary explanation only; dismissible when necessary                              |
-| Popover           | Top/bottom, start/center/end, open/closed, interactive content, long body   | Named nonmodal dialog; ref-forwarding trigger; Escape/close return focus, Tab may leave |
-| Notification card | Paper/ink, single/queued, source/time, long title/body, wrapping actions    | Static named article; readable count; host owns delivery and announcements              |
-| Toast/status      | Success/info/warning/danger, context label, action, optional dismiss        | Status or danger alert; no automatic focus or lifetime management                       |
-| Progress          | Determinate/indeterminate, label, complete state                            | Accessible name and value; color is supplementary                                       |
-| Spinner/loading   | Small/regular, labeled loading context, static reduced-motion version       | Do not announce every rotation; expose the actual operation state                       |
+| Tooltip           | Pointer and keyboard, long text, edge placement                                          | Supplementary explanation only; dismissible when necessary                              |
+| Popover           | Top/bottom, start/center/end, open/closed, interactive content, long body                | Named nonmodal dialog; ref-forwarding trigger; Escape/close return focus, Tab may leave |
+| Notification card | Paper/ink, single/queued, source/time, long title/body, wrapping actions                 | Static named article; readable count; host owns delivery and announcements              |
+| Toast/status      | Success/info/warning/danger, context label, action, optional dismiss                     | Status or danger alert; no automatic focus or lifetime management                       |
+| Progress          | Determinate/indeterminate, label, complete state                                         | Accessible name and value; color is supplementary                                       |
+| Spinner/loading   | Small/regular, labeled loading context, static reduced-motion version                    | Do not announce every rotation; expose the actual operation state                       |
 
 Overlay examples must inherit the intended theme even when rendered through a portal. Avoid showing an overlay as available unless its open, close, focus, and keyboard interactions are implemented.
 
 ## Journal and identity
 
-| Pattern               | States/examples to expose                                                      | Fidelity requirements                                                             |
-| --------------------- | ------------------------------------------------------------------------------ | --------------------------------------------------------------------------------- |
-| Animated name         | **Dom Lee.**, finished frame, replay, multiple instances, quiet/reduced motion | Exact Poppins source paths; separate teal period; unique SVG clipping identifiers |
-| Garden plant          | Finished plant, replay, dark/light surfaces                                    | Shared stem/leaf/pot geometry; sage/terracotta source fill roles                  |
-| Crane                 | Shared header/hero geometry where offered, completed/replay states             | Preserve original facets; same mark at different sizes                            |
-| Sketch arrow          | Inline external link, annotation direction, hover/focus/static                 | Current-color SVG; no emoji substitution                                          |
-| Journal key           | `•` task, `×` completed, `○` event, `–` note, `>` migrated                     | Exactly five source meanings; no scheduled or priority addition                   |
-| Task list             | Native checkbox interaction, wrapped strike, nested tasks, disabled            | Preserve checked semantics; strike applies only to the task text                  |
-| Folio/index row       | Stable number, dotted leader, label, real destination                          | Number from a stable destination registry, never array position                   |
-| Timeline              | Milestone, heading/detail, mobile stack, optional draw                         | Neutral sample dates; clear chronological information                             |
-| Flower/petal progress | Unfound/found, count, complete bloom, reduced motion                           | Theme-colored source art; progress also available as text                         |
-| Polaroid/paper stack  | Real photos, N-item swipe/flick, slide-and-tuck, arrows, keyboard, quiet/reduced | Stable IDs, useful alt text, responsive image ratio, native vertical scroll/pinch |
+| Pattern               | States/examples to expose                                                               | Fidelity requirements                                                             |
+| --------------------- | --------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| Animated name         | **Dom Lee.**, finished frame, replay, multiple instances, quiet/reduced motion          | Exact Poppins source paths; separate teal period; unique SVG clipping identifiers |
+| Garden plant          | Finished plant, replay, dark/light surfaces                                             | Shared stem/leaf/pot geometry; sage/terracotta source fill roles                  |
+| Crane                 | Shared header/hero geometry where offered, completed/replay states                      | Preserve original facets; same mark at different sizes                            |
+| Sketch arrow          | Inline external link, annotation direction, hover/focus/static                          | Current-color SVG; no emoji substitution                                          |
+| Journal key           | `•` task, `×` completed, `○` event, `–` note, `>` migrated                              | Exactly five source meanings; no scheduled or priority addition                   |
+| Task list             | Native checkbox interaction, wrapped strike, nested tasks, disabled                     | Preserve checked semantics; strike applies only to the task text                  |
+| Folio/index row       | Stable number, dotted leader, label, real destination                                   | Number from a stable destination registry, never array position                   |
+| Timeline              | Ordered milestones, viewport ink draw, external replay, long linked copy, quiet/reduced | Semantic ol/li/h3, stable IDs, neutral sample dates, native links and focus       |
+| Flower/petal progress | Unfound/found, count, complete bloom, reduced motion                                    | Theme-colored source art; progress also available as text                         |
+| Polaroid/paper stack  | Real photos, N-item swipe/flick, slide-and-tuck, arrows, keyboard, quiet/reduced        | Stable IDs, useful alt text, responsive image ratio, native vertical scroll/pinch |
 
 Brand assets are optional additions to a consuming application. Generic buttons or inputs should not import a large drawing solely to inherit typography or color.
 
@@ -170,6 +171,8 @@ Available verification commands are `npm run check`, `npm run build`, `npm run b
 ## Implemented signature patterns
 
 `src/lib/patterns.tsx` exports `Annotation`, `Timeline`, `PolaroidStack`, and `FlowerProgress`. Each has a dedicated catalogue entry, live preview, actual React example, prop reference, and usage guidance. PolaroidStack is implemented in `src/lib/polaroid-stack.tsx` and re-exported from patterns.tsx for compatibility. It supports any number of real photos, touch/pen drag and flick, native vertical scrolling and pinch zoom, keyboard/arrows, and the source-derived 480ms slide-and-tuck. Quiet and reduced motion use immediate changes. [Photo stack API and adoption](POLAROID-STACK.md).
+
+`Timeline` is implemented in `src/lib/timeline.tsx` and keeps its existing patterns re-export. It accepts readonly `TimelineItem` values with stable IDs and React-node titles, descriptions, and optional metadata, plus native ordered-list attributes. `animate` defaults to true: its decorative line and nodes draw on first viewport entry, with a small content reveal. Essential `ol`/`li`/`h3` content is server-rendered and accessible throughout. An external button can change `replayKey`; the list does not steal clicks or focus from its own links. `quiet`, `animate={false}`, and reduced motion show the finished static state. [Timeline API and composition](TIMELINE.md).
 
 ## Touch feedback APIs
 
