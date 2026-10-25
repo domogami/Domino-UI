@@ -65,6 +65,51 @@ function TaskCheckboxDemo({ compact = false }: { compact?: boolean }) {
   );
 }
 
+function PaperDemo({ compact }: { compact: boolean }) {
+  const [ruleAlign, setRuleAlign] = useState<"between" | "baseline">("between");
+  const [padding, setPadding] = useState<"sm" | "md" | "lg">("md");
+  return (
+    <div className={`paper-demo ${compact ? "paper-demo--compact" : ""}`}>
+      <UI.Paper
+        pattern="lined"
+        padding={compact ? "sm" : padding}
+        ruleAlign={ruleAlign}
+      >
+        <h3>A place to begin</h3>
+        <p>One thought, then another.</p>
+        {!compact && (
+          <p>A steady rhythm gives the words a little room to breathe.</p>
+        )}
+      </UI.Paper>
+      {!compact && (
+        <div className="paper-demo__controls">
+          <UI.Select
+            label="Rule placement"
+            value={ruleAlign}
+            onChange={(event) =>
+              setRuleAlign(event.target.value as "between" | "baseline")
+            }
+          >
+            <option value="between">Between lines</option>
+            <option value="baseline">Writing guide</option>
+          </UI.Select>
+          <UI.Select
+            label="Paper padding"
+            value={padding}
+            onChange={(event) =>
+              setPadding(event.target.value as "sm" | "md" | "lg")
+            }
+          >
+            <option value="sm">Small</option>
+            <option value="md">Medium</option>
+            <option value="lg">Large</option>
+          </UI.Select>
+        </div>
+      )}
+    </div>
+  );
+}
+
 const timelineMilestones: readonly UI.TimelineItem[] = [
   {
     id: "begin",
@@ -897,15 +942,7 @@ export function Demo({
         </div>
       );
     case "paper":
-      return (
-        <UI.Paper pattern="lined" padding="md">
-          <h3>A place to begin</h3>
-          <p>One thought, then another.</p>
-          {!compact && (
-            <p>A steady rhythm gives the words a little room to breathe.</p>
-          )}
-        </UI.Paper>
-      );
+      return <PaperDemo compact={compact} />;
     case "sticky-note":
       return (
         <UI.StickyNote tone="sage">

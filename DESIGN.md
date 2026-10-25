@@ -26,7 +26,7 @@ The extraction concerns reusable styling, SVG artwork, and interaction patterns.
 
 1. **Make the notebook useful.** Clear reading order, labels, links, and native controls give the page its structure. Decorative marks should help someone find, connect, or remember information.
 2. **Treat the grid as layout.** Place text and section spacing deliberately against the 32px rhythm. Keep a continuous background phase across adjoining panels.
-3. **Keep the ink legible.** Body copy uses a readable sans serif and a strong paper/ink pairing. Handwriting, pale paper colors, and mint accents have limited roles.
+3. **Keep the ink legible.** Body copy uses a readable sans serif and a strong paper/ink pairing. Writing rules sit between text rows or beneath the ink, with clearance for every letter and descender. Handwriting, pale paper colors, and mint accents have limited roles.
 4. **Use a small family of drawings.** Reuse the exact name glyphs, shared arrows, folded ribbons, plant, and crane geometry. Avoid a mixture of unrelated sketch styles.
 5. **Keep irregularity local.** Asymmetric corner radii, a small paper tilt, and a curved arrow can feel human while controls, columns, and reading lines remain stable.
 6. **Prefer Hybrid.** A dark navigation region beside light reading paper is the default composition. Every component must also work in complete Light and Dark themes.
@@ -115,6 +115,12 @@ Kalam's optical baseline correction in the portfolio is `.12em`. Move the ink in
 The **32px grid** is the organizing rhythm. Place text between dot rows. The portfolio uses a continuous cream hero grid with no parallax or crane drift, section padding of 64px, a gutter of `clamp(24px, 5vw, 80px)`, and a maximum inner width of 1440px. Main text-bearing spacing follows 32px multiples; local controls and details may use smaller increments.
 
 The library spacing scale is an explicit extension built from that rhythm: **4, 8, 12, 16, 24, 32, 48, 64px**. Use 4/8px for icon-label details, 12/16px for control interiors, 24/32px for local groups, and 48/64px for section separation. Content length and responsive reflow take priority over forced row alignment.
+
+### Writing rules and text
+
+**A writing rule must never run through text.** Set ordinary ruled prose on the 32px row rhythm, with block spacing in whole rows and a content origin that follows the real padding. `Paper` supports `ruleAlign="between"` for text centered between rules and `ruleAlign="baseline"` for a guide closer beneath the ink. Preserve clearance around ascenders, descenders, handwriting, wrapped lines, and mixed font families.
+
+Large headings, embedded controls, code, and figures need clear bands. Omit a complete unsafe rule row while keeping the content's natural layout; do not paint opaque patches over letters, shrink text to fit a line, or rely on a fixed background offset. Font loading, responsive reflow, and zoom must preserve the separation. Decorative rulings can wait for a safe layout; readable text never waits for decoration. The canonical pitch, clearance, and guide offset are `paper-rule-pitch` (32px), `paper-rule-clearance` (3px), and `paper-rule-guide-offset` (2px). [Paper rhythm and composition](docs/PAPER-RHYTHM.md) records the React contract and the same rule for future native integrations.
 
 | Detail             | Reference                                              |
 | ------------------ | ------------------------------------------------------ |

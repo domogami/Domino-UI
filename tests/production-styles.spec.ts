@@ -1535,3 +1535,167 @@ test("production Timeline quiet and reduced motion keep milestones readable and 
   }
   await expect(timeline.getByRole("heading", { level: 3 })).toHaveCount(3);
 });
+
+async function paperPaintMasks(page: import("@playwright/test").Page) {
+  const paper = page.locator(".playground-canvas .dm-paper");
+  await paper.evaluate(
+    () =>
+      new Promise<void>((resolve) =>
+        requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
+      ),
+  );
+  await expect(paper.locator(".dm-paper__rules")).toHaveAttribute(
+    "data-rules-ready",
+    "true",
+  );
+  await page.evaluate(() => {
+    document.querySelector("#compiled-paper-mask")?.remove();
+    const style = document.createElement("style");
+    style.id = "compiled-paper-mask";
+    document.head.append(style);
+    (window as any).compiledPaperMask = style.sheet;
+  });
+  const capture = async (ink: boolean, rules: boolean) => {
+    await page.evaluate(
+      ({ ink, rules }) => {
+        const sheet: CSSStyleSheet = (window as any).compiledPaperMask;
+        while (sheet.cssRules.length) sheet.deleteRule(0);
+        if (!ink)
+          sheet.insertRule(
+            ".playground-canvas .dm-paper, .playground-canvas .dm-paper * { -webkit-text-fill-color: transparent !important; text-shadow: none !important; text-decoration-color: transparent !important; }",
+          );
+        if (!rules)
+          sheet.insertRule(
+            ".playground-canvas .dm-paper__rules { visibility:hidden !important; }",
+          );
+      },
+      { ink, rules },
+    );
+    return (await paper.screenshot({ animations: "disabled" })).toString(
+      "base64",
+    );
+  };
+  const blank = await capture(false, false),
+    ink = await capture(true, false),
+    rules = await capture(false, true);
+  const result = await page.evaluate(
+    async ({ blank, ink, rules }) => {
+      async function decode(data: string) {
+        const image = await createImageBitmap(
+          await (await fetch(`data:image/png;base64,${data}`)).blob(),
+        );
+        const canvas = document.createElement("canvas");
+        canvas.width = image.width;
+        canvas.height = image.height;
+        const context = canvas.getContext("2d")!;
+        context.drawImage(image, 0, 0);
+        return {
+          width: image.width,
+          height: image.height,
+          data: context.getImageData(0, 0, image.width, image.height).data,
+        };
+      }
+      const [base, text, lines] = await Promise.all([
+        decode(blank),
+        decode(ink),
+        decode(rules),
+      ]);
+      let inkPixels = 0,
+        rulePixels = 0,
+        intersections = 0;
+      for (let y = 4; y < base.height - 4; y++)
+        for (let x = 4; x < base.width - 4; x++) {
+          const offset = (y * base.width + x) * 4;
+          const differs = (pixels: Uint8ClampedArray) =>
+            [0, 1, 2].some(
+              (channel) =>
+                Math.abs(
+                  pixels[offset + channel] - base.data[offset + channel],
+                ) >= 5,
+            );
+          const hasInk = differs(text.data),
+            hasRule = differs(lines.data);
+          if (hasInk) inkPixels++;
+          if (hasRule) rulePixels++;
+          if (hasInk && hasRule) intersections++;
+        }
+      return { inkPixels, rulePixels, intersections };
+    },
+    { blank, ink, rules },
+  );
+  await page.evaluate(() => {
+    const sheet: CSSStyleSheet = (window as any).compiledPaperMask;
+    while (sheet.cssRules.length) sheet.deleteRule(0);
+  });
+  expect(result.inkPixels).toBeGreaterThan(100);
+  expect(result.rulePixels).toBeGreaterThan(100);
+  expect(result.intersections).toBe(0);
+}
+
+test("production ruled Paper keeps real rule paint clear of heading and wrapped prose in both placements", async ({
+  page,
+}) => {
+  await page.goto("/#component/paper");
+  await page.evaluate(() => document.fonts.ready);
+  const paper = page.locator(".playground-canvas .dm-paper");
+  await paper.scrollIntoViewIfNeeded();
+  await expect(
+    paper.getByRole("heading", { name: "A place to begin" }),
+  ).toBeVisible();
+  await paperPaintMasks(page);
+  const original = await paper.elementHandle();
+  for (const align of ["baseline", "between"]) {
+    await page
+      .getByRole("combobox", { name: "Rule placement", exact: true })
+      .selectOption(align);
+    await expect(paper).toHaveAttribute("data-rule-align", align);
+    for (const padding of ["sm", "lg", "md"]) {
+      await page
+        .getByRole("combobox", { name: "Paper padding", exact: true })
+        .selectOption(padding);
+      await expect(paper).toHaveClass(new RegExp(`dm-paper--${padding}`));
+      await expect(paper.locator(".dm-paper__rules")).toHaveAttribute(
+        "data-rules-ready",
+        "true",
+      );
+      expect(
+        await paper.locator(".dm-paper__rules").getAttribute("data-rule-rows"),
+      ).not.toBe("");
+    }
+  }
+  expect(
+    await paper.evaluate((element, saved) => element === saved, original),
+  ).toBe(true);
+  await paperPaintMasks(page);
+});
+
+test("production ruled Paper remeasures larger fonts, zoom and narrow wrapped text", async ({
+  page,
+}) => {
+  await page.goto("/#component/paper");
+  await page.evaluate(() => document.fonts.ready);
+  const paper = page.locator(".playground-canvas .dm-paper");
+  await paper.locator("h3").evaluate((heading) => {
+    heading.textContent =
+      "Growing typography and a much larger thought with gypqj descenders";
+    heading.style.fontSize = "37px";
+    heading.style.fontFamily = '"Kalam", cursive';
+    heading.style.fontWeight = "700";
+  });
+  for (const width of [320, 390]) {
+    await page.setViewportSize({ width, height: 900 });
+    await paper.scrollIntoViewIfNeeded();
+    await paperPaintMasks(page);
+  }
+  await paper.evaluate((element) => {
+    element.style.zoom = "1.25";
+  });
+  await paperPaintMasks(page);
+  await expect(paper.getByRole("heading")).toHaveCount(1);
+  await expect(paper.locator("p")).toHaveCount(2);
+  expect(
+    await paper.evaluate(
+      (element) => element.scrollWidth <= element.clientWidth + 1,
+    ),
+  ).toBe(true);
+});

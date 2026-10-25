@@ -1,0 +1,129 @@
+.dm-paper {
+  box-sizing: border-box;
+  max-width: 100%;
+  min-width: 0;
+  border: 1px solid var(--dm-border);
+  border-radius: 3px;
+  color: var(--dm-ink);
+  background-color: var(--dm-paper);
+  font-family: var(--dm-font-body);
+  font-size: 13px;
+  line-height: 2;
+  box-shadow: var(--dm-shadow);
+}
+.dm-paper--dotted {
+  background-image: radial-gradient(
+    color-mix(in srgb, var(--dm-ink) 18%, transparent) 0.8px,
+    transparent 0.9px
+  );
+  background-size: 32px 32px;
+  background-position: 15px 15px;
+}
+.dm-paper--sm {
+  padding: 16px;
+}
+.dm-paper--md {
+  padding: 32px;
+}
+.dm-paper--lg {
+  padding: 48px;
+}
+.dm-paper--lined {
+  position: relative;
+  isolation: isolate;
+}
+.dm-paper__rules {
+  display: block;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+  z-index: 0;
+}
+.dm-paper__rule-ink {
+  fill: none;
+  stroke: color-mix(in srgb, var(--dm-ink) 12%, transparent);
+  stroke-width: 1;
+}
+.dm-paper__content {
+  display: flow-root;
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+  line-height: var(--dm-paper-rule-pitch, 32px);
+  overflow-wrap: anywhere;
+}
+.dm-paper--lined
+  .dm-paper__content
+  :where(p, ul, ol, dl, blockquote, pre, figure, h1, h2, h3, h4, h5, h6) {
+  margin-block: 0 var(--dm-paper-rule-pitch, 32px);
+}
+.dm-paper--lined
+  .dm-paper__content
+  :where(p, li, dt, dd, blockquote, h3, h4, h5, h6) {
+  line-height: max(var(--dm-paper-rule-pitch, 32px), 1.25em);
+}
+.dm-paper--lined .dm-paper__content :where(h1, h2) {
+  line-height: max(calc(var(--dm-paper-rule-pitch, 32px) * 2), 1.25em);
+}
+.dm-paper--lined .dm-paper__content :where(ul, ol) {
+  padding-inline-start: 1.5em;
+}
+.dm-paper--lined .dm-paper__content :where(li, dt, dd) {
+  margin-block: 0;
+}
+.dm-paper--lined .dm-paper__content :where(figure) {
+  margin-inline: 0;
+}
+.dm-paper--lined
+  .dm-paper__content
+  :where(
+    p,
+    ul,
+    ol,
+    dl,
+    blockquote,
+    pre,
+    figure,
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6
+  ):last-child {
+  margin-bottom: 0;
+}
+@supports (line-height: round(up, max(32px, 1.25em), 32px)) {
+  .dm-paper--lined
+    .dm-paper__content
+    :where(p, li, dt, dd, blockquote, h3, h4, h5, h6) {
+    line-height: round(
+      up,
+      max(var(--dm-paper-rule-pitch, 32px), 1.25em),
+      var(--dm-paper-rule-pitch, 32px)
+    );
+  }
+  .dm-paper--lined .dm-paper__content :where(h1, h2) {
+    line-height: round(
+      up,
+      max(calc(var(--dm-paper-rule-pitch, 32px) * 2), 1.25em),
+      var(--dm-paper-rule-pitch, 32px)
+    );
+  }
+}
+@media (max-width: 600px) {
+  .dm-paper--lg {
+    padding: 28px;
+  }
+  .dm-paper--md {
+    padding: 24px;
+  }
+}
+@media (forced-colors: active) {
+  .dm-paper__rule-ink {
+    stroke: GrayText;
+  }
+}

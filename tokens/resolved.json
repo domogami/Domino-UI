@@ -3,9 +3,12 @@
   "name": "Domino UI",
   "version": "0.1.0",
   "defaultTheme": "hybrid",
-  "fingerprint": "9b22d3f10ce3526211629322dbc4af984d2fd3611e958fc733b427b117c4abea",
+  "fingerprint": "cc1b61a92b55cb806671687eef821353fdc2d35ad5f733abcb6ef1c1e89312b1",
   "shared": {
     "grid-size": "32px",
+    "paper-rule-pitch": "32px",
+    "paper-rule-clearance": "3px",
+    "paper-rule-guide-offset": "2px",
     "font-heading": "\"Poppins\", sans-serif",
     "font-body": "\"Lexend\", sans-serif",
     "font-mono": "\"IBM Plex Mono\", monospace",
@@ -66,6 +69,9 @@
   "themes": {
     "hybrid": {
       "grid-size": "32px",
+      "paper-rule-pitch": "32px",
+      "paper-rule-clearance": "3px",
+      "paper-rule-guide-offset": "2px",
       "font-heading": "\"Poppins\", sans-serif",
       "font-body": "\"Lexend\", sans-serif",
       "font-mono": "\"IBM Plex Mono\", monospace",
@@ -150,6 +156,9 @@
     },
     "light": {
       "grid-size": "32px",
+      "paper-rule-pitch": "32px",
+      "paper-rule-clearance": "3px",
+      "paper-rule-guide-offset": "2px",
       "font-heading": "\"Poppins\", sans-serif",
       "font-body": "\"Lexend\", sans-serif",
       "font-mono": "\"IBM Plex Mono\", monospace",
@@ -234,6 +243,9 @@
     },
     "dark": {
       "grid-size": "32px",
+      "paper-rule-pitch": "32px",
+      "paper-rule-clearance": "3px",
+      "paper-rule-guide-offset": "2px",
       "font-heading": "\"Poppins\", sans-serif",
       "font-body": "\"Lexend\", sans-serif",
       "font-mono": "\"IBM Plex Mono\", monospace",

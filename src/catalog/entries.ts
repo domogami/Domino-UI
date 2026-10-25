@@ -865,18 +865,19 @@ export const entries: Entry[] = [
     name: "Paper",
     group: "Notebook",
     summary:
-      "A calm reading surface that gives the dot grid a little room to breathe.",
-    code: "<Paper>\n  <h3>A place to begin</h3>\n  <p>One thought, then another.</p>\n</Paper>",
+      "Warm paper with a steady writing rhythm. Rules leave every letter room to breathe.",
+    code: '<Paper pattern="lined" padding="md" ruleAlign="between">\n  <h3>A place to begin</h3>\n  <p>One thought, then another.</p>\n  <p>A steady rhythm gives the words a little room to breathe.</p>\n</Paper>',
     props: [
       ["children", "ReactNode", "—"],
       ["pattern", "dotted | lined | plain", "dotted"],
       ["padding", "sm | md | lg", "md"],
+      ["ruleAlign", "between | baseline; placement on lined paper", "between"],
     ],
     guidance:
-      "Use quiet surfaces under dense copy. Keep dots subdued. The 32px notebook grid organizes spacing as well as background texture.",
+      "Writing rules must stay clear of every letter, including descenders. Place text between two rules or just above a writing guide. Lined paper gives ordinary prose a 32px rhythm and leaves clear bands for larger headings, controls, and figures. Let text wrap naturally. Keep dots subdued on dotted paper.",
     origin: "Adapted",
     usage:
-      "Import the shown components from @domlee/ui. Standard className, style, aria-* and native element attributes are supported unless a narrower API is described here.",
+      'Import Paper and styles.css from @domlee/ui. pattern="lined" owns the writing rhythm; ruleAlign="between" centers rows and "baseline" brings the guide closer beneath the ink. Rules follow the real content origin through padding, reflow, and font changes. Content is always readable, including before decorative rules are ready. Native div attributes are supported. See docs/PAPER-RHYTHM.md for composition and rich text.',
   },
   {
     id: "sticky-note",

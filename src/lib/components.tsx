@@ -1599,31 +1599,8 @@ export function Callout({
   );
 }
 
-export interface PaperProps extends HTMLAttributes<HTMLDivElement> {
-  pattern?: "dotted" | "lined" | "plain";
-  padding?: "sm" | "md" | "lg";
-}
-export function Paper({
-  pattern = "dotted",
-  padding = "md",
-  className,
-  children,
-  ...props
-}: PaperProps) {
-  return (
-    <div
-      {...props}
-      className={cx(
-        "dm-paper",
-        `dm-paper--${pattern}`,
-        `dm-paper--${padding}`,
-        className,
-      )}
-    >
-      {children}
-    </div>
-  );
-}
+export { Paper, type PaperProps } from "./paper";
+
 export interface StickyNoteProps extends HTMLAttributes<HTMLDivElement> {
   tone?: "sage" | "peach" | "lavender" | "paper";
   folded?: boolean;

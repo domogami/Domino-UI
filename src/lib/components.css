@@ -1047,39 +1047,6 @@
 .dm-callout__body > :last-child {
   margin-bottom: 0;
 }
-.dm-paper {
-  border: 1px solid var(--dm-border);
-  border-radius: 3px;
-  color: var(--dm-ink);
-  background-color: var(--dm-paper);
-  font-size: 13px;
-  line-height: 2;
-  box-shadow: var(--dm-shadow);
-}
-.dm-paper--dotted {
-  background-image: radial-gradient(
-    color-mix(in srgb, var(--dm-ink) 18%, transparent) 0.8px,
-    transparent 0.9px
-  );
-  background-size: 32px 32px;
-  background-position: 15px 15px;
-}
-.dm-paper--lined {
-  background-image: repeating-linear-gradient(
-    transparent 0 31px,
-    color-mix(in srgb, var(--dm-ink) 12%, transparent) 31px 32px
-  );
-  background-position: 0 8px;
-}
-.dm-paper--sm {
-  padding: 16px;
-}
-.dm-paper--md {
-  padding: 32px;
-}
-.dm-paper--lg {
-  padding: 48px;
-}
 .dm-sticky-note {
   --dm-note-bg: var(--dm-sage);
   position: relative;
@@ -1350,12 +1317,6 @@
   }
   .dm-card__footer {
     padding: 15px 20px;
-  }
-  .dm-paper--lg {
-    padding: 28px;
-  }
-  .dm-paper--md {
-    padding: 24px;
   }
   .dm-banner__face {
     padding-left: 20px;

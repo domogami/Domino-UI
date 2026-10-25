@@ -122,7 +122,7 @@ try {
     `import { useMemo, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import { createRoot } from "react-dom/client";
-import { BookmarkDrawing, Button, Card, Chevron, Dialog, HairlineSketch, NotebookSketch, NotificationCard, PolaroidStack, Popover, Skeleton, TaskCheckbox, ThemeProvider, ThemeToggle, Timeline, TouchFeedbackProvider, TripleBanner, createPageTransition, type DrawingProps, type PolaroidPhoto, type TimelineItem } from "@domlee/ui";
+import { BookmarkDrawing, Button, Card, Chevron, Dialog, HairlineSketch, NotebookSketch, NotificationCard, Paper, PolaroidStack, Popover, Skeleton, TaskCheckbox, ThemeProvider, ThemeToggle, Timeline, TouchFeedbackProvider, TripleBanner, createPageTransition, type DrawingProps, type PolaroidPhoto, type TimelineItem } from "@domlee/ui";
 import "@domlee/ui/styles.css";
 import "@domlee/ui/fonts.css";
 function App() {
@@ -143,6 +143,8 @@ function App() {
   return <ThemeProvider><TouchFeedbackProvider><ThemeToggle /><Card title={heading} className="dm-page-transition"><Button ref={returnFocusRef} trailingIcon={<Chevron />} onClick={() => setOpen(true)}>Keep going</Button><Button variant="secondary" onClick={() => { void pageTransition.run(() => flushSync(() => setHeading("A new notebook page"))); }}>Turn page</Button><TaskCheckbox label="A little progress" /><NotebookSketch variant="flight" replayOnClick /><HairlineSketch variant="branches" /><Skeleton width="70%" />
     <PolaroidStack photos={photos} label="Package photo stack" quiet aspectRatio={16 / 9} onIndexChange={(index, photo) => void [index, photo.id]} />
     <Timeline items={milestones} label="Package milestones" animate quiet={false} replayKey={heading} start={2} data-consumer="timeline" />
+    <Paper pattern="lined" ruleAlign="between" padding="sm" data-consumer="ruled-paper"><h2>Room for the words</h2><p>Guides stay clear when the paragraph wraps.</p></Paper>
+    <Paper pattern="lined" ruleAlign="baseline" padding="lg"><p>A closer writing guide.</p></Paper>
     <TripleBanner {...drawing} lines={["One good thought", "room to let it grow", "a few good pieces"]} tone="sage" replayOnClick label="Three thoughts on one ribbon" />
     <BookmarkDrawing {...drawing} variant="notched" replayOnClick label="A place kept for later" /><BookmarkDrawing {...drawing} variant="pointed" quiet label="A pointed bookmark" />
     <Popover title="A thought in the margin" eyebrow="A closer look" trigger={<Button variant="secondary">Show context</Button>} footer={<Button size="sm">Keep this thought</Button>}><p>Supporting context stays close to its source.</p></Popover>
@@ -204,6 +206,13 @@ createRoot(document.getElementById("root")!).render(<App />);
     ".dm-journal-art-line",
     ".dm-dialog--fold",
     ".dm-dialog__leaf",
+    ".dm-paper--lined",
+    ".dm-paper__content",
+    ".dm-paper__rules",
+    ".dm-paper__rule-ink",
+    "--dm-paper-rule-pitch",
+    "--dm-paper-rule-clearance",
+    "--dm-paper-rule-guide-offset",
     ".dm-timeline",
     ".dm-timeline__item",
     ".dm-timeline__node",
@@ -257,7 +266,7 @@ createRoot(document.getElementById("root")!).render(<App />);
     `import assert from "node:assert/strict";
 import { createElement as h } from "react";
 import { renderToString } from "react-dom/server";
-import { BookmarkDrawing, Button, Card, Chevron, Dialog, HairlineSketch, NotebookSketch, NotificationCard, PolaroidStack, Popover, Skeleton, TaskCheckbox, ThemeProvider, Timeline, TripleBanner, createPageTransition } from "@domlee/ui";
+import { BookmarkDrawing, Button, Card, Chevron, Dialog, HairlineSketch, NotebookSketch, NotificationCard, Paper, PolaroidStack, Popover, Skeleton, TaskCheckbox, ThemeProvider, Timeline, TripleBanner, createPageTransition } from "@domlee/ui";
 assert.equal(typeof document, "undefined");
 const pageTransition = createPageTransition();
 let committed = false;
@@ -317,6 +326,21 @@ assert(timeline.includes(">A server-rendered beginning</h3>"));
 assert(timeline.includes('href="/notes/first"'));
 assert(timeline.includes("Present before JavaScript runs."));
 assert(!timeline.includes('role="button"'));
+const ruledPaper = renderToString(h(Paper, {pattern:"lined", ruleAlign:"baseline", padding:"sm", id:"server-paper"},
+  h("h2", {}, "Room for the words"), h("p", {}, "Readable before geometry is known.")));
+assert(ruledPaper.includes('id="server-paper"'));
+assert(ruledPaper.includes("dm-paper--lined"));
+assert(ruledPaper.includes("dm-paper--sm"));
+assert(ruledPaper.includes('data-rule-align="baseline"'));
+assert(ruledPaper.includes('data-rules-ready="false"'));
+assert(ruledPaper.includes("<h2>Room for the words</h2>"));
+assert(ruledPaper.includes("<p>Readable before geometry is known.</p>"));
+const ruleInk = ruledPaper.match(/<path[^>]*class="dm-paper__rule-ink"[^>]*>/)?.[0];
+assert(ruleInk, "SSR retains the decorative rule layer without unsafe painted rows.");
+assert.equal(ruleInk.match(/ d="([^"]*)"/)?.[1] ?? "", "");
+const dottedPaper = renderToString(h(Paper, {}, h("p", {}, "Dotted content stays direct.")));
+assert(dottedPaper.includes("dm-paper--dotted"));
+assert(dottedPaper.endsWith("<p>Dotted content stays direct.</p></div>"));
 `,
   );
   run(process.execPath, ["ssr.mjs"]);

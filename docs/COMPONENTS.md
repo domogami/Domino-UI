@@ -13,6 +13,7 @@ This inventory defines the scope of Domino UI and the states its visual website 
 | `src/lib/journal-art.tsx`       | Original three-face ribbon and notched/pointed bookmark drawings                         |
 | `src/lib/patterns.tsx`          | Annotations and flower progress; compatibility re-exports for Timeline and PolaroidStack |
 | `src/lib/timeline.tsx`          | Semantic ordered milestones, viewport ink drawing, quiet/reduced motion, and replay      |
+| `src/lib/paper.tsx`             | Native Paper surface, lined prose rhythm, measured safe rules, and unruled fallback      |
 | `src/lib/popover.tsx`           | Anchored nonmodal dialog, native top layer, viewport positioning, focus/dismissal        |
 | `src/lib/notification-card.tsx` | Single-sheet notification surface with accessible queue badge                            |
 | `src/styles/tokens.css`         | Shared semantic themes, type roles, spacing, radii, and durations                        |
@@ -74,24 +75,26 @@ These are library scope categories. A complex custom combobox, date picker, file
 
 ## Content and paper
 
-| Pattern         | States/examples to expose                                                            | Design guidance                                                                   |
-| --------------- | ------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------- |
-| Paper/card      | Plain, sage, peach, blue/lavender where supported; titled and untitled; long content | Real silhouette for folds; content grows naturally                                |
-| Sticky note     | Single and layered, compact/long copy, optional fold                                 | Local tilt only; preserve readable body text                                      |
-| Notched banner  | Short/long label, static and drawn, narrow layout                                    | Exact source strip geometry; Kalam label                                          |
-| Folded banner   | Tails/folds/front face, multiple paper roles, static/drawn                           | Preserve layered geometry and restrained shadow                                   |
-| TripleBanner    | Exactly three labels, four tones, narrow/long copy, static/drawn/replay              | Original connected ribbon geometry; real text grows each face naturally           |
-| BookmarkDrawing | Notched/pointed, decorative/named, static/drawn/replay                               | Fine original pen paths, faint echo, semantic seam, shared DrawingProps           |
-| Annotation      | Title-only/body, four arrow directions, start/end alignment, static/drawn            | Caveat short title, Lexend body, inline decorative arrow                          |
-| Callout/alert   | Informational, success/warning/error where supported, optional title                 | Meaning through text and icon; palette alone is insufficient                      |
-| Quote           | Quote and attribution, short/long copy, Hybrid blue paper                            | Selectable text and correct quotation semantics                                   |
-| Badge/tag       | Neutral/accent/status, long label, removable only if implemented                     | Tags and status are different meanings; removal is a named button                 |
-| Divider/leader  | Horizontal rule, dotted leader, label/folio                                          | Decorative separators do not replace headings                                     |
-| Code block      | Long line, multi-line, filename/language, copy feedback                              | Selectable code, contained overflow, actual copy action                           |
-| Data table      | Header, caption, multiple columns, narrow overflow, empty state                      | Preserve table semantics and readable relationships                               |
-| Avatar          | Image, initials/fallback, accessible context                                         | Useful alternative when image fails; decorative duplicates hidden                 |
-| Empty state     | Title, explanatory copy, relevant action                                             | Describe the state without inventing a failing backend                            |
-| Skeleton        | Text/card shapes if supported, reduced motion                                        | Hide decorative shapes from assistive technology; announce actual loading context |
+| Pattern         | States/examples to expose                                                                           | Design guidance                                                                           |
+| --------------- | --------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| Paper/card      | Dotted/plain/lined; both guide alignments, wrapped/rich content, large headings, responsive padding | Rules never cross ink; omit unsafe rows with clearance and keep unruled bands intentional |
+| Sticky note     | Single and layered, compact/long copy, optional fold                                                | Local tilt only; preserve readable body text                                              |
+| Notched banner  | Short/long label, static and drawn, narrow layout                                                   | Exact source strip geometry; Kalam label                                                  |
+| Folded banner   | Tails/folds/front face, multiple paper roles, static/drawn                                          | Preserve layered geometry and restrained shadow                                           |
+| TripleBanner    | Exactly three labels, four tones, narrow/long copy, static/drawn/replay                             | Original connected ribbon geometry; real text grows each face naturally                   |
+| BookmarkDrawing | Notched/pointed, decorative/named, static/drawn/replay                                              | Fine original pen paths, faint echo, semantic seam, shared DrawingProps                   |
+| Annotation      | Title-only/body, four arrow directions, start/end alignment, static/drawn                           | Caveat short title, Lexend body, inline decorative arrow                                  |
+| Callout/alert   | Informational, success/warning/error where supported, optional title                                | Meaning through text and icon; palette alone is insufficient                              |
+| Quote           | Quote and attribution, short/long copy, Hybrid blue paper                                           | Selectable text and correct quotation semantics                                           |
+| Badge/tag       | Neutral/accent/status, long label, removable only if implemented                                    | Tags and status are different meanings; removal is a named button                         |
+| Divider/leader  | Horizontal rule, dotted leader, label/folio                                                         | Decorative separators do not replace headings                                             |
+| Code block      | Long line, multi-line, filename/language, copy feedback                                             | Selectable code, contained overflow, actual copy action                                   |
+| Data table      | Header, caption, multiple columns, narrow overflow, empty state                                     | Preserve table semantics and readable relationships                                       |
+| Avatar          | Image, initials/fallback, accessible context                                                        | Useful alternative when image fails; decorative duplicates hidden                         |
+| Empty state     | Title, explanatory copy, relevant action                                                            | Describe the state without inventing a failing backend                                    |
+| Skeleton        | Text/card shapes if supported, reduced motion                                                       | Hide decorative shapes from assistive technology; announce actual loading context         |
+
+`Paper pattern="lined"` treats ruling as text layout. `ruleAlign="between"` is the default; `"baseline"` gives a closer writing-guide phase. Lined prose follows the canonical 32px pitch while larger headings can occupy whole-row multiples. Full-width SVG rules are omitted wherever text, controls, or figures need their 3px clearance; measurement never wraps individual glyphs, remounts children, paints letter patches, or clips content. Lined Paper uses one stable content wrapper; dotted/plain keep direct children. Font loading, resize, content updates, and zoom require safe remeasurement. Until geometry is known, including moving text, unsupported transforms, and SSR/no JavaScript, the content remains readable without rules. Dotted/plain Paper retain their existing layout. [Paper rhythm contract and usage](PAPER-RHYTHM.md).
 
 ## Navigation and disclosure
 

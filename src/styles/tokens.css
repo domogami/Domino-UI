@@ -1,8 +1,11 @@
 /* GENERATED from tokens/system.json — Domino UI 0.1.0.
-   Source SHA-256: 9b22d3f10ce3526211629322dbc4af984d2fd3611e958fc733b427b117c4abea
+   Source SHA-256: cc1b61a92b55cb806671687eef821353fdc2d35ad5f733abcb6ef1c1e89312b1
    Edit the canonical source, then run npm run build:system. */
 :root {
   --dm-grid-size: 32px;
+  --dm-paper-rule-pitch: 32px;
+  --dm-paper-rule-clearance: 3px;
+  --dm-paper-rule-guide-offset: 2px;
   --dm-font-heading: "Poppins", sans-serif;
   --dm-font-body: "Lexend", sans-serif;
   --dm-font-mono: "IBM Plex Mono", monospace;
@@ -88,6 +91,9 @@
 }
 [data-theme="hybrid"] {
   --dm-grid-size: 32px;
+  --dm-paper-rule-pitch: 32px;
+  --dm-paper-rule-clearance: 3px;
+  --dm-paper-rule-guide-offset: 2px;
   --dm-font-heading: "Poppins", sans-serif;
   --dm-font-body: "Lexend", sans-serif;
   --dm-font-mono: "IBM Plex Mono", monospace;
@@ -173,6 +179,9 @@
 }
 [data-theme="light"] {
   --dm-grid-size: 32px;
+  --dm-paper-rule-pitch: 32px;
+  --dm-paper-rule-clearance: 3px;
+  --dm-paper-rule-guide-offset: 2px;
   --dm-font-heading: "Poppins", sans-serif;
   --dm-font-body: "Lexend", sans-serif;
   --dm-font-mono: "IBM Plex Mono", monospace;
@@ -258,6 +267,9 @@
 }
 [data-theme="dark"] {
   --dm-grid-size: 32px;
+  --dm-paper-rule-pitch: 32px;
+  --dm-paper-rule-clearance: 3px;
+  --dm-paper-rule-guide-offset: 2px;
   --dm-font-heading: "Poppins", sans-serif;
   --dm-font-body: "Lexend", sans-serif;
   --dm-font-mono: "IBM Plex Mono", monospace;

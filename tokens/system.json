@@ -41,6 +41,9 @@
   },
   "shared": {
     "grid-size": "32px",
+    "paper-rule-pitch": "32px",
+    "paper-rule-clearance": "3px",
+    "paper-rule-guide-offset": "2px",
     "font-heading": "\"Poppins\", sans-serif",
     "font-body": "\"Lexend\", sans-serif",
     "font-mono": "\"IBM Plex Mono\", monospace",

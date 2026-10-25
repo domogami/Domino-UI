@@ -1057,7 +1057,7 @@ function ComponentDetail({
                 src/lib/
                 {["touch-feedback-setting", "ink-switch"].includes(entry.id)
                   ? "haptics.tsx"
-                  : ["polaroid-stack", "timeline"].includes(entry.id)
+                  : ["polaroid-stack", "timeline", "paper"].includes(entry.id)
                     ? `${entry.id}.tsx`
                     : ["triple-banner", "bookmark-drawing"].includes(entry.id)
                       ? "journal-art.tsx"

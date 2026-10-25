@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button, Callout, Table, Kbd } from "../lib";
+import { Button, Callout, Table, Kbd, Paper } from "../lib";
 import { Icon } from "../Icons";
 import { HandwrittenNote, SketchArrow } from "../lib/brand";
 import type { Theme } from "../lib/theme";
@@ -357,6 +357,36 @@ export function TypographyPage() {
           included with the assets; no runtime font service is needed.
         </Callout>
       </section>
+      <section className="guide-section paper-rhythm-guide">
+        <h2>Give every letter room</h2>
+        <p className="guide-copy">
+          Writing lines sit between rows of text or just beneath the ink. Keep
+          ascenders, descenders, and wrapped lines clear. Larger lettering gets
+          an open band of paper so the words can breathe. The specimen text
+          above also updates these examples.
+        </p>
+        <div className="paper-rhythm-examples">
+          {(["between", "baseline"] as const).map((ruleAlign) => (
+            <article key={ruleAlign}>
+              <h3>
+                {ruleAlign === "between"
+                  ? "Between the lines"
+                  : "A writing guide"}
+              </h3>
+              <Paper pattern="lined" padding="md" ruleAlign={ruleAlign}>
+                <h4>{text || "A little room for thought"}</h4>
+                <p>A page of good questions, quiet plans, and playful ideas.</p>
+                <p className="paper-rhythm-hand">
+                  {text || "Good things need room to grow."}
+                </p>
+              </Paper>
+            </article>
+          ))}
+        </div>
+        <a className="text-link" href="#component/paper">
+          Explore paper and placement <Icon name="arrow" size={15} />
+        </a>
+      </section>
     </>
   );
 }
@@ -399,9 +429,9 @@ export function SpacingPage() {
             <div className="pattern-dots">
               <span>32px · dot grid</span>
             </div>
-            <div className="pattern-lines">
+            <Paper className="pattern-lines" pattern="lined" padding="sm">
               <span>32px · ruled paper</span>
-            </div>
+            </Paper>
           </div>
         </div>
         <div>
@@ -580,6 +610,11 @@ export function StylePage() {
           landmark. A folded sticky note holds one aside. Reserve offset shadows
           for layered paper. Dots, folds, handwriting, and motion do not all
           need to speak at once.
+        </p>
+        <p className="guide-copy">
+          Keep writing rules clear of every letter. Text can sit between two
+          rules or rest just above a writing guide. Give large headings and
+          mixed content an open band, and let wrapped copy keep its rhythm.
         </p>
         <a className="text-link" href="#category/Notebook">
           Open the notebook patterns <Icon name="arrow" size={16} />
