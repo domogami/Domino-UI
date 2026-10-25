@@ -1,5 +1,9 @@
 import { expect, test, type Page } from "@playwright/test";
 
+// Native page-scale gestures use the full Chromium browser rather than CI's
+// separate headless shell. Channel is a worker option and belongs at file scope.
+if (process.env.CI) test.use({ channel: "chromium" });
+
 async function fixture(
   page: Page,
   options: {
@@ -515,11 +519,6 @@ test.describe("trusted mobile gestures", () => {
   });
 
   test.describe("native browser pinch integration", () => {
-    // CI's default Chromium headless shell is a separate renderer from the full
-    // browser. Exercise native page-scale gestures in Chromium's new headless
-    // browser mode; local runs retain the configured installed Chrome channel.
-    if (process.env.CI) test.use({ channel: "chromium" });
-
     test("native pinch zoom remains available without cycling the prints", async ({
       page,
       browser,
