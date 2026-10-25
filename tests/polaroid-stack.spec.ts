@@ -522,95 +522,276 @@ test.describe("trusted mobile gestures", () => {
     test("native pinch zoom remains available without cycling the prints", async ({
       page,
       browser,
-    }) => {
-      await fixture(page);
-      await page.evaluate(() => document.fonts.ready);
-      await surface(page).scrollIntoViewIfNeeded();
-      await expect(surface(page)).toBeInViewport({ ratio: 1 });
-      const session = await page.context().newCDPSession(page);
-      try {
-        // Playwright's generic touch context advertises one touch point. A phone
-        // pinch needs actual multitouch capability, not just a mobile viewport.
-        await session.send("Emulation.setTouchEmulationEnabled", {
-          enabled: true,
-          maxTouchPoints: 5,
-        });
-        expect(await page.evaluate(() => navigator.maxTouchPoints)).toBe(5);
-        const diagnostics = await surface(page).evaluate((button) => {
-          const box = button.getBoundingClientRect();
-          const x = box.x + box.width / 2,
-            y = box.y + box.height / 2;
-          const hit = document.elementFromPoint(x, y);
-          return {
-            x,
-            y,
-            box: box.toJSON(),
-            hitWithinSurface: !!hit && button.contains(hit),
-            hitTag: hit?.tagName,
-            hitClass: hit?.className,
-            touchAction: getComputedStyle(button).touchAction,
-            viewport: {
-              width: innerWidth,
-              height: innerHeight,
-              scale: visualViewport?.scale,
-              offsetTop: visualViewport?.offsetTop,
-              offsetLeft: visualViewport?.offsetLeft,
-            },
-            maxTouchPoints: navigator.maxTouchPoints,
-            userAgent: navigator.userAgent,
-          };
-        });
-        const message = JSON.stringify({
-          browser: browser.version(),
-          channel: process.env.CI ? "chromium" : "configured Chrome",
-          ...diagnostics,
-        });
-        expect(diagnostics.hitWithinSurface, message).toBe(true);
-        expect(diagnostics.touchAction, message).toBe("pan-y pinch-zoom");
-        const before = await page.evaluate(() => visualViewport?.scale ?? 1);
-        const pinch = () =>
-          session.send("Input.synthesizePinchGesture", {
-            x: diagnostics.x,
-            y: diagnostics.y,
-            scaleFactor: 1.3,
-            relativeSpeed: 300,
-            gestureSourceType: "touch",
-          });
-        const previousAction = await surface(page).evaluate(
-          (button: HTMLElement) => {
-            const previous = button.style.touchAction;
-            button.style.touchAction = "none";
-            return previous;
-          },
-        );
-        await pinch();
-        await page.evaluate(
+    }, testInfo) => {
+      const results: any[] = [];
+      const frame = (targetPage: Page) =>
+        targetPage.evaluate(
           () =>
-            new Promise((resolve) =>
-              requestAnimationFrame(() => requestAnimationFrame(resolve)),
+            new Promise<void>((resolve) =>
+              requestAnimationFrame(() => resolve()),
             ),
         );
-        expect(
-          await page.evaluate(() => visualViewport?.scale ?? 1),
-          `touch-action:none negative control: ${message}`,
-        ).toBeCloseTo(before, 2);
-        await surface(page).evaluate((button: HTMLElement, previous) => {
-          button.style.touchAction = previous;
-        }, previousAction);
-        await expect(surface(page)).toHaveCSS(
-          "touch-action",
-          "pan-y pinch-zoom",
+      for (const method of ["synthesized", "raw-two-touch"] as const) {
+        for (const targetKind of ["plain", "stack"] as const) {
+          // A fresh page prevents a previous successful native pinch from
+          // changing the next probe's visual viewport or coordinate mapping.
+          const targetPage = await page.context().newPage();
+          let session: import("@playwright/test").CDPSession | undefined;
+          try {
+            if (targetKind === "stack") await fixture(targetPage);
+            else
+              await targetPage.setContent(
+                `<!doctype html><meta name="viewport" content="width=device-width,initial-scale=1"><style>html,body{margin:0;min-height:160vh}#pinch-plain{position:fixed;inset:32px;background:#efe7d7;touch-action:pan-y pinch-zoom}</style><main id="pinch-plain">Native pinch positive control</main>`,
+              );
+            await targetPage.bringToFront();
+            await targetPage.evaluate(() => document.fonts.ready);
+            const target =
+              targetKind === "stack"
+                ? surface(targetPage)
+                : targetPage.locator("#pinch-plain");
+            await target.scrollIntoViewIfNeeded();
+            await expect(target).toBeInViewport({ ratio: 1 });
+            session = await targetPage.context().newCDPSession(targetPage);
+            await session.send("Emulation.setTouchEmulationEnabled", {
+              enabled: true,
+              maxTouchPoints: 5,
+            });
+            expect(
+              await targetPage.evaluate(() => navigator.maxTouchPoints),
+            ).toBe(5);
+            const diagnostics = await target.evaluate((element) => {
+              const box = element.getBoundingClientRect();
+              const x = box.x + box.width / 2,
+                y = box.y + box.height / 2;
+              const hit = document.elementFromPoint(x, y);
+              return {
+                x,
+                y,
+                box: box.toJSON(),
+                hitWithinSurface: !!hit && element.contains(hit),
+                touchAction: getComputedStyle(element).touchAction,
+                viewport: {
+                  width: innerWidth,
+                  height: innerHeight,
+                  scale: visualViewport?.scale,
+                  offsetTop: visualViewport?.offsetTop,
+                  offsetLeft: visualViewport?.offsetLeft,
+                },
+                maxTouchPoints: navigator.maxTouchPoints,
+                userAgent: navigator.userAgent,
+              };
+            });
+            expect(diagnostics.hitWithinSurface).toBe(true);
+            expect(diagnostics.touchAction).toBe("pan-y pinch-zoom");
+            await targetPage.evaluate(() => {
+              (window as any).stopPinchLog?.();
+              (window as any).pinchEvents = [];
+              const types = [
+                "pointerdown",
+                "pointermove",
+                "pointerup",
+                "pointercancel",
+                "touchstart",
+                "touchmove",
+                "touchend",
+                "touchcancel",
+              ];
+              const record = (event: Event) => {
+                const log = (window as any).pinchEvents;
+                if (log.length >= 100) return;
+                const pointer = event as PointerEvent,
+                  touch = event as TouchEvent;
+                log.push({
+                  type: event.type,
+                  trusted: event.isTrusted,
+                  prevented: event.defaultPrevented,
+                  pointerId: pointer.pointerId,
+                  pointerType: pointer.pointerType,
+                  x: pointer.clientX,
+                  y: pointer.clientY,
+                  points: touch.touches
+                    ? Array.from(touch.touches).map((point) => ({
+                        id: point.identifier,
+                        x: point.clientX,
+                        y: point.clientY,
+                      }))
+                    : undefined,
+                  target:
+                    (event.target as Element)?.className ||
+                    (event.target as Element)?.id,
+                });
+              };
+              for (const type of types)
+                document.addEventListener(type, record, { passive: true });
+              (window as any).stopPinchLog = () => {
+                for (const type of types)
+                  document.removeEventListener(type, record);
+              };
+            });
+            const before = await targetPage.evaluate(
+              () => visualViewport?.scale ?? 1,
+            );
+            expect(before).toBe(1);
+            const pinch = async () => {
+              await targetPage.evaluate(() => {
+                (window as any).pinchEvents = [];
+              });
+              await frame(targetPage);
+              await frame(targetPage);
+              let protocolError: string | undefined;
+              try {
+                if (method === "synthesized")
+                  await session!.send("Input.synthesizePinchGesture", {
+                    x: diagnostics.x,
+                    y: diagnostics.y,
+                    scaleFactor: 1.3,
+                    relativeSpeed: 300,
+                    gestureSourceType: "touch",
+                  });
+                else {
+                  const points = (halfSpan: number) => [
+                    { id: 1, x: diagnostics.x - halfSpan, y: diagnostics.y },
+                    { id: 2, x: diagnostics.x + halfSpan, y: diagnostics.y },
+                  ];
+                  try {
+                    await session!.send("Input.dispatchTouchEvent", {
+                      type: "touchStart",
+                      touchPoints: points(84),
+                    });
+                    for (let step = 1; step <= 12; step++) {
+                      await frame(targetPage);
+                      await session!.send("Input.dispatchTouchEvent", {
+                        type: "touchMove",
+                        touchPoints: points(84 + ((128 - 84) * step) / 12),
+                      });
+                    }
+                  } finally {
+                    await session!.send("Input.dispatchTouchEvent", {
+                      type: "touchEnd",
+                      touchPoints: [],
+                    });
+                  }
+                }
+              } catch (error) {
+                protocolError = String(error);
+              }
+              await frame(targetPage);
+              await frame(targetPage);
+              return targetPage.evaluate(
+                (protocolError) => ({
+                  scale: visualViewport?.scale ?? 1,
+                  events: (window as any).pinchEvents,
+                  index:
+                    document.querySelector<HTMLElement>("#print-fixture")
+                      ?.dataset.index,
+                  changes: (window as any).printFixture?.changes,
+                  protocolError,
+                }),
+                protocolError,
+              );
+            };
+            const previousAction = await target.evaluate(
+              (element: HTMLElement) => {
+                const previous = element.style.touchAction;
+                element.style.touchAction = "none";
+                return previous;
+              },
+            );
+            const negative = await pinch();
+            await target.evaluate((element: HTMLElement, previous) => {
+              element.style.touchAction = previous;
+            }, previousAction);
+            await expect(target).toHaveCSS("touch-action", "pan-y pinch-zoom");
+            const positive = await pinch();
+            results.push({
+              method,
+              targetKind,
+              browser: browser.version(),
+              channel: process.env.CI ? "chromium" : "configured Chrome",
+              diagnostics,
+              before,
+              negative,
+              positive,
+            });
+          } finally {
+            await targetPage
+              .evaluate(() => (window as any).stopPinchLog?.())
+              .catch(() => {});
+            await session?.detach();
+            await targetPage.close();
+          }
+        }
+      }
+      const summarize = (phase: any) => ({
+        scale: phase.scale,
+        index: phase.index,
+        changes: phase.changes,
+        protocolError: phase.protocolError,
+        eventCount: phase.events.length,
+        trustedTwoContacts: phase.events.some(
+          (event: any) =>
+            event.type === "touchstart" &&
+            event.trusted &&
+            event.points?.length >= 2,
+        ),
+        prevented: phase.events.some((event: any) => event.prevented),
+      });
+      const summaries = results.map((result) => ({
+        method: result.method,
+        target: result.targetKind,
+        browser: result.browser,
+        before: result.before,
+        negative: summarize(result.negative),
+        positive: summarize(result.positive),
+        diagnostics: result.diagnostics,
+      }));
+      const report = JSON.stringify(results, null, 2);
+      console.log("Native pinch comparison:", JSON.stringify(summaries));
+      await testInfo.attach("native-pinch-comparison", {
+        body: report,
+        contentType: "application/json",
+      });
+      for (const result of results) {
+        const message = JSON.stringify(
+          summaries.find(
+            (summary) =>
+              summary.method === result.method &&
+              summary.target === result.targetKind,
+          ),
         );
-        await pinch();
-        await expect
-          .poll(() => page.evaluate(() => visualViewport?.scale ?? 1), {
-            message,
-          })
-          .toBeGreaterThan(before + 0.05);
-        await expect(stack(page)).toHaveAttribute("data-index", "0");
-        expect(await changes(page)).toEqual([]);
-      } finally {
-        await session.detach();
+        expect.soft(result.negative.protocolError, message).toBeUndefined();
+        expect.soft(result.positive.protocolError, message).toBeUndefined();
+        expect
+          .soft(result.negative.scale, `touch-action:none: ${message}`)
+          .toBeCloseTo(result.before, 2);
+        if (result.targetKind === "stack") {
+          for (const phase of [result.negative, result.positive]) {
+            expect.soft(phase.index, message).toBe("0");
+            expect.soft(phase.changes, message).toEqual([]);
+          }
+        }
+        // The direct, trusted two-contact sequence is the component acceptance
+        // check. The high-level synthesized gesture remains a diagnostic because
+        // it is the disputed Linux browser capability, not application behavior.
+        if (result.method === "raw-two-touch") {
+          expect
+            .soft(
+              result.positive.events.some(
+                (event: any) =>
+                  event.type === "touchstart" &&
+                  event.trusted &&
+                  event.points?.length >= 2,
+              ),
+              message,
+            )
+            .toBe(true);
+          expect
+            .soft(
+              result.positive.scale,
+              `Native zoom on ${result.targetKind}: ${message}`,
+            )
+            .toBeGreaterThan(result.before + 0.05);
+        }
       }
     });
   });
