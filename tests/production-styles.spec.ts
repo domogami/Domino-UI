@@ -1125,3 +1125,170 @@ test("production route transitions capture only the content sheet and keep reduc
   );
   expect(errors).toEqual([]);
 });
+
+test("production PolaroidStack paints real slide-and-tuck frames and cleans up", async ({
+  page,
+}) => {
+  await page.goto("/#component/polaroid-stack");
+  await page.evaluate(() => document.fonts.ready);
+  const stack = page.locator(".polaroid-demo .dm-polaroid-stack");
+  const surface = stack.locator(".dm-polaroid-stack__surface");
+  const current = () =>
+    stack.locator('.dm-polaroid-stack__photo[data-current="true"]');
+  await expect(stack).toHaveAttribute("data-index", "0");
+  await expect(stack.locator(".dm-polaroid-stack__photo img")).toHaveCount(2);
+  await expect(stack.locator(".dm-polaroid-stack__back")).toHaveCount(0);
+  await expect(surface).toHaveAttribute("data-native-tap", "none");
+  await expect(surface).toHaveCSS("touch-action", "pan-y pinch-zoom");
+  await page
+    .getByRole("button", { name: "Add a sample print", exact: true })
+    .tap();
+  await expect(stack.locator(".dm-polaroid-stack__photo img")).toHaveCount(3);
+  await expect(surface).toHaveAttribute("aria-label", /Showing photo 1 of 3/);
+  await stack.getByRole("button", { name: "Next photo", exact: true }).tap();
+  await expect(stack).toHaveAttribute("data-index", "1");
+  await expect(stack).toHaveAttribute("data-state", "idle");
+  const frames = await stack
+    .getByRole("button", { name: "Previous photo", exact: true })
+    .evaluate(async (button) => {
+      button.click();
+      await new Promise(requestAnimationFrame);
+      const root = button.closest(".dm-polaroid-stack")!;
+      const card = root.querySelector<HTMLElement>(
+        ".dm-polaroid-stack__photo--outgoing",
+      )!;
+      const animation = card
+        .getAnimations()
+        .find(
+          (animation) =>
+            animation instanceof CSSAnimation &&
+            animation.animationName === "dm-polaroid-cycle",
+        )!;
+      animation.pause();
+      const frame = (time: number) => {
+        animation.currentTime = time;
+        const style = getComputedStyle(card);
+        return {
+          x: new DOMMatrixReadOnly(style.transform).m41,
+          z: Number(style.zIndex),
+        };
+      };
+      const result = {
+        duration: animation.effect!.getTiming().duration,
+        start: frame(0),
+        away: frame(220),
+        tucked: frame(475),
+        containsImage: !!card.querySelector("img"),
+      };
+      (window as any).polaroidProductionAnimation = animation;
+      animation.currentTime = 0;
+      return result;
+    });
+  expect(frames.duration).toBe(480);
+  expect(frames.containsImage).toBe(true);
+  expect(frames.away.x).toBeGreaterThan(frames.start.x + 50);
+  expect(Math.abs(frames.tucked.x)).toBeLessThan(50);
+  expect(frames.tucked.z).toBeLessThan(frames.start.z);
+  const firstPaint = await stack.screenshot({ animations: "allow" });
+  await page.evaluate(() => {
+    (window as any).polaroidProductionAnimation.currentTime = 220;
+  });
+  const awayPaint = await stack.screenshot({ animations: "allow" });
+  expect(awayPaint.equals(firstPaint)).toBe(false);
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
+  await stack.getByRole("button", { name: "Next photo", exact: true }).tap();
+  await expect(stack).toHaveAttribute("data-index", "0");
+  await page.evaluate(() => {
+    const animation = (window as any).polaroidProductionAnimation;
+    animation.currentTime = 470;
+    animation.play();
+  });
+  await expect(stack).toHaveAttribute("data-state", "idle");
+  await expect(
+    stack.locator(".dm-polaroid-stack__photo--outgoing"),
+  ).toHaveCount(0);
+  await surface.focus();
+  const stableSurface = await surface.elementHandle();
+  await page.keyboard.press("ArrowLeft");
+  await expect(stack).toHaveAttribute("data-index", "2");
+  await expect(stack).toHaveAttribute("data-state", "idle");
+  await expect(current()).toHaveAttribute("data-photo-id", "notebook-print");
+  await expect(current().locator("img")).toHaveAttribute(
+    "src",
+    /social-cover\.png$/,
+  );
+  await expect(surface).toBeFocused();
+  expect(
+    await surface.evaluate(
+      (button, original) => button === original,
+      stableSurface,
+    ),
+  ).toBe(true);
+  await page
+    .getByRole("button", { name: "Reset photo stack", exact: true })
+    .tap();
+  await expect(stack).toHaveAttribute("data-index", "0");
+  await expect(stack.locator(".dm-polaroid-stack__photo img")).toHaveCount(2);
+  await expect(
+    stack.locator(".dm-polaroid-stack__photo--outgoing"),
+  ).toHaveCount(0);
+});
+
+test("production PolaroidStack quiet and reduced motion preserve wrapping and keyboard use", async ({
+  page,
+}) => {
+  await page.goto("/#component/polaroid-stack");
+  const stack = page.locator(".polaroid-demo .dm-polaroid-stack");
+  const surface = stack.locator(".dm-polaroid-stack__surface");
+  const current = () =>
+    stack.locator('.dm-polaroid-stack__photo[data-current="true"]');
+  const quiet = page.getByRole("switch", {
+    name: "Quiet stack motion",
+    exact: true,
+  });
+  await quiet.locator("..").tap();
+  await expect(quiet).toBeChecked();
+  await surface.tap();
+  await expect(stack).toHaveAttribute("data-index", "1");
+  await expect(stack).toHaveAttribute("data-state", "idle");
+  await expect(current()).toHaveCSS("animation-name", "none");
+  await expect(current()).toHaveCSS("transition-duration", "0s");
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await quiet.locator("..").tap();
+  await expect(quiet).not.toBeChecked();
+  await surface.focus();
+  await page.keyboard.press("ArrowLeft");
+  await expect(stack).toHaveAttribute("data-index", "0");
+  await expect(stack).toHaveAttribute("data-state", "idle");
+  await expect(current()).toHaveCSS("transition-duration", "0s");
+  await current()
+    .locator(".dm-polaroid-stack__caption")
+    .evaluate((caption) => {
+      caption.textContent =
+        "A longer handwritten caption with enough room for curiosity and averylongunbrokenwordthatmuststillwrap.";
+      (caption as HTMLElement).style.fontSize = "36px";
+    });
+  for (const viewport of [
+    { width: 320, height: 844 },
+    { width: 390, height: 844 },
+    { width: 844, height: 390 },
+  ]) {
+    await page.setViewportSize(viewport);
+    await surface.scrollIntoViewIfNeeded();
+    const caption = current().locator(".dm-polaroid-stack__caption");
+    expect(
+      await caption.evaluate(
+        (element) => element.scrollWidth <= element.clientWidth + 1,
+      ),
+    ).toBe(true);
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= innerWidth,
+      ),
+    ).toBe(true);
+  }
+});

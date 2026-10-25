@@ -1057,28 +1057,29 @@ function ComponentDetail({
                 src/lib/
                 {["touch-feedback-setting", "ink-switch"].includes(entry.id)
                   ? "haptics.tsx"
-                  : ["triple-banner", "bookmark-drawing"].includes(entry.id)
-                    ? "journal-art.tsx"
-                    : entry.group === "Brand"
-                      ? "brand.tsx"
-                      : entry.id === "theme-toggle"
-                        ? "theme.tsx"
-                        : [
-                              "annotation",
-                              "timeline",
-                              "polaroid-stack",
-                              "flower-progress",
-                            ].includes(entry.id)
-                          ? "patterns.tsx"
+                  : entry.id === "polaroid-stack"
+                    ? "polaroid-stack.tsx"
+                    : ["triple-banner", "bookmark-drawing"].includes(entry.id)
+                      ? "journal-art.tsx"
+                      : entry.group === "Brand"
+                        ? "brand.tsx"
+                        : entry.id === "theme-toggle"
+                          ? "theme.tsx"
                           : [
-                                "menu-toggle",
-                                "task-checkbox",
-                                "skeleton",
-                                "popover",
-                                "notification-card",
+                                "annotation",
+                                "timeline",
+                                "flower-progress",
                               ].includes(entry.id)
-                            ? `${entry.id}.tsx`
-                            : "components.tsx"}
+                            ? "patterns.tsx"
+                            : [
+                                  "menu-toggle",
+                                  "task-checkbox",
+                                  "skeleton",
+                                  "popover",
+                                  "notification-card",
+                                ].includes(entry.id)
+                              ? `${entry.id}.tsx`
+                              : "components.tsx"}
               </code>{" "}
               for the exported interface. Native attributes are passed through
               where supported.

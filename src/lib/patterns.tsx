@@ -1,4 +1,4 @@
-import { useId, useState, type KeyboardEvent, type ReactNode } from "react";
+import { useId, useState, type ReactNode } from "react";
 import { Chevron } from "./chevron";
 import "./patterns.css";
 
@@ -145,151 +145,11 @@ export function Timeline({
   );
 }
 
-export interface PolaroidPhoto {
-  src: string;
-  alt: string;
-  caption?: string;
-}
-
-export interface PolaroidStackProps {
-  photos: PolaroidPhoto[];
-  label?: string;
-  className?: string;
-}
-
-function StackArrow({ previous = false }: { previous?: boolean }) {
-  return (
-    <svg
-      viewBox="0 0 48 24"
-      fill="none"
-      aria-hidden="true"
-      focusable="false"
-      className={
-        previous
-          ? "dm-polaroid-stack__arrow dm-polaroid-stack__arrow--previous"
-          : "dm-polaroid-stack__arrow"
-      }
-    >
-      <path d="M3 15Q21 5 43 12M34 4L43 12L33 20" />
-    </svg>
-  );
-}
-
-/** User-supplied photos, explicit controls, and one stable stack with no hover movement. */
-export function PolaroidStack({
-  photos,
-  label = "Photo stack",
-  className,
-}: PolaroidStackProps) {
-  const [position, setPosition] = useState(0);
-  const count = photos.length;
-  const index = count ? position % count : 0;
-  const photo = photos[index];
-  const captionId = useId();
-  const cycle = (step: number) => {
-    if (count > 1)
-      setPosition((current) => ((current % count) + step + count) % count);
-  };
-  const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
-    if (
-      count < 2 ||
-      event.altKey ||
-      event.ctrlKey ||
-      event.metaKey ||
-      event.shiftKey
-    )
-      return;
-    if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
-      event.preventDefault();
-      cycle(event.key === "ArrowLeft" ? -1 : 1);
-    }
-  };
-
-  if (!photo)
-    return (
-      <div
-        className={cx(
-          "dm-polaroid-stack",
-          "dm-polaroid-stack--empty",
-          className,
-        )}
-        role="group"
-        aria-label={label}
-      >
-        <p>No photos to display.</p>
-      </div>
-    );
-
-  const image = (
-    <>
-      <img src={photo.src} alt={photo.alt} loading="lazy" />
-      <span className="dm-polaroid-stack__caption" id={captionId}>
-        {photo.caption ?? <span aria-hidden="true">&nbsp;</span>}
-      </span>
-    </>
-  );
-
-  return (
-    <div
-      className={cx("dm-polaroid-stack", className)}
-      role="group"
-      aria-roledescription="photo stack"
-      aria-label={label}
-      onKeyDown={handleKeyDown}
-    >
-      <div className="dm-polaroid-stack__stage">
-        {count > 1 && (
-          <span className="dm-polaroid-stack__back" aria-hidden="true" />
-        )}
-        {count > 1 ? (
-          <button
-            type="button"
-            className="dm-polaroid-stack__photo"
-            aria-label={`Next photo. Showing photo ${index + 1} of ${count}: ${photo.alt}`}
-            aria-describedby={photo.caption ? captionId : undefined}
-            onClick={() => cycle(1)}
-          >
-            {image}
-          </button>
-        ) : (
-          <figure className="dm-polaroid-stack__photo">{image}</figure>
-        )}
-      </div>
-      <div className="dm-polaroid-stack__controls">
-        <button
-          type="button"
-          className="dm-polaroid-stack__control"
-          aria-label="Previous photo"
-          onClick={() => cycle(-1)}
-          disabled={count < 2}
-        >
-          <StackArrow previous />
-        </button>
-        <p
-          className="dm-polaroid-stack__count"
-          role="status"
-          aria-live="polite"
-          aria-atomic="true"
-        >
-          <span className="dm-pattern-sr-only">Photo </span>
-          {index + 1}
-          <span aria-hidden="true"> / </span>
-          <span className="dm-pattern-sr-only"> of </span>
-          {count}
-        </p>
-        <button
-          type="button"
-          className="dm-polaroid-stack__control"
-          aria-label="Next photo"
-          onClick={() => cycle(1)}
-          disabled={count < 2}
-        >
-          <StackArrow />
-        </button>
-      </div>
-    </div>
-  );
-}
+export {
+  PolaroidStack,
+  type PolaroidPhoto,
+  type PolaroidStackProps,
+} from "./polaroid-stack";
 
 export interface FlowerProgressProps {
   value: number;

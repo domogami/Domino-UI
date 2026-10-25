@@ -11,7 +11,7 @@ This inventory defines the scope of Domino UI and the states its visual website 
 | `src/lib/theme.tsx`             | Theme context, persisted preference state, and theme controls                        |
 | `src/lib/brand.tsx`             | Exact name/brand drawings and reusable illustration patterns                         |
 | `src/lib/journal-art.tsx`       | Original three-face ribbon and notched/pointed bookmark drawings                    |
-| `src/lib/patterns.tsx`          | Annotations, timeline, polaroid stack, and flower progress                           |
+| `src/lib/patterns.tsx`          | Annotations, timeline, and flower progress; compatibility re-export for PolaroidStack                           |
 | `src/lib/popover.tsx`           | Anchored nonmodal dialog, native top layer, viewport positioning, focus/dismissal    |
 | `src/lib/notification-card.tsx` | Single-sheet notification surface with accessible queue badge         |
 | `src/styles/tokens.css`         | Shared semantic themes, type roles, spacing, radii, and durations                    |
@@ -145,7 +145,7 @@ Overlay examples must inherit the intended theme even when rendered through a po
 | Folio/index row       | Stable number, dotted leader, label, real destination                          | Number from a stable destination registry, never array position                   |
 | Timeline              | Milestone, heading/detail, mobile stack, optional draw                         | Neutral sample dates; clear chronological information                             |
 | Flower/petal progress | Unfound/found, count, complete bloom, reduced motion                           | Theme-colored source art; progress also available as text                         |
-| Polaroid/paper stack  | Static stack and explicit next/previous if interaction is offered              | Alt text, fixed image ratio, keyboard/touch parity; no private photographs        |
+| Polaroid/paper stack  | Real photos, N-item swipe/flick, slide-and-tuck, arrows, keyboard, quiet/reduced | Stable IDs, useful alt text, responsive image ratio, native vertical scroll/pinch |
 
 Brand assets are optional additions to a consuming application. Generic buttons or inputs should not import a large drawing solely to inherit typography or color.
 
@@ -169,7 +169,7 @@ Available verification commands are `npm run check`, `npm run build`, `npm run b
 
 ## Implemented signature patterns
 
-`src/lib/patterns.tsx` exports `Annotation`, `Timeline`, `PolaroidStack`, and `FlowerProgress`. Each has a dedicated catalogue entry, live preview, actual React example, prop reference, and usage guidance. These are adaptations of the source patterns: polaroid changes are immediate and support explicit buttons and keyboard arrows, rather than reproducing the full source swipe animation.
+`src/lib/patterns.tsx` exports `Annotation`, `Timeline`, `PolaroidStack`, and `FlowerProgress`. Each has a dedicated catalogue entry, live preview, actual React example, prop reference, and usage guidance. PolaroidStack is implemented in `src/lib/polaroid-stack.tsx` and re-exported from patterns.tsx for compatibility. It supports any number of real photos, touch/pen drag and flick, native vertical scrolling and pinch zoom, keyboard/arrows, and the source-derived 480ms slide-and-tuck. Quiet and reduced motion use immediate changes. [Photo stack API and adoption](POLAROID-STACK.md).
 
 ## Touch feedback APIs
 

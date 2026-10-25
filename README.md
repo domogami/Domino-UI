@@ -33,7 +33,7 @@ Domino UI brings the visual language of [dominicklee.net](https://dominicklee.ne
 | ---------------------- | -------------------------------------------------------------------------------------------------------------------------- |
 | **Useful controls**    | Buttons, inputs, selects, checkboxes, switches, sliders, menus, tabs, dialogs, drawers, and feedback states                |
 | **Paper layers**       | Anchored popovers, single-sheet notification cards, unfolding modal decisions, edge drawers, and actionable status notes                  |
-| **Notebook patterns**  | Paper cards, sticky notes, callouts, wrapping triple ribbons, bookmark drawings, annotations, and keepsake photos             |
+| **Notebook patterns**  | Paper cards, sticky notes, callouts, wrapping triple ribbons, bookmark drawings, annotations, and swipeable photo stacks             |
 | **Original identity**  | The **Dom Lee.** name animation, crane, plant, sketch arrows, six notebook scenes, and handwritten loading marks           |
 | **Deliberate motion**  | Morphing hamburger/X, spring switches, the garden's drawn check and text strike, and per-drawing click/tap/keyboard replay |
 | **Shared foundations** | Three themes, five typography roles, a 32px dot grid, spacing and motion tokens, and generated platform adapters           |
@@ -177,6 +177,8 @@ export function NotebookPieces() {
   );
 }
 ```
+
+`PolaroidStack` now accepts any number of photos, with touch/pen flicking, a source-derived slide-and-tuck, arrows, keyboard navigation, and quiet/reduced motion. [Add photos and reuse the stack](docs/POLAROID-STACK.md).
 
 Every catalog entry documents its real API, origin, meaningful states, and composition guidance. [Browse the component inventory](docs/COMPONENTS.md) or run the notebook below to use the live examples.
 

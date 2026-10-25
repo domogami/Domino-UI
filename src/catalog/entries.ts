@@ -1255,17 +1255,35 @@ entries.push(
     name: "Polaroid stack",
     group: "Notebook",
     summary:
-      "A few photographs, held like little keepsakes. A stable paper stack with handwritten captions.",
-    code: "<PolaroidStack label=\"Keyboard build photos\" photos={[\n  {src:'/images/snap75-top.jpg',\n   alt:'SNAP-75 split keyboard from above',\n   caption:'every little detail.'},\n  {src:'/images/snap75-desk.jpg',\n   alt:'Hand-soldered keyboard on a desk',\n   caption:'the first one I ever soldered.'}\n]} />",
+      "Real keepsakes in a reusable stack. Flick, tap, or use the arrows to slide one print beneath the next.",
+    code: "const photos = [\n  {id: 'keyboard-top', src: '/images/snap75-top.jpg',\n   alt: 'SNAP-75 split keyboard from above', caption: 'every little detail.'},\n  {id: 'keyboard-desk', src: '/images/snap75-desk.jpg',\n   alt: 'Hand-soldered keyboard on a desk', caption: 'the first one I soldered.'},\n  // Add more entries with stable IDs, image paths, alt text, and captions.\n];\n\n<PolaroidStack label=\"Keyboard build photos\" photos={photos}\n  aspectRatio={16 / 9} />",
     props: [
-      ["photos", "PolaroidPhoto[]; {src, alt, caption?}", "required"],
+      ["photos", "readonly PolaroidPhoto[]; any length", "required"],
+      [
+        "photo.src / photo.alt",
+        "string / string; image URL and useful alternative",
+        "required",
+      ],
+      ["photo.id", "string; unique stable identity", "image URL fallback"],
+      [
+        "photo.caption / photo.objectPosition",
+        "string / CSS object-position",
+        "— / center",
+      ],
       ["label", "string; accessible group name", "Photo stack"],
-      ["className", "string", "—"],
+      ["aspectRatio", "number; image width divided by height", "16 / 9"],
+      ["quiet", "boolean; instant changes and no drag deformation", "false"],
+      [
+        "onIndexChange",
+        "(index, photo) => void; once per accepted user action",
+        "—",
+      ],
+      ["native div attributes", "HTMLAttributes except children", "—"],
     ],
     guidance:
-      "Keep useful alt text and an intentional crop. Clicking the front photograph or using either arrow cycles the stack. Keyboard Left and Right work when focus is inside. There is no hover drift.",
+      "Use useful alt text and stable IDs when photos can be added or reordered. Horizontal touch or pen drags follow the finger; a deliberate swipe or quick flick sends the top print beneath the stack. Short drags return gently. Vertical page scrolling and pinch zoom remain native. Clicking, tapping, keyboard Left/Right, and the previous/next arrows share the same selection. Quiet and reduced motion keep the finished arrangement still. No hover drift, autoplay, or blank backing cards.",
     usage:
-      "Import PolaroidStack from @domlee/ui. Supply your own photo paths and alt text. The showcase reuses the two public SNAP-75 photos from the personal site. Empty and one-photo lists are supported; this adaptation keeps swaps immediate.",
+      "Import PolaroidStack and styles.css from @domlee/ui. Supply image paths, alt text, and optional handwritten captions. The same component supports zero, one, or many photos, renders a small window of real prints, and keeps the current identity when a list is extended or reordered. Set aspectRatio for the collection and objectPosition for an intentional portrait crop. The example begins with the two public SNAP-75 photos; Add a sample print adds the illustrated Domino cover to demonstrate a third item. See docs/POLAROID-STACK.md for reuse and personal-site adoption.",
     origin: "Adapted",
   },
   {

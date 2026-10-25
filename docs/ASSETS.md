@@ -41,7 +41,7 @@ The handwritten Skeleton’s nonverbal pen groups and avatar ring were authored 
 
 ## Photos
 
-The Polaroid Stack example uses the same two public SNAP-75 keyboard photos already shown on [the personal website](https://dominicklee.net/). They are illustrative assets for this source-based pattern, not profile or private reference photos. Other identity examples use invented collaborator names and initials, not photographs or real participation claims.
+The Polaroid Stack example uses the same two public SNAP-75 keyboard photos already shown on [the personal website](https://dominicklee.net/). The optional third demo print uses the existing original Domino UI cover (`public/social-cover.png`), clearly presented as an illustration rather than another personal photograph. They are illustrative assets for this source-based pattern, not profile or private reference photos. Other identity examples use invented collaborator names and initials, not photographs or real participation claims.
 
 ## Notebook sketches and Hairline
 

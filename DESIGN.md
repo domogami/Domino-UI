@@ -230,3 +230,10 @@ Touch is part of the shared interaction language. [HAPTICS.md](docs/HAPTICS.md) 
 Use the shared centered `Chevron` SVG for dropdown, select, breadcrumb, and disclosure affordances. Keep its square box aligned to the control center; do not substitute text glyphs or baseline offsets. Expanded controls rotate the persistent icon, with an immediate direction change under reduced motion. Keep hand-drawn SketchArrow marks for annotations.
 
 Sketches may opt into `replayOnClick`: one stable native button redraws its own ink on click, tap, Enter, or Space. Other drawings remain at rest. Preserve button focus during replay, allow vertical touch scrolling, and disable replay when quiet or reduced motion is active. The notebook set includes six scenes; Hairline replays an ink sweep while its guided tour remains separately opt in.
+
+
+## Reusable photo stacks
+
+`PolaroidStack` carries the personal site's actual hand-drawn arrows and slide-and-tuck movement into a reusable N-photo stack. It shows real following prints, keeps a stable image window with naturally wrapping Caveat captions, and preserves the selected photo by a stable ID when the list changes. The default landscape window is 16:9; collections can choose another ratio and per-photo object position. Do not force a tall mobile height onto a narrow landscape photo.
+
+Touch and pen gestures follow horizontal intent, preserve native vertical scrolling and pinch zoom, and suppress the synthetic click after a drag. A short drag returns; a deliberate swipe or quick flick cycles one item. Previous/next, tap, and keyboard Left/Right share that state. The outgoing print owns its transform for the source-derived 480ms slide-and-tuck. Quiet and reduced motion show the final selection immediately. The swipe surface opts out of Safari's auxiliary native tap target; arrow controls remain eligible. Native gestures, photo identity, and accessible count are part of this component's behavior. See [Polaroid stack usage](docs/POLAROID-STACK.md).

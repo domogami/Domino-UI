@@ -65,6 +65,84 @@ function TaskCheckboxDemo({ compact = false }: { compact?: boolean }) {
   );
 }
 
+function PolaroidStackDemo({
+  compact,
+  quiet,
+}: {
+  compact: boolean;
+  quiet: boolean;
+}) {
+  const [extraPrint, setExtraPrint] = useState(false);
+  const [still, setStill] = useState(false);
+  const [reset, setReset] = useState(0);
+  const photos: UI.PolaroidPhoto[] = [
+    {
+      id: "snap75-top",
+      src: `${import.meta.env.BASE_URL}images/snap75-top.jpg`,
+      alt: "SNAP-75 split keyboard from above, with colorful keycaps and two screens",
+      caption: "every little detail.",
+    },
+    {
+      id: "snap75-desk",
+      src: `${import.meta.env.BASE_URL}images/snap75-desk.jpg`,
+      alt: "Hand-soldered SNAP-75 keyboard on a desk",
+      caption: "the first one I ever soldered.",
+    },
+    ...(extraPrint
+      ? [
+          {
+            id: "notebook-print",
+            src: `${import.meta.env.BASE_URL}social-cover.png`,
+            alt: "An illustrated cover of the Domino UI component notebook",
+            caption: "a notebook of good pieces.",
+          },
+        ]
+      : []),
+  ];
+  return (
+    <div className={`polaroid-demo ${compact ? "polaroid-demo--compact" : ""}`}>
+      <UI.PolaroidStack
+        key={reset}
+        label="SNAP-75 keyboard build photos"
+        photos={photos}
+        quiet={quiet || still || compact}
+      />
+      {!compact && (
+        <>
+          <p className="polaroid-demo__hint">
+            Flick through a few good things. The page still scrolls.
+          </p>
+          <div className="polaroid-demo__actions">
+            <UI.Button
+              size="sm"
+              variant="secondary"
+              disabled={extraPrint}
+              onClick={() => setExtraPrint(true)}
+            >
+              {extraPrint ? "Sample print added" : "Add a sample print"}
+            </UI.Button>
+            <UI.Button
+              size="sm"
+              variant="ghost"
+              onClick={() => {
+                setExtraPrint(false);
+                setReset((value) => value + 1);
+              }}
+            >
+              Reset photo stack
+            </UI.Button>
+            <UI.Switch
+              label="Quiet stack motion"
+              checked={still}
+              onChange={(event) => setStill(event.target.checked)}
+            />
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 export function Demo({
   id,
   compact = false,
@@ -970,23 +1048,7 @@ export function Demo({
         />
       );
     case "polaroid-stack":
-      return (
-        <UI.PolaroidStack
-          label="SNAP-75 keyboard build photos"
-          photos={[
-            {
-              src: `${import.meta.env.BASE_URL}images/snap75-top.jpg`,
-              alt: "SNAP-75 split keyboard from above, with colorful keycaps and two screens",
-              caption: "every little detail.",
-            },
-            {
-              src: `${import.meta.env.BASE_URL}images/snap75-desk.jpg`,
-              alt: "Hand-soldered SNAP-75 keyboard on a desk",
-              caption: "the first one I ever soldered.",
-            },
-          ]}
-        />
-      );
+      return <PolaroidStackDemo compact={compact} quiet={quiet} />;
     case "flower-progress":
       return (
         <div className="demo-stack">

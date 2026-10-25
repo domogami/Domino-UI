@@ -13,7 +13,7 @@ The package is named **`@domlee/ui`**. It is not currently published to the npm 
 | Dom's Quartz 5 notebook    | Generated Quartz bundle and its existing theme controller  | Preact/Quartz components, graph, search, reading mode, and Flower Hunt |
 | Obsidian                   | Generated standalone CSS snippet over the installed theme  | Editor, vault, Markdown, plugins, and base-theme updates               |
 
-The adapters are implemented here. **The personal website, Quartz site, and Obsidian workspace have not yet been migrated by this preparation.** A fixture passing in Domino UI does not establish that an adapter works in a destination's actual runtime.
+The adapters are implemented here. **Personal-site integration starts with the shared PolaroidStack only. The broader personal-site theme, Quartz site, and Obsidian workspace have not been migrated by this preparation.** A fixture passing in Domino UI does not establish that an adapter works in a destination's actual runtime. The personal photo adapter keeps the site's existing fonts, local palette, motion preference, and haptic controller; it does not install a second theme provider. See [reusable photo stacks](POLAROID-STACK.md) for the data array and integration boundary.
 
 ## Install a fixed revision
 

@@ -122,16 +122,22 @@ try {
     `import { useMemo, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import { createRoot } from "react-dom/client";
-import { BookmarkDrawing, Button, Card, Chevron, Dialog, HairlineSketch, NotebookSketch, NotificationCard, Popover, Skeleton, TaskCheckbox, ThemeProvider, ThemeToggle, TouchFeedbackProvider, TripleBanner, createPageTransition, type DrawingProps } from "@domlee/ui";
+import { BookmarkDrawing, Button, Card, Chevron, Dialog, HairlineSketch, NotebookSketch, NotificationCard, PolaroidStack, Popover, Skeleton, TaskCheckbox, ThemeProvider, ThemeToggle, TouchFeedbackProvider, TripleBanner, createPageTransition, type DrawingProps, type PolaroidPhoto } from "@domlee/ui";
 import "@domlee/ui/styles.css";
 import "@domlee/ui/fonts.css";
 function App() {
   const [open, setOpen] = useState(false);
   const [heading, setHeading] = useState("A shared notebook");
   const returnFocusRef = useRef<HTMLButtonElement>(null);
+  const photos: readonly PolaroidPhoto[] = [
+    {id: "first", src: "/photos/first.jpg", alt: "Package first photo", caption: "A first keepsake"},
+    {id: "second", src: "/photos/second.jpg", alt: "Package second photo", objectPosition: "50% 25%"},
+    {id: "third", src: "/photos/third.jpg", alt: "Package third photo"},
+  ];
   const drawing: DrawingProps = { animate: true, quiet: false, speed: 1, replayKey: 0 };
   const pageTransition = useMemo(() => createPageTransition(), []);
   return <ThemeProvider><TouchFeedbackProvider><ThemeToggle /><Card title={heading} className="dm-page-transition"><Button ref={returnFocusRef} trailingIcon={<Chevron />} onClick={() => setOpen(true)}>Keep going</Button><Button variant="secondary" onClick={() => { void pageTransition.run(() => flushSync(() => setHeading("A new notebook page"))); }}>Turn page</Button><TaskCheckbox label="A little progress" /><NotebookSketch variant="flight" replayOnClick /><HairlineSketch variant="branches" /><Skeleton width="70%" />
+    <PolaroidStack photos={photos} label="Package photo stack" quiet aspectRatio={16 / 9} onIndexChange={(index, photo) => void [index, photo.id]} />
     <TripleBanner {...drawing} lines={["One good thought", "room to let it grow", "a few good pieces"]} tone="sage" replayOnClick label="Three thoughts on one ribbon" />
     <BookmarkDrawing {...drawing} variant="notched" replayOnClick label="A place kept for later" /><BookmarkDrawing {...drawing} variant="pointed" quiet label="A pointed bookmark" />
     <Popover title="A thought in the margin" eyebrow="A closer look" trigger={<Button variant="secondary">Show context</Button>} footer={<Button size="sm">Keep this thought</Button>}><p>Supporting context stays close to its source.</p></Popover>
@@ -193,6 +199,10 @@ createRoot(document.getElementById("root")!).render(<App />);
     ".dm-journal-art-line",
     ".dm-dialog--fold",
     ".dm-dialog__leaf",
+    ".dm-polaroid-stack__surface",
+    ".dm-polaroid-stack__photo--outgoing",
+    "dm-polaroid-cycle",
+    "--dm-polaroid-duration",
     ".dm-notification-card__actions",
     ".dm-dialog--ink",
     ".dm-dialog::backdrop",
@@ -233,7 +243,7 @@ createRoot(document.getElementById("root")!).render(<App />);
     `import assert from "node:assert/strict";
 import { createElement as h } from "react";
 import { renderToString } from "react-dom/server";
-import { BookmarkDrawing, Button, Card, Chevron, Dialog, HairlineSketch, NotebookSketch, NotificationCard, Popover, Skeleton, TaskCheckbox, ThemeProvider, TripleBanner, createPageTransition } from "@domlee/ui";
+import { BookmarkDrawing, Button, Card, Chevron, Dialog, HairlineSketch, NotebookSketch, NotificationCard, PolaroidStack, Popover, Skeleton, TaskCheckbox, ThemeProvider, TripleBanner, createPageTransition } from "@domlee/ui";
 assert.equal(typeof document, "undefined");
 const pageTransition = createPageTransition();
 let committed = false;
@@ -244,6 +254,7 @@ pageTransition.skip();
 pageTransition.cancel();
 const html = renderToString(h(ThemeProvider, {}, h(Card, {title: "A shared notebook"},
   h(TaskCheckbox, {label:"A little progress"}), h(NotebookSketch, {variant:"notebook", quiet:true}), h(HairlineSketch, {variant:"riffle", quiet:true}), h(Skeleton, {width:"70%"}), h(Chevron),
+  h(PolaroidStack, {label:"Package photo stack", quiet:true, photos:[{id:"first", src:"/photos/first.jpg", alt:"Package first photo"}, {id:"second", src:"/photos/second.jpg", alt:"Package second photo"}, {id:"third", src:"/photos/third.jpg", alt:"Package third photo"}]}),
   h(TripleBanner, {lines:["One good thought", "room to let it grow", "a few good pieces"], animate:true, replayOnClick:true, label:"Three thoughts on one ribbon"}),
   h(BookmarkDrawing, {variant:"notched", replayOnClick:true, label:"A place kept for later"}), h(BookmarkDrawing, {variant:"pointed", quiet:true, label:"A pointed bookmark"}),
   h(Popover, {title:"A thought in the margin", trigger:h(Button, {}, "Show context")}, h("p", {}, "Supporting context stays close to its source.")),
@@ -269,6 +280,11 @@ assert(html.includes('data-variant="notched"'));
 assert(html.includes('data-variant="pointed"'));
 assert(html.includes("dm-dialog--fold"));
 assert(html.includes("dm-dialog__leaf"));
+assert(html.includes("dm-polaroid-stack__surface"));
+assert(html.includes('data-photo-id="first"'));
+assert(html.includes('data-photo-id="second"'));
+assert(html.includes('data-photo-id="third"'));
+assert.equal((html.match(/class="dm-polaroid-stack__photo"/g) ?? []).length, 3);
 assert.equal(html.split("One focused decision.").length - 1, 1);
 assert(html.replace(/<[^>]*>/g, "").includes("3 in queue"));
 assert(html.includes("dm-notification-card__actions"));

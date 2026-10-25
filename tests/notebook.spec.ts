@@ -376,14 +376,17 @@ test("signature patterns disclose notes, order milestones, cycle photos and coll
 
   await routeTo(page, "component/polaroid-stack");
   canvas = page.locator(".playground-canvas");
-  const photo = canvas.locator(".dm-polaroid-stack__photo");
+  const photo = canvas.locator(".dm-polaroid-stack__surface");
   await expect(photo).toHaveAttribute("aria-label", /Showing photo 1 of 2/);
   await photo.focus();
   await page.keyboard.press("ArrowRight");
   await expect(photo).toHaveAttribute("aria-label", /Showing photo 2 of 2/);
-  await expect(photo.locator("img")).toHaveAttribute(
-    "src",
-    /snap75-desk\.jpg$/,
+  await expect(
+    photo.locator('.dm-polaroid-stack__photo[data-current="true"] img'),
+  ).toHaveAttribute("src", /snap75-desk\.jpg$/);
+  await expect(canvas.locator(".dm-polaroid-stack")).toHaveAttribute(
+    "data-state",
+    "idle",
   );
   await canvas.getByRole("button", { name: "Next photo", exact: true }).click();
   await expect(photo).toHaveAttribute("aria-label", /Showing photo 1 of 2/);
