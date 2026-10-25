@@ -323,7 +323,7 @@ test("Escape dismisses the nested margin before its modal and restores each open
   await expect(opener).toBeFocused();
 });
 
-test("paper folds through coordinated hinges and crease shading on the same dialog nodes", async ({
+test("a whole paper note slides and fades through connected folds on persistent dialog nodes", async ({
   page,
 }) => {
   await page.goto("/#component/dialog");
@@ -369,16 +369,30 @@ test("paper folds through coordinated hinges and crease shading on the same dial
         ].every((value) => Math.abs(value) < 0.001)
       );
     };
+    const matrix = (element: HTMLElement) => {
+      const transform = getComputedStyle(element).transform;
+      return transform === "none"
+        ? new DOMMatrixReadOnly()
+        : new DOMMatrixReadOnly(transform);
+    };
+    const angle = (element: HTMLElement) => {
+      const plane = matrix(element);
+      return (Math.atan2(plane.m23, plane.m22) * 180) / Math.PI;
+    };
     const sample = () => ({
       shell: getComputedStyle(dialog).transform,
+      shellX: matrix(dialog).m41,
+      shellY: matrix(dialog).m42,
       shellFlat: isFlat(dialog),
       shellOpacity: Number(getComputedStyle(dialog).opacity),
       headerDelay: getComputedStyle(header).transitionDelay,
       header: getComputedStyle(header).transform,
       leaf: getComputedStyle(leaf).transform,
       leafFlat: isFlat(leaf),
+      leafAngle: angle(leaf),
       footer: getComputedStyle(footer).transform,
       footerFlat: isFlat(footer),
+      footerAngle: angle(footer),
       headerOpacity: Number(getComputedStyle(header).opacity),
       bodyOpacity: Number(getComputedStyle(body).opacity),
       footerOpacity: Number(getComputedStyle(footer).opacity),
@@ -415,6 +429,7 @@ test("paper folds through coordinated hinges and crease shading on the same dial
             return sample();
           };
           const start = seek(0);
+          const firstBeat = seek(40);
           const early = seek(duration / 4);
           const middle = seek(duration / 2);
           const tucked = seek(duration * 0.75);
@@ -425,6 +440,7 @@ test("paper folds through coordinated hinges and crease shading on the same dial
           resolve({
             duration,
             start,
+            firstBeat,
             early,
             middle,
             tucked,
@@ -470,17 +486,34 @@ test("paper folds through coordinated hinges and crease shading on the same dial
     expect(opening.middle[region]).not.toBe(opening.start[region]);
     expect(opening.end[`${region}Flat`]).toBe(true);
   }
-  // The paper and lettering stay opaque; only the hinges and crease move.
-  expect(opening.start.shellOpacity).toBe(1);
+  // The header rides on one arriving note instead of appearing independently.
+  expect(opening.start.shellOpacity).toBe(0);
+  expect(opening.firstBeat.shellOpacity).toBeGreaterThan(0);
+  expect(opening.firstBeat.shellOpacity).toBeLessThan(1);
+  expect(opening.early.shellOpacity).toBeGreaterThan(
+    opening.firstBeat.shellOpacity,
+  );
+  expect(opening.early.shellOpacity).toBeLessThan(1);
+  expect(opening.middle.shellOpacity).toBe(1);
+  expect(opening.end.shellOpacity).toBe(1);
+  expect(opening.start.shellX).toBeCloseTo(24, 1);
+  expect(opening.start.shellY).toBeCloseTo(4, 1);
+  expect(opening.firstBeat.shellX).toBeGreaterThan(opening.early.shellX);
+  expect(opening.early.shellX).toBeGreaterThan(opening.middle.shellX);
+  expect(opening.middle.shellX).toBeGreaterThan(0);
+  expect(opening.end.shellX).toBe(0);
+  expect(opening.end.shellY).toBe(0);
+  expect(opening.start.leafAngle).toBeCloseTo(-40, 1);
+  expect(opening.start.footerAngle).toBeCloseTo(80, 1);
   for (const phase of [
     opening.start,
+    opening.firstBeat,
     opening.early,
     opening.middle,
     opening.tucked,
     opening.fading,
     opening.end,
   ]) {
-    expect(phase.shellOpacity).toBe(1);
     expect(phase.header).toBe("none");
     expect(phase.headerOpacity).toBe(1);
     expect(phase.bodyOpacity).toBe(1);
@@ -511,20 +544,30 @@ test("paper folds through coordinated hinges and crease shading on the same dial
   expect(closing.middle.leaf).toContain("matrix3d");
   expect(closing.middle.footerFlat).toBe(false);
   expect(closing.start.headerDelay).toBe("0s");
-  for (const phase of [
-    closing.start,
-    closing.early,
-    closing.middle,
-    closing.tucked,
-    closing.foldComplete,
-  ]) {
-    expect(phase.shellOpacity).toBe(1);
-  }
+  expect(closing.start.shellOpacity).toBe(1);
+  expect(closing.firstBeat.shellOpacity).toBe(1);
+  expect(closing.early.shellOpacity).toBeLessThan(1);
+  expect(closing.middle.shellOpacity).toBeGreaterThan(0);
+  expect(closing.middle.shellOpacity).toBeLessThan(closing.early.shellOpacity);
+  expect(closing.foldComplete.shellOpacity).toBeGreaterThan(0);
+  expect(closing.foldComplete.shellOpacity).toBeLessThan(
+    closing.middle.shellOpacity,
+  );
   expect(closing.fading.shellOpacity).toBeGreaterThan(0);
-  expect(closing.fading.shellOpacity).toBeLessThan(1);
+  expect(closing.fading.shellOpacity).toBeLessThan(
+    closing.foldComplete.shellOpacity,
+  );
   expect(closing.end.shellOpacity).toBe(0);
+  expect(closing.start.shellX).toBe(0);
+  expect(closing.firstBeat.shellX).toBeGreaterThan(0);
+  expect(closing.middle.shellX).toBeGreaterThan(closing.firstBeat.shellX);
+  expect(closing.end.shellX).toBeCloseTo(20, 1);
+  expect(closing.end.shellY).toBeCloseTo(4, 1);
+  expect(closing.end.leafAngle).toBeCloseTo(-52, 1);
+  expect(closing.end.footerAngle).toBeCloseTo(104, 1);
   for (const phase of [
     closing.start,
+    closing.firstBeat,
     closing.early,
     closing.middle,
     closing.tucked,

@@ -47,18 +47,18 @@ body:has(.dm-dialog:modal) {
 .dm-dialog[data-state="open"]::backdrop {
   opacity: 1;
 }
-/* The header stays flat. One connected leaf carries the body and a counter-folded
-   footer, so their shared edge remains attached throughout the accordion fold. */
+/* One note arrives and leaves together. A shallow connected fold adds paper
+   movement beneath the flat header without making the heading appear separately. */
 .dm-dialog--fold {
   border: 0;
   background: transparent;
-  opacity: 1;
-  transform: translateY(8px) scale(0.985);
+  opacity: 0;
+  transform: translate3d(24px, 4px, 0);
   transform-origin: 50% 20%;
   transition:
-    opacity 40ms ease,
-    transform var(--dm-dialog-duration, 360ms)
-      var(--dm-layer-easing, cubic-bezier(0.22, 1, 0.36, 1));
+    opacity calc(var(--dm-dialog-duration, 360ms) * 4 / 9)
+      cubic-bezier(0.2, 0, 0.2, 1),
+    transform var(--dm-dialog-duration, 360ms) cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 .dm-dialog--fold[data-folding="true"] {
   box-shadow: none;
@@ -99,22 +99,22 @@ body:has(.dm-dialog:modal) {
 .dm-dialog--fold:is([data-state="closed"], [data-state="opening"])
   > .dm-dialog__leaf {
   transform-style: preserve-3d;
-  transform: perspective(1100px) rotateX(-74deg);
+  transform: perspective(1100px) rotateX(-40deg);
 }
 .dm-dialog--fold:is([data-state="closed"], [data-state="opening"])
   .dm-dialog__footer {
-  transform: rotateX(148deg);
+  transform: rotateX(80deg);
 }
 .dm-dialog--fold[data-folding="true"] > .dm-dialog__leaf {
   transform-style: preserve-3d;
-  transform: perspective(1100px) rotateX(-74deg);
+  transform: perspective(1100px) rotateX(-40deg);
   transition: transform var(--dm-dialog-duration, 360ms)
-    cubic-bezier(0.4, 1.12, 0.65, 1);
+    cubic-bezier(0.25, 1.05, 0.4, 1);
 }
 .dm-dialog--fold[data-folding="true"] .dm-dialog__footer {
-  transform: rotateX(148deg);
+  transform: rotateX(80deg);
   transition: transform var(--dm-dialog-duration, 360ms)
-    cubic-bezier(0.4, 1.12, 0.65, 1);
+    cubic-bezier(0.25, 1.05, 0.4, 1);
 }
 .dm-dialog--fold[data-folding="true"][data-state="open"] > .dm-dialog__leaf {
   transform: perspective(1100px) rotateX(0deg);
@@ -131,7 +131,7 @@ body:has(.dm-dialog:modal) {
   pointer-events: none;
   background: linear-gradient(
     to bottom,
-    color-mix(in srgb, var(--dm-ink) 20%, transparent),
+    color-mix(in srgb, var(--dm-ink) 14%, transparent),
     color-mix(in srgb, var(--dm-surface-raised) 70%, transparent) 30%,
     transparent
   );
@@ -140,12 +140,12 @@ body:has(.dm-dialog:modal) {
 }
 .dm-dialog--fold:is([data-state="closed"], [data-state="opening"])
   :is(.dm-dialog__body, .dm-dialog__footer)::before {
-  opacity: 0.8;
+  opacity: 0.6;
   transform: scaleY(1);
 }
 .dm-dialog--fold[data-folding="true"]
   :is(.dm-dialog__body, .dm-dialog__footer)::before {
-  opacity: 0.8;
+  opacity: 0.6;
   transform: scaleY(1);
   transform-origin: top;
   transition:
@@ -160,21 +160,23 @@ body:has(.dm-dialog:modal) {
 }
 .dm-dialog--fold[data-state="closing"] {
   opacity: 0;
-  transform: translateY(6px) rotate(-0.5deg) scale(0.985);
+  transform: translate3d(20px, 4px, 0) rotate(-0.35deg);
   transition-duration:
-    calc(var(--dm-dialog-exit-duration, 240ms) / 6),
+    calc(var(--dm-dialog-exit-duration, 240ms) * 5 / 6),
     var(--dm-dialog-exit-duration, 240ms);
-  transition-delay: calc(var(--dm-dialog-exit-duration, 240ms) * 5 / 6), 0s;
+  transition-delay: calc(var(--dm-dialog-exit-duration, 240ms) / 6), 0s;
+  transition-timing-function:
+    cubic-bezier(0.4, 0, 1, 1), cubic-bezier(0.4, 0, 0.6, 1);
 }
 .dm-dialog--fold[data-state="closing"]::backdrop {
-  transition-duration: calc(var(--dm-dialog-exit-duration, 240ms) * 2 / 3);
-  transition-delay: calc(var(--dm-dialog-exit-duration, 240ms) / 3);
+  transition-duration: var(--dm-dialog-exit-duration, 240ms);
+  transition-delay: 0s;
 }
 .dm-dialog--fold[data-folding="true"][data-state="closing"] > .dm-dialog__leaf {
-  transform: perspective(1100px) rotateX(-82deg);
+  transform: perspective(1100px) rotateX(-52deg);
 }
 .dm-dialog--fold[data-folding="true"][data-state="closing"] .dm-dialog__footer {
-  transform: rotateX(164deg);
+  transform: rotateX(104deg);
 }
 .dm-dialog--fold[data-folding="true"][data-state="closing"]
   :is(.dm-dialog__leaf, .dm-dialog__footer),
