@@ -1129,6 +1129,7 @@ test("production route transitions capture only the content sheet and keep reduc
 test("production PolaroidStack paints real slide-and-tuck frames and cleans up", async ({
   page,
 }) => {
+  await page.setViewportSize({ width: 1920, height: 1200 });
   await page.goto("/#component/polaroid-stack");
   await page.evaluate(() => document.fonts.ready);
   const stack = page.locator(".polaroid-demo .dm-polaroid-stack");
@@ -1148,72 +1149,12 @@ test("production PolaroidStack paints real slide-and-tuck frames and cleans up",
   await stack.getByRole("button", { name: "Next photo", exact: true }).tap();
   await expect(stack).toHaveAttribute("data-index", "1");
   await expect(stack).toHaveAttribute("data-state", "idle");
-  const frames = await stack
-    .getByRole("button", { name: "Previous photo", exact: true })
-    .evaluate(async (button) => {
-      button.click();
-      await new Promise(requestAnimationFrame);
-      const root = button.closest(".dm-polaroid-stack")!;
-      const card = root.querySelector<HTMLElement>(
-        ".dm-polaroid-stack__photo--outgoing",
-      )!;
-      const animation = card
-        .getAnimations()
-        .find(
-          (animation) =>
-            animation instanceof CSSAnimation &&
-            animation.animationName === "dm-polaroid-cycle",
-        )!;
-      animation.pause();
-      const frame = (time: number) => {
-        animation.currentTime = time;
-        const style = getComputedStyle(card);
-        return {
-          x: new DOMMatrixReadOnly(style.transform).m41,
-          z: Number(style.zIndex),
-        };
-      };
-      const result = {
-        duration: animation.effect!.getTiming().duration,
-        start: frame(0),
-        away: frame(220),
-        tucked: frame(475),
-        containsImage: !!card.querySelector("img"),
-      };
-      (window as any).polaroidProductionAnimation = animation;
-      animation.currentTime = 0;
-      return result;
-    });
-  expect(frames.duration).toBe(480);
-  expect(frames.containsImage).toBe(true);
-  expect(frames.away.x).toBeGreaterThan(frames.start.x + 50);
-  expect(Math.abs(frames.tucked.x)).toBeLessThan(50);
-  expect(frames.tucked.z).toBeLessThan(frames.start.z);
-  const firstPaint = await stack.screenshot({ animations: "allow" });
-  await page.evaluate(() => {
-    (window as any).polaroidProductionAnimation.currentTime = 220;
-  });
-  const awayPaint = await stack.screenshot({ animations: "allow" });
-  expect(awayPaint.equals(firstPaint)).toBe(false);
-  expect(
-    await page.evaluate(
-      () => document.documentElement.scrollWidth <= innerWidth,
-    ),
-  ).toBe(true);
-  await stack.getByRole("button", { name: "Next photo", exact: true }).tap();
-  await expect(stack).toHaveAttribute("data-index", "0");
-  await page.evaluate(() => {
-    const animation = (window as any).polaroidProductionAnimation;
-    animation.currentTime = 470;
-    animation.play();
-  });
-  await expect(stack).toHaveAttribute("data-state", "idle");
-  await expect(
-    stack.locator(".dm-polaroid-stack__photo--outgoing"),
-  ).toHaveCount(0);
+  for (const direction of ["previous", "next"] as const) {
+    await assertPolaroidPaintOutsideStack(page, stack, direction);
+  }
   await surface.focus();
   const stableSurface = await surface.elementHandle();
-  await page.keyboard.press("ArrowLeft");
+  await page.keyboard.press("ArrowRight");
   await expect(stack).toHaveAttribute("data-index", "2");
   await expect(stack).toHaveAttribute("data-state", "idle");
   await expect(current()).toHaveAttribute("data-photo-id", "notebook-print");
@@ -1292,3 +1233,145 @@ test("production PolaroidStack quiet and reduced motion preserve wrapping and ke
     ).toBe(true);
   }
 });
+
+async function assertPolaroidPaintOutsideStack(
+  page: import("@playwright/test").Page,
+  stack: import("@playwright/test").Locator,
+  direction: "next" | "previous",
+) {
+  await stack.evaluate((element) =>
+    element.scrollIntoView({ block: "center", inline: "center" }),
+  );
+  const capture = await stack
+    .getByRole("button", {
+      name: direction === "next" ? "Next photo" : "Previous photo",
+      exact: true,
+    })
+    .evaluate(async (button) => {
+      button.click();
+      await new Promise(requestAnimationFrame);
+      const root = button.closest(".dm-polaroid-stack")!;
+      const outgoing = root.querySelector<HTMLElement>(
+        ".dm-polaroid-stack__photo--outgoing",
+      )!;
+      const animations = root.getAnimations({ subtree: true });
+      for (const animation of animations) animation.pause();
+      const excursion = outgoing
+        .getAnimations()
+        .find(
+          (animation) =>
+            animation instanceof CSSAnimation &&
+            animation.animationName === "dm-polaroid-cycle",
+        )!;
+      const duration = Number(excursion.effect!.getTiming().duration);
+      const sample = (time: number) => {
+        excursion.currentTime = time;
+        const style = getComputedStyle(outgoing);
+        const matrix = new DOMMatrixReadOnly(style.transform);
+        return { x: matrix.m41, y: matrix.m42, z: Number(style.zIndex) };
+      };
+      const departure = sample(0);
+      const tuck = sample(duration - 1);
+      excursion.currentTime = duration * 0.48;
+      await new Promise(requestAnimationFrame);
+      const image = outgoing.querySelector("img")!;
+      const imageBox = image.getBoundingClientRect();
+      const rootBox = root.getBoundingClientRect();
+      const cardBox = outgoing.getBoundingClientRect();
+      const matrix = new DOMMatrixReadOnly(
+        getComputedStyle(outgoing).transform,
+      );
+      const previousPointer = outgoing.style.pointerEvents;
+      const previousVisibility = outgoing.style.visibility;
+      // A test-only pointer-events override exposes the painted card to hit testing;
+      // it does not change its geometry, stacking, or any ancestor's clipping.
+      outgoing.style.pointerEvents = "auto";
+      const points = [-0.3, 0, 0.3].map((offset) => {
+        const x =
+          imageBox.x +
+          imageBox.width / 2 +
+          matrix.m11 * image.clientWidth * offset;
+        const y =
+          imageBox.y +
+          imageBox.height / 2 +
+          matrix.m12 * image.clientWidth * offset;
+        const hit = document.elementFromPoint(x, y);
+        return {
+          x,
+          y,
+          paintedHit: !!hit && outgoing.contains(hit),
+          outsideStack: x < rootBox.left || x > rootBox.right,
+          hitClass: hit?.className,
+        };
+      });
+      (window as any).polaroidPaintControl = {
+        animations,
+        excursion,
+        outgoing,
+        previousPointer,
+        previousVisibility,
+      };
+      return {
+        duration,
+        departure,
+        tuck,
+        away: { x: matrix.m41, y: matrix.m42 },
+        points,
+        root: rootBox.toJSON(),
+        card: cardBox.toJSON(),
+        width: innerWidth,
+        height: innerHeight,
+        index: root.getAttribute("data-index"),
+      };
+    });
+  expect(capture.duration).toBe(480);
+  if (direction === "next")
+    expect(capture.away.x).toBeLessThan(capture.departure.x - 50);
+  else expect(capture.away.x).toBeGreaterThan(capture.departure.x + 50);
+  expect(Math.hypot(capture.tuck.x, capture.tuck.y)).toBeLessThan(50);
+  expect(capture.tuck.z).toBeLessThan(capture.departure.z);
+  expect(capture.card.left).toBeGreaterThanOrEqual(0);
+  expect(capture.card.right).toBeLessThanOrEqual(capture.width);
+  expect(capture.card.top).toBeGreaterThanOrEqual(0);
+  expect(capture.card.bottom).toBeLessThanOrEqual(capture.height);
+  for (const point of capture.points) {
+    expect(point.outsideStack, JSON.stringify(capture)).toBe(true);
+    expect(point.paintedHit, JSON.stringify(capture)).toBe(true);
+  }
+  const farPoint = direction === "next" ? capture.points[0] : capture.points[2];
+  const clip = {
+    x: Math.floor(farPoint.x - 8),
+    y: Math.floor(farPoint.y - 8),
+    width: 16,
+    height: 16,
+  };
+  const painted = await page.screenshot({ clip, animations: "allow" });
+  await page.evaluate(() => {
+    (window as any).polaroidPaintControl.outgoing.style.visibility = "hidden";
+  });
+  const withoutCard = await page.screenshot({ clip, animations: "allow" });
+  expect(
+    painted.equals(withoutCard),
+    "The outgoing image must paint outside the stack's layout box.",
+  ).toBe(false);
+  await page.evaluate(() => {
+    const state = (window as any).polaroidPaintControl;
+    state.outgoing.style.visibility = state.previousVisibility;
+    state.outgoing.style.pointerEvents = state.previousPointer;
+  });
+  await stack.getByRole("button", { name: "Next photo", exact: true }).click();
+  await expect(stack).toHaveAttribute("data-index", capture.index!);
+  await page.evaluate(async () => {
+    const state = (window as any).polaroidPaintControl;
+    state.excursion.currentTime =
+      Number(state.excursion.effect.getTiming().duration) - 10;
+    for (const animation of state.animations) animation.play();
+    await Promise.allSettled(
+      state.animations.map((animation: Animation) => animation.finished),
+    );
+  });
+  await expect(stack).toHaveAttribute("data-state", "idle");
+  await expect(
+    stack.locator(".dm-polaroid-stack__photo--outgoing"),
+  ).toHaveCount(0);
+}

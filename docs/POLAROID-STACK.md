@@ -62,7 +62,7 @@ The swipe surface uses `data-native-tap="none"` so Safari's auxiliary native swi
 
 ## Responsive composition
 
-Choose one intentional image ratio for the collection. The default matches a landscape print and prevents the old tall/narrow mobile crop. Portrait images can use `objectPosition` to place the important part of a cover crop, or a portrait collection can use `aspectRatio={3 / 4}`. Captions wrap naturally. Leave a small margin for rotated paper and keep the collection within its container; the component clips the horizontal excursion so it cannot widen the page.
+Choose one intentional image ratio for the collection. The default matches a landscape print and prevents the old tall/narrow mobile crop. Portrait images can use `objectPosition` to place the important part of a cover crop, or a portrait collection can use `aspectRatio={3 / 4}`. Captions wrap naturally. The stack deliberately keeps overflow visible: the whole outgoing print travels beyond its layout box until it tucks behind the following photos. During dragging, settling, and cycling, it rises above ordinary neighboring content. Keep its ancestors unclipped and leave visual room around the stack; a host's `overflow: hidden` or `overflow: clip` would cut that motion short.
 
 The visual catalog begins with the two existing public SNAP-75 photos. **Add a sample print** appends the original illustrated Domino cover to demonstrate a third item without inventing another personal photo. **Reset photo stack** returns the example to its initial collection.
 

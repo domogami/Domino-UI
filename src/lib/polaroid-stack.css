@@ -3,12 +3,17 @@
   width: min(100%, 420px);
   min-width: 0;
   padding: 16px 18px 0;
-  /* The photograph can leave its stack without creating a horizontal page. */
-  overflow-x: clip;
-  overflow-y: visible;
-  overflow-clip-margin: 8px;
+  /* Let the whole print travel outside the stack before it tucks underneath. */
+  overflow: visible;
   color: var(--dm-ink);
   font-family: var(--dm-font-body);
+}
+.dm-polaroid-stack[data-state="dragging"],
+.dm-polaroid-stack[data-state="settling"],
+.dm-polaroid-stack[data-state="cycling"] {
+  /* Carry the travelling print above neighboring text while it leaves the stack. */
+  position: relative;
+  z-index: 1;
 }
 .dm-polaroid-stack__stage {
   position: relative;
