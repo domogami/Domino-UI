@@ -68,6 +68,31 @@ test.describe("notebook-wide touch feedback", () => {
     viewport: { width: 390, height: 844 },
   });
 
+  test("initial load and navigation stay silent until an owned pulse needs one cancellation", async ({
+    page,
+  }) => {
+    await vibrationFeatures(page);
+    await page.goto("/#component/icon-button");
+    await expect(page.locator("[data-domino-haptics]")).toHaveCount(1);
+    expect(await page.evaluate(() => window.globalTouchPulses)).toEqual([]);
+    await navigate(page, "component/button", "Button.");
+    await page.evaluate(() => {
+      window.dispatchEvent(new Event("blur"));
+      window.dispatchEvent(new Event("pagehide"));
+    });
+    expect(await page.evaluate(() => window.globalTouchPulses)).toEqual([]);
+    await navigate(page, "component/icon-button", "Icon button.");
+    const save = page.locator(".playground-canvas .dm-icon-button").first();
+    await save.tap();
+    await expect(save).toHaveAttribute("aria-pressed", "true");
+    expect(await page.evaluate(() => window.globalTouchPulses)).toEqual([6]);
+    await page.evaluate(() => window.dispatchEvent(new Event("blur")));
+    expect(await page.evaluate(() => window.globalTouchPulses)).toEqual([6, 0]);
+    await page.evaluate(() => window.dispatchEvent(new Event("blur")));
+    await navigate(page, "haptics", "A little feedback.");
+    expect(await page.evaluate(() => window.globalTouchPulses)).toEqual([6, 0]);
+  });
+
   test("one app controller covers ordinary buttons and theme controls", async ({
     page,
   }) => {
@@ -139,6 +164,79 @@ test.describe("notebook-wide touch feedback", () => {
     expect(await appScope!.evaluate((element) => element.isConnected)).toBe(
       true,
     );
+  });
+
+  test("the setting and ink-switch catalog pages share the single app controller and preference", async ({
+    page,
+  }) => {
+    await vibrationFeatures(page);
+    await page.goto("/#component/touch-feedback-setting");
+    const appScope = await page
+      .locator("[data-domino-haptics]")
+      .elementHandle();
+    await expect(page.locator("[data-domino-haptics]")).toHaveCount(1);
+    const button = page.locator(
+      '.playground-canvas button[data-haptic="selection"]',
+    );
+    await button.tap();
+    await expect(button).toHaveText("A page, chosen ✓");
+    expect(
+      await page.evaluate(() =>
+        window.globalTouchPulses.filter((value) => value !== 0),
+      ),
+    ).toEqual([4]);
+    const setting = page
+      .locator(".playground-canvas")
+      .getByRole("checkbox", { name: "Touch feedback", exact: true });
+    await page.waitForTimeout(90);
+    await setting.tap();
+    await expect(setting).not.toBeChecked();
+    await expect(
+      page.getByLabel("Site touch feedback", { exact: true }),
+    ).not.toBeChecked();
+    expect(
+      await page.evaluate(() =>
+        localStorage.getItem("notebook-touch-feedback"),
+      ),
+    ).toBe("off");
+    await page.evaluate(() => {
+      window.globalTouchPulses = [];
+    });
+    await button.tap();
+    await expect(button).toHaveText("Choose a page");
+    expect(
+      await page.evaluate(() =>
+        window.globalTouchPulses.filter((value) => value !== 0),
+      ),
+    ).toEqual([]);
+    await navigate(page, "component/ink-switch", "Ink switch.");
+    await expect(page.locator("[data-domino-haptics]")).toHaveCount(1);
+    await expect(
+      page.locator(".playground-canvas .dm-ink-switch"),
+    ).not.toHaveAttribute("switch");
+    expect(await appScope!.evaluate((element) => element.isConnected)).toBe(
+      true,
+    );
+    await navigate(
+      page,
+      "component/touch-feedback-setting",
+      "Touch feedback setting.",
+    );
+    await setting.tap();
+    await expect(
+      page.getByLabel("Site touch feedback", { exact: true }),
+    ).toBeChecked();
+    await page.evaluate(() => {
+      window.globalTouchPulses = [];
+    });
+    await page.waitForTimeout(90);
+    await button.tap();
+    expect(
+      await page.evaluate(() =>
+        window.globalTouchPulses.filter((value) => value !== 0),
+      ),
+    ).toEqual([4]);
+    await expect(page.locator("[data-domino-haptics]")).toHaveCount(1);
   });
 
   test("native switch targets cover real app buttons and the header without duplicate activation", async ({

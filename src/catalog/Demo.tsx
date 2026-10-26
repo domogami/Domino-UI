@@ -1281,17 +1281,15 @@ export function Demo({
       return compact ? (
         <UI.TouchFeedbackSetting compact />
       ) : (
-        <UI.TouchFeedbackProvider navigationKey="setting-example">
-          <div className="demo-stack">
-            <UI.TouchFeedbackSetting />
-            <UI.Button data-haptic="selection" onClick={notice}>
-              {saved ? "A page, chosen ✓" : "Choose a page"}
-            </UI.Button>
-            <a className="text-link" href="#haptics">
-              Safari instructions & feedback patterns
-            </a>
-          </div>
-        </UI.TouchFeedbackProvider>
+        <div className="demo-stack">
+          <UI.TouchFeedbackSetting />
+          <UI.Button data-haptic="selection" onClick={notice}>
+            {saved ? "A page, chosen ✓" : "Choose a page"}
+          </UI.Button>
+          <a className="text-link" href="#haptics">
+            Safari instructions & feedback patterns
+          </a>
+        </div>
       );
     case "ink-switch":
       return (

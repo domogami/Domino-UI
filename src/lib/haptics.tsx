@@ -11,14 +11,15 @@ import "./haptics.css";
 
 /** The personal notebook's small, deliberate touch vocabulary. Milliseconds. */
 export type Feedback = "tap" | "selection" | "draw" | "success" | "error";
-export const hapticPatterns: Readonly<Record<Feedback, number | readonly number[]>> =
-  Object.freeze({
-    tap: 6,
-    selection: 4,
-    draw: 5,
-    success: Object.freeze([9, 45, 12]),
-    error: Object.freeze([14, 45, 14]),
-  });
+export const hapticPatterns: Readonly<
+  Record<Feedback, number | readonly number[]>
+> = Object.freeze({
+  tap: 6,
+  selection: 4,
+  draw: 5,
+  success: Object.freeze([9, 45, 12]),
+  error: Object.freeze([14, 45, 14]),
+});
 
 const storageKey = "notebook-touch-feedback";
 const subscribers = new Set<() => void>();
@@ -34,6 +35,7 @@ let supportsVibration = false;
 let supportsNativeSwitch = false;
 let coarsePointer = false;
 let pulseAt = -Infinity;
+let vibrationPending = false;
 let preferenceUsers = 0;
 let detachPreferences: (() => void) | undefined;
 
@@ -59,15 +61,23 @@ function snapshot() {
   );
 }
 
-function cancelFeedback() {
-  for (const session of sessions) session.cues.clear();
-  if (sessions.size && typeof navigator.vibrate === "function") {
+function cancelVibration() {
+  // A zero-duration request still needs user activation in Chromium. Only
+  // cancel a vibration this controller has actually requested successfully.
+  if (!vibrationPending) return;
+  vibrationPending = false;
+  if (typeof navigator.vibrate === "function") {
     try {
       navigator.vibrate(0);
     } catch {
-      // Browser policy may deny vibration; the interaction remains usable.
+      // Browser policy may deny cancellation; the interaction remains usable.
     }
   }
+}
+
+function cancelFeedback() {
+  for (const session of sessions) session.cues.clear();
+  cancelVibration();
 }
 
 function connectPreferences() {
@@ -136,8 +146,12 @@ function pulse(session: Session, feedback: Feedback) {
   if (!available(session) || now - pulseAt < 65) return;
   try {
     const pattern = hapticPatterns[feedback];
-    if (navigator.vibrate(typeof pattern === "number" ? pattern : [...pattern]))
+    if (
+      navigator.vibrate(typeof pattern === "number" ? pattern : [...pattern])
+    ) {
       pulseAt = now;
+      vibrationPending = true;
+    }
   } catch {
     // API detection is advisory: a device or its policy may still decline.
   }
@@ -178,7 +192,10 @@ function setEnabled(value: boolean) {
   notify();
 }
 
-export type HapticCapability = "vibration-api" | "native-switch" | "unavailable";
+export type HapticCapability =
+  | "vibration-api"
+  | "native-switch"
+  | "unavailable";
 /** Capability describes browser features, never proof of a physical motor pulse. */
 export function useTouchFeedback() {
   const state = useSyncExternalStore(subscribe, snapshot, () => 1);
@@ -232,7 +249,10 @@ export function TouchFeedbackSetting({
   );
 }
 
-export type InkSwitchProps = Omit<InputHTMLAttributes<HTMLInputElement>, "type">;
+export type InkSwitchProps = Omit<
+  InputHTMLAttributes<HTMLInputElement>,
+  "type"
+>;
 export function InkSwitch({ className = "", ...props }: InkSwitchProps) {
   const { enabled, reducedMotion, supportsNativeSwitch } = useTouchFeedback();
   const native = enabled && !reducedMotion;
@@ -285,13 +305,7 @@ export function TouchFeedbackProvider({
     const quiet = () => {
       session.touchAt = -Infinity;
       session.cues.clear();
-      if (typeof navigator.vibrate === "function") {
-        try {
-          navigator.vibrate(0);
-        } catch {
-          // Cancellation can be denied by the same device policy as playback.
-        }
-      }
+      cancelVibration();
     };
     const pointer = (event: PointerEvent) => {
       if (!owns(event.target)) return;
@@ -314,11 +328,17 @@ export function TouchFeedbackProvider({
       const control = event.target.closest(
         'button, a[href], summary, input[type="checkbox"], input[type="radio"], [role="button"]',
       );
-      if (!control || control.matches(':disabled, [aria-disabled="true"]')) return;
+      if (!control || control.matches(':disabled, [aria-disabled="true"]'))
+        return;
       const kind = control.getAttribute("data-haptic");
       if (kind === "none" || kind === "manual") return;
       if (performance.now() - session.touchAt < 1200)
-        pulse(session, kind && Object.hasOwn(hapticPatterns, kind) ? (kind as Feedback) : "tap");
+        pulse(
+          session,
+          kind && Object.hasOwn(hapticPatterns, kind)
+            ? (kind as Feedback)
+            : "tap",
+        );
     };
     const drag = (event: PointerEvent) => {
       if (
@@ -339,7 +359,9 @@ export function TouchFeedbackProvider({
       session.cues.delete(id!);
       if (
         cue.expires < performance.now() ||
-        event.target.closest('[hidden], [inert], [data-motion="off"], .motion-paused') ||
+        event.target.closest(
+          '[hidden], [inert], [data-motion="off"], .motion-paused',
+        ) ||
         !event.target.getClientRects().length
       )
         return;
@@ -353,12 +375,21 @@ export function TouchFeedbackProvider({
     const visibility = () => {
       if (document.visibilityState !== "visible") quiet();
     };
-    root.addEventListener("pointerdown", pointer, { capture: true, passive: true });
+    root.addEventListener("pointerdown", pointer, {
+      capture: true,
+      passive: true,
+    });
     root.addEventListener("click", click, true);
-    root.addEventListener("pointermove", drag, { capture: true, passive: true });
+    root.addEventListener("pointermove", drag, {
+      capture: true,
+      passive: true,
+    });
     root.addEventListener("animationend", finish);
     root.addEventListener("animationcancel", animationCancelled);
-    document.addEventListener("pointerdown", outsidePointer, { capture: true, passive: true });
+    document.addEventListener("pointerdown", outsidePointer, {
+      capture: true,
+      passive: true,
+    });
     document.addEventListener("visibilitychange", visibility);
     window.addEventListener("blur", quiet);
     window.addEventListener("pagehide", quiet);
@@ -389,13 +420,7 @@ export function TouchFeedbackProvider({
     if (!session) return;
     session.touchAt = -Infinity;
     session.cues.clear();
-    if (typeof navigator.vibrate === "function") {
-      try {
-        navigator.vibrate(0);
-      } catch {
-        // A route transition remains usable when cancellation is denied.
-      }
-    }
+    cancelVibration();
   }, [navigationKey, routeKey]);
   return (
     <div
