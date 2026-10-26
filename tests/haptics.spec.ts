@@ -353,17 +353,8 @@ test.describe("emulated native switch targeting", () => {
         inputs.map((input) => input.getAttribute("data-native-tap-label")),
       );
     expect(targetLabels.length).toBeGreaterThan(0);
-    expect(
-      targetLabels.every((label) =>
-        [
-          "Keep a thought",
-          "Choose a page",
-          "Finish a note",
-          "Try an error",
-          "Replay the ink",
-        ].includes(label ?? ""),
-      ),
-    ).toBe(true);
+    expect(targetLabels).toContain("Keep a thought");
+    expect(targetLabels).toContain("Light theme");
     await button.focus();
     await page.keyboard.press("Enter");
     await expect(page.locator(".haptics-action-log b")).toHaveText("2");
@@ -379,9 +370,9 @@ test.describe("emulated native switch targeting", () => {
     await expect(page.locator(".haptics-action-log b")).toHaveText("3");
     await expect(
       page.locator(
-        ".sidebar .dm-native-tap-target, .topbar .dm-native-tap-target",
+        '.dm-native-tap-target[data-native-tap-label="Light theme"]',
       ),
-    ).toHaveCount(0);
+    ).toHaveCount(1);
     expect(await pulses(page)).toEqual([]);
   });
 

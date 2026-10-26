@@ -2,7 +2,6 @@ import { useRef, useState, type MouseEvent } from "react";
 import { Button, Checkbox, Dialog, Input, Switch } from "../lib/components";
 import { Popover } from "../lib/popover";
 import { NotificationCard } from "../lib/notification-card";
-import { TouchFeedbackProvider } from "../lib/haptics";
 import { HandwrittenNote, SketchArrow } from "../lib/brand";
 import { Chevron } from "../lib/chevron";
 import { Icon } from "../Icons";
@@ -85,7 +84,7 @@ export function LayersPage({ copy }: { copy: (text: string) => void }) {
     setIndex((value) => Math.max(0, Math.min(value, notes.length - 2)));
   };
   return (
-    <TouchFeedbackProvider className="layers-page">
+    <div className="layers-page">
       <PageIntro
         eyebrow="03 / DEPTH & ATTENTION"
         title="Layers of paper"
@@ -252,8 +251,8 @@ export function LayersPage({ copy }: { copy: (text: string) => void }) {
           <h2 id="dialog-study-title">One thing, on its own page.</h2>
           <p>
             A modal opens like a folded note. The heading stays clear while the
-            paper unfolds beneath it, then tucks away in one small gesture.
-            Open it again to replay the movement.
+            paper unfolds beneath it, then tucks away in one small gesture. Open
+            it again to replay the movement.
           </p>
           <div className="layers-example-actions">
             <Button onClick={openEditor}>
@@ -384,6 +383,6 @@ export function LayersPage({ copy }: { copy: (text: string) => void }) {
         </p>
       </section>
       <CodeBlock code={code} copy={copy} />
-    </TouchFeedbackProvider>
+    </div>
   );
 }

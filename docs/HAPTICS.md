@@ -2,7 +2,7 @@
 
 Touch feedback is part of the notebook's interaction language: a small tap for an action, a tick when a selection changes, and a quiet finish to an explicitly replayed drawing. It is an optional enhancement. Every action still needs its ordinary visual state, accessible name, keyboard behavior, and readable success or error message.
 
-The React implementation is captured in `src/lib/haptics.tsx`, `nativeTapTargets.ts`, and `haptics.css`. The visual notebook's **Touch & haptics** page provides examples and Safari instructions. This work prepares the shared library; it does not install it into the personal website, Quartz, or Obsidian.
+The React implementation is captured in `src/lib/haptics.tsx`, `nativeTapTargets.ts`, and `haptics.css`. The visual notebook mounts one `TouchFeedbackProvider` around the application, so eligible buttons in its chrome, component pages, and layers share the same controller. The sidebar’s **Touch feedback** setting and the guide’s setting control one saved preference. Importing the library alone does not install a controller into another project; consumers mount their own provider. The **Touch & haptics** page provides examples and Safari instructions.
 
 ## Source and evidence
 
@@ -16,7 +16,7 @@ Captured on October 22, 2026 from the personal website's local source:
 | `docs/weather-journal.md`, “Touch feedback and pen arrows” | Notebook/weather/calculator intent, Safari findings, previous physical-phone report, test limits                           |
 | Notebook, weather, and calculator callers                  | Selection ticks, replay cues, calculator success/error, quiet ambient animation                                            |
 
-The source documentation records that Dom previously confirmed the direct-tap sample on his iPhone in Safari. That is a recorded earlier result, not a fresh physical test of this library or a promise for every Safari release. Browser-platform references below were retrieved on October 22, 2026. No physical phone motor was verified during this capture.
+The original capture records a successful direct-tap sample on Dom’s iPhone in Safari. On October 25, 2026, Dom also confirmed that this notebook’s live **Native switch example** produces a tick on his iPhone. That verifies the real switch sample on that device; automated browser tests establish event forwarding and coverage, not felt output from every enhanced button. The original platform references below were retrieved on October 22, 2026.
 
 ## The shared feedback vocabulary
 
@@ -50,13 +50,19 @@ WebKit introduced `<input type="checkbox" switch>` in Safari 17.4 and announced 
 
 ## Using it in Safari on iPhone
 
-1. Open the [existing public comparison](https://dominicklee.net/studies/haptics) directly in Safari on the physical iPhone, or use a phone-accessible library preview. The desktop's `127.0.0.1:5173` address points back to the phone when opened there; it cannot reach this desktop preview. Creating a public preview is a separate deployment step.
-2. Enable the site's **Touch feedback** setting. It defaults on and persists locally as `notebook-touch-feedback`; `off` suppresses feedback. The library honors the same key when adopted on the same origin. Settings are not synchronized between domains or apps.
+1. Open the [live notebook guide](https://ui.dominicklee.net/#haptics) directly in Safari on the physical iPhone. The [personal-site comparison](https://dominicklee.net/studies/haptics) is another reference. The desktop’s `127.0.0.1:5173` address points back to the phone when opened there; use the public URL for a phone test.
+2. Enable **Touch feedback** in the sidebar (open the menu on mobile) or in the guide. Both use one preference on this site. It defaults on and persists locally as `notebook-touch-feedback`; `off` suppresses feedback. The library honors the same key when adopted on the same origin. Settings are not synchronized between domains or apps.
 3. This system deliberately stays quiet with the device's reduced-motion preference enabled. Keep that preference respected; only change it for a comparison if you want to.
 4. Tap the actual native switch with a finger first. Then tap a supported button in the examples. A direct native tick may be felt. Replaying a drawing does not add a second finish pulse on Safari.
 5. If there is no feedback, verify the device and Safari version, then check whether device vibration is disabled. Apple documents **Settings → Accessibility → Touch → Vibration** as the master vibration setting. Do not interpret a lack of vibration as a failed button action. [Apple: vibration settings](https://support.apple.com/guide/iphone/turn-off-vibration-iphd722c9100/ios).
 
 There is no general Safari `navigator.vibrate` permission or JavaScript call to enable here. Enabling keyboard haptics is a separate OS feature; it does not grant a website a custom vibration API. The useful first diagnostic is a real native switch on the actual device.
+
+## Coverage in the living notebook
+
+The provider stays mounted across routes. Ordinary buttons, theme controls, the navigation toggle, search, tabs, small replay controls, and eligible modal/popover actions receive the shared enhancement. The guide and layer examples reuse this same controller rather than mounting nested providers.
+
+Safari uses one direct native switch tick. It cannot play the Android duration patterns or a delayed drawing-completion pulse. Links and large swipe/scroll surfaces retain their native gestures; artwork replay surfaces opt out of a switch overlay while their separate replay buttons can still receive it. Native checkbox/radio behavior is preserved. Touch feedback defaults on, honors the saved preference, and stays quiet under reduced motion.
 
 ## Safari implementation: a real control and a real tap
 

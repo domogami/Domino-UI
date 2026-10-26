@@ -11,6 +11,8 @@ import {
   Toast,
   MenuToggle,
   createPageTransition,
+  InkSwitch,
+  useTouchFeedback,
 } from "./lib";
 import { HeroName, HandwrittenNote, SketchArrow, Crane } from "./lib/brand";
 import type { DrawingSpeed } from "./lib/brand";
@@ -116,6 +118,20 @@ function useRoute() {
     };
   }, []);
   return route;
+}
+
+function SiteTouchFeedback() {
+  const { enabled, setEnabled } = useTouchFeedback();
+  return (
+    <label className="sidebar-touch-feedback">
+      <span>Touch feedback</span>
+      <InkSwitch
+        aria-label="Site touch feedback"
+        checked={enabled}
+        onChange={(event) => setEnabled(event.target.checked)}
+      />
+    </label>
+  );
 }
 
 export default function App() {
@@ -365,6 +381,7 @@ export default function App() {
             </div>
           </nav>
           <div className="sidebar-footer">
+            <SiteTouchFeedback />
             <span className="sidebar-note">
               a few good pieces,
               <br />

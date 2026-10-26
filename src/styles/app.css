@@ -255,6 +255,20 @@ button {
   border-top: 1px solid var(--dm-sidebar-border);
   padding: 20px 9px 19px;
 }
+.sidebar-touch-feedback {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 36px;
+  margin-bottom: 16px;
+  color: var(--dm-sidebar-ink);
+  font: 400 11px var(--dm-font-body);
+  cursor: pointer;
+}
+.sidebar-touch-feedback input.dm-ink-switch {
+  color: var(--dm-sidebar-accent);
+}
 .sidebar-note {
   display: block;
   position: relative;

@@ -1,4 +1,45 @@
-import { expect, test } from "@playwright/test";
+import {
+  expect,
+  test as base,
+  type Locator,
+  type Page,
+} from "@playwright/test";
+
+// Appearance/motion checks opt out of switch hit targets. Haptics acceptance
+// explicitly enables them and sends real touchscreen input to the painted target.
+const test = base.extend<{ siteTouchFeedback: boolean }>({
+  siteTouchFeedback: [false, { option: true }],
+  page: async ({ page, siteTouchFeedback }, use) => {
+    await page.addInitScript((enabled) => {
+      try {
+        const key = "notebook-touch-feedback";
+        if (localStorage.getItem(key) === null)
+          localStorage.setItem(key, enabled ? "on" : "off");
+      } catch {
+        // Non-origin frames must not turn a preference fixture into a page error.
+      }
+    }, siteTouchFeedback);
+    await use(page);
+  },
+});
+
+async function tapNativeButton(page: Page, control: Locator) {
+  await control.scrollIntoViewIfNeeded();
+  const rect = (await control.boundingBox())!;
+  const point = { x: rect.x + rect.width / 2, y: rect.y + rect.height / 2 };
+  await expect
+    .poll(() =>
+      page.evaluate(
+        ({ x, y }) =>
+          document
+            .elementFromPoint(x, y)
+            ?.classList.contains("dm-native-tap-target"),
+        point,
+      ),
+    )
+    .toBe(true);
+  await page.touchscreen.tap(point.x, point.y);
+}
 
 interface ProductionRouteSnapshot {
   count: number;
@@ -702,33 +743,37 @@ test("production mobile menu strokes morph into a close mark", async ({
   ).toBeVisible();
 });
 
-test("production haptics scopes retain the ink and native switch appearance", async ({
-  page,
-}) => {
-  await page.goto("/#haptics");
-  await expect(page.locator("[data-domino-haptics]")).toHaveCSS(
-    "display",
-    "contents",
-  );
-  await expect(page.locator(".dm-touch-feedback-setting")).toHaveCSS(
-    "display",
-    "flex",
-  );
-  const control = page.getByLabel("Native switch example", { exact: true });
-  await expect(control).toHaveAttribute("switch", "");
-  await expect(control).toHaveCSS("width", "40px");
-  await expect(control).toHaveCSS("height", "24px");
-  await expect
-    .poll(() =>
-      control.evaluate((element) => {
-        const native = "switch" in document.createElement("input");
-        return (
-          element.classList.contains("dm-ink-switch--native") === native &&
-          getComputedStyle(element).appearance === (native ? "auto" : "none")
-        );
-      }),
-    )
-    .toBe(true);
+test.describe("production touch preference", () => {
+  test.use({ siteTouchFeedback: true });
+
+  test("production haptics scopes retain the ink and native switch appearance", async ({
+    page,
+  }) => {
+    await page.goto("/#haptics");
+    await expect(page.locator("[data-domino-haptics]")).toHaveCSS(
+      "display",
+      "contents",
+    );
+    await expect(page.locator(".dm-touch-feedback-setting")).toHaveCSS(
+      "display",
+      "flex",
+    );
+    const control = page.getByLabel("Native switch example", { exact: true });
+    await expect(control).toHaveAttribute("switch", "");
+    await expect(control).toHaveCSS("width", "40px");
+    await expect(control).toHaveCSS("height", "24px");
+    await expect
+      .poll(() =>
+        control.evaluate((element) => {
+          const native = "switch" in document.createElement("input");
+          return (
+            element.classList.contains("dm-ink-switch--native") === native &&
+            getComputedStyle(element).appearance === (native ? "auto" : "none")
+          );
+        }),
+      )
+      .toBe(true);
+  });
 });
 
 test("production sketch modules retain visible pen strokes, drawing frames, and real Hairline response", async ({
@@ -943,87 +988,91 @@ test("production quiet and reduced motion keep finished original and Hairline sk
   expect(await shape()).toEqual(initial);
 });
 
-test("production native switch targets stay in the paper popover top layer", async ({
-  page,
-}) => {
-  // Feature emulation validates trusted touch routing, not a physical motor pulse.
-  await page.addInitScript(() => {
-    Object.defineProperty(navigator, "vibrate", {
-      configurable: true,
-      value: undefined,
+test.describe("production top-layer touch targets", () => {
+  test.use({ siteTouchFeedback: true });
+
+  test("production native switch targets stay in the paper popover top layer", async ({
+    page,
+  }) => {
+    // Feature emulation validates trusted touch routing, not a physical motor pulse.
+    await page.addInitScript(() => {
+      Object.defineProperty(navigator, "vibrate", {
+        configurable: true,
+        value: undefined,
+      });
+      Object.defineProperty(HTMLInputElement.prototype, "switch", {
+        configurable: true,
+        get() {
+          return this.hasAttribute("switch");
+        },
+      });
     });
-    Object.defineProperty(HTMLInputElement.prototype, "switch", {
-      configurable: true,
-      get() {
-        return this.hasAttribute("switch");
-      },
+    const errors: string[] = [];
+    page.on("pageerror", (error) => errors.push(error.message));
+    await page.goto("/#layers");
+    const trigger = page.getByRole("button", {
+      name: "Open paper popover",
+      exact: true,
     });
-  });
-  const errors: string[] = [];
-  page.on("pageerror", (error) => errors.push(error.message));
-  await page.goto("/#layers");
-  const trigger = page.getByRole("button", {
-    name: "Open paper popover",
-    exact: true,
-  });
-  await trigger.evaluate((button) => {
-    (window as any).productionLayerActions = { opens: 0, closes: 0 };
-    button.addEventListener(
-      "click",
-      () => (window as any).productionLayerActions.opens++,
+    await trigger.evaluate((button) => {
+      (window as any).productionLayerActions = { opens: 0, closes: 0 };
+      button.addEventListener(
+        "click",
+        () => (window as any).productionLayerActions.opens++,
+      );
+    });
+    const tapEnhanced = async (control: import("@playwright/test").Locator) => {
+      await control.scrollIntoViewIfNeeded();
+      const rect = (await control.boundingBox())!;
+      const point = { x: rect.x + rect.width / 2, y: rect.y + rect.height / 2 };
+      await expect
+        .poll(() =>
+          page.evaluate(
+            ({ x, y }) =>
+              document
+                .elementFromPoint(x, y)
+                ?.classList.contains("dm-native-tap-target"),
+            point,
+          ),
+        )
+        .toBe(true);
+      await page.touchscreen.tap(point.x, point.y);
+    };
+    await tapEnhanced(trigger);
+    const popover = page.getByRole("dialog", {
+      name: "A thought in the margin",
+      exact: true,
+    });
+    await expect(popover).toHaveAttribute("data-state", "open");
+    await expect(popover).toHaveCSS("opacity", "1");
+    const close = popover.getByRole("button", {
+      name: "Close popover",
+      exact: true,
+    });
+    await close.evaluate((button) =>
+      button.addEventListener(
+        "click",
+        () => (window as any).productionLayerActions.closes++,
+      ),
     );
+    const closeTarget = page.locator(
+      '.dm-native-tap-target[data-native-tap-label="Close popover"]',
+    );
+    await expect(closeTarget).toHaveCount(1);
+    expect(
+      await closeTarget.evaluate((input) =>
+        input.closest("[popover]")?.matches(":popover-open"),
+      ),
+    ).toBe(true);
+    await tapEnhanced(close);
+    await expect(popover).toBeHidden();
+    await expect(trigger).toBeFocused();
+    await expect(closeTarget).toHaveCount(0);
+    expect(
+      await page.evaluate(() => (window as any).productionLayerActions),
+    ).toEqual({ opens: 1, closes: 1 });
+    expect(errors).toEqual([]);
   });
-  const tapEnhanced = async (control: import("@playwright/test").Locator) => {
-    await control.scrollIntoViewIfNeeded();
-    const rect = (await control.boundingBox())!;
-    const point = { x: rect.x + rect.width / 2, y: rect.y + rect.height / 2 };
-    await expect
-      .poll(() =>
-        page.evaluate(
-          ({ x, y }) =>
-            document
-              .elementFromPoint(x, y)
-              ?.classList.contains("dm-native-tap-target"),
-          point,
-        ),
-      )
-      .toBe(true);
-    await page.touchscreen.tap(point.x, point.y);
-  };
-  await tapEnhanced(trigger);
-  const popover = page.getByRole("dialog", {
-    name: "A thought in the margin",
-    exact: true,
-  });
-  await expect(popover).toHaveAttribute("data-state", "open");
-  await expect(popover).toHaveCSS("opacity", "1");
-  const close = popover.getByRole("button", {
-    name: "Close popover",
-    exact: true,
-  });
-  await close.evaluate((button) =>
-    button.addEventListener(
-      "click",
-      () => (window as any).productionLayerActions.closes++,
-    ),
-  );
-  const closeTarget = page.locator(
-    '.dm-native-tap-target[data-native-tap-label="Close popover"]',
-  );
-  await expect(closeTarget).toHaveCount(1);
-  expect(
-    await closeTarget.evaluate((input) =>
-      input.closest("[popover]")?.matches(":popover-open"),
-    ),
-  ).toBe(true);
-  await tapEnhanced(close);
-  await expect(popover).toBeHidden();
-  await expect(trigger).toBeFocused();
-  await expect(closeTarget).toHaveCount(0);
-  expect(
-    await page.evaluate(() => (window as any).productionLayerActions),
-  ).toEqual({ opens: 1, closes: 1 });
-  expect(errors).toEqual([]);
 });
 
 test("production route transitions capture only the content sheet and keep reduced-motion routing immediate", async ({
@@ -1980,4 +2029,114 @@ test("production ribbon custom colors and shared faces survive responsive wrappi
   await expect(fill).toHaveCSS("animation-name", "none");
   await expect(label).toHaveCSS("opacity", "1");
   await expect(label).toHaveCSS("clip-path", "none");
+});
+
+test.describe("production notebook-wide native feedback", () => {
+  test.use({ siteTouchFeedback: true });
+
+  test("one controller enhances buttons across pages, keeps one preference, and preserves artwork gestures", async ({
+    page,
+  }) => {
+    // Feature emulation establishes hit routing and forwarding, not motor output.
+    await page.addInitScript(() => {
+      Object.defineProperty(navigator, "vibrate", {
+        configurable: true,
+        value: undefined,
+      });
+      Object.defineProperty(HTMLInputElement.prototype, "switch", {
+        configurable: true,
+        get() {
+          return this.hasAttribute("switch");
+        },
+      });
+    });
+    await page.goto("/#component/icon-button");
+    await expect(page.locator("[data-domino-haptics]")).toHaveCount(1);
+    const save = page.locator(".playground-canvas .dm-icon-button").first();
+    await save.evaluate((button) => {
+      (window as any).productionGlobalActivations = 0;
+      button.addEventListener(
+        "click",
+        () => (window as any).productionGlobalActivations++,
+      );
+    });
+    await tapNativeButton(page, save);
+    await expect(save).toHaveAttribute("aria-pressed", "true");
+    expect(
+      await page.evaluate(() => (window as any).productionGlobalActivations),
+    ).toBe(1);
+    await expect(
+      page.locator(
+        '.dm-native-tap-target[data-native-tap-label="Unsave note"]',
+      ),
+    ).toHaveCount(1);
+    const dark = page.getByRole("button", { name: "Dark theme", exact: true });
+    await tapNativeButton(page, dark);
+    await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+
+    const menu = page.locator("#notebook-navigation-toggle");
+    await tapNativeButton(page, menu);
+    await expect(menu).toHaveAttribute("aria-expanded", "true");
+    const setting = page.getByRole("checkbox", {
+      name: "Site touch feedback",
+      exact: true,
+    });
+    await setting.tap();
+    await expect(setting).not.toBeChecked();
+    await expect(page.locator(".dm-native-tap-target")).toHaveCount(0);
+    expect(
+      await page.evaluate(() =>
+        localStorage.getItem("notebook-touch-feedback"),
+      ),
+    ).toBe("off");
+    await menu.tap();
+    await page.reload();
+    await expect(page.locator(".dm-native-tap-target")).toHaveCount(0);
+    await menu.tap();
+    await expect(setting).not.toBeChecked();
+    await setting.tap();
+    await expect(setting).toBeChecked();
+    await tapNativeButton(page, menu);
+
+    const currentScope = await page
+      .locator("[data-domino-haptics]")
+      .elementHandle();
+    await page.evaluate(() => {
+      location.hash = "component/triple-banner";
+    });
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText(
+      "Ribbon banner.",
+    );
+    await expect(page.locator("[data-domino-haptics]")).toHaveCount(1);
+    expect(await currentScope!.evaluate((element) => element.isConnected)).toBe(
+      true,
+    );
+    await page.evaluate(() => document.fonts.ready);
+    const art = page.locator(".playground-canvas .dm-triple-banner");
+    const drawing = art.locator(".dm-sketch-replay");
+    await expect(drawing).toHaveAttribute("data-native-tap", "none");
+    await drawing.scrollIntoViewIfNeeded();
+    const artworkLabel = await drawing.getAttribute("aria-label");
+    const targetLabels = await page
+      .locator(".dm-native-tap-target")
+      .evaluateAll((inputs) =>
+        inputs.map((input) => input.getAttribute("data-native-tap-label")),
+      );
+    expect(targetLabels).not.toContain(artworkLabel);
+    await drawing.tap();
+    await expect(art).toHaveAttribute("data-replay", "1");
+    const replay = page.getByRole("button", {
+      name: "Replay ribbon",
+      exact: true,
+    });
+    await tapNativeButton(page, replay);
+    await expect(replay).toBeFocused();
+    await expect(
+      page.locator(
+        '.dm-native-tap-target[data-native-tap-label="Replay ribbon"]',
+      ),
+    ).toHaveCount(1);
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await expect(page.locator(".dm-native-tap-target")).toHaveCount(0);
+  });
 });

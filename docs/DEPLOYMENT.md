@@ -24,6 +24,10 @@ Validation for this UI code revision: 105 development browser cases, 26 compiled
 
 Subsequent documentation-only commits can publish another deploy with the same UI assets. Use Netlify's latest published commit when checking the current head; this table identifies the tested UI code release.
 
+## Netlify branding
+
+The **Powered by Netlify badge** is disabled for the Domino UI project. Netlify injects it at the edge when enabled, so control it through **Project configuration → General → Powered by Netlify badge → Off → Save**. The project setting takes effect on the next request and persists across deployments. It requires no plan upgrade or site redeploy. [Netlify’s badge documentation](https://docs.netlify.com/manage/projects/powered-by-netlify-badge/).
+
 ## One source, independent applications
 
 | Responsibility                | Source or output                                                | Deployment owner                              |

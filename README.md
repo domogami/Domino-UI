@@ -37,7 +37,7 @@ Domino UI brings the visual language of [dominicklee.net](https://dominicklee.ne
 | **Original identity**  | The **Dom Lee.** name animation, crane, plant, sketch arrows, six notebook scenes, and handwritten loading marks           |
 | **Deliberate motion**  | Morphing hamburger/X, spring switches, the garden's drawn check and text strike, and per-drawing click/tap/keyboard replay |
 | **Shared foundations** | Three themes, five typography roles, a 32px dot grid, spacing and motion tokens, and generated platform adapters           |
-| **Touch feedback**     | Optional semantic haptics, saved preference, Safari native-switch enhancement, and documented device limits                |
+| **Touch feedback**     | App-wide notebook feedback, shared saved preference, Safari native-switch enhancement, and documented device limits        |
 
 Motion always has a finished resting state. Quiet and reduced-motion modes keep the interface readable and still. The shared centered SVG `Chevron` replaces font-dependent carets across disclosure controls.
 

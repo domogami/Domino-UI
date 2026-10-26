@@ -21,6 +21,7 @@ export function SketchReplay({
   return (
     <button
       className="dm-sketch-replay"
+      data-native-tap="none"
       type="button"
       aria-label={`Replay ${label}`}
       aria-describedby={ariaDescribedBy}

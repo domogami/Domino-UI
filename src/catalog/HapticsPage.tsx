@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Button, Badge, Callout } from "../lib";
 import {
-  TouchFeedbackProvider,
   TouchFeedbackSetting,
   InkSwitch,
   useTouchFeedback,
@@ -87,8 +86,8 @@ function HapticPlayground() {
       <div className="haptics-preference">
         <TouchFeedbackSetting />
         <span>
-          Shared with the personal notebook, weather journal, and calculator
-          when adopted on the same origin.
+          One preference for this whole notebook. Other websites keep their own
+          setting.
         </span>
       </div>
       <div className="haptics-demo-grid">
@@ -230,9 +229,7 @@ export function HapticsPage({ copy }: { copy: (text: string) => void }) {
         <Badge>Progressive enhancement</Badge>
         <Badge>Physical-device check required</Badge>
       </div>
-      <TouchFeedbackProvider navigationKey="haptics-guide">
-        <HapticPlayground />
-      </TouchFeedbackProvider>
+      <HapticPlayground />
       <section className="guide-section">
         <div className="section-heading">
           <h2>Five patterns, with a purpose</h2>
@@ -297,10 +294,10 @@ export function HapticsPage({ copy }: { copy: (text: string) => void }) {
         <p className="guide-copy">
           On a compatible iPhone, open the page in Safari, leave{" "}
           <b>Touch feedback</b> enabled, and tap the visible switch or an
-          enhanced demo button with your finger. Keep reduced motion off for
-          this test. Safari 18 added feedback for native switch controls on iOS;
-          recognizing the attribute alone cannot prove a haptic-capable device
-          is present.
+          enhanced button anywhere in this notebook with your finger. Keep
+          reduced motion off for this test. Safari 18 added feedback for native
+          switch controls on iOS; recognizing the attribute alone cannot prove a
+          haptic-capable device is present.
         </p>
         <ol className="haptics-steps">
           <li>
@@ -378,9 +375,10 @@ export function HapticsPage({ copy }: { copy: (text: string) => void }) {
         <h2>Bring the source behavior into React</h2>
         <p className="guide-copy">
           The provider is opt-in and scoped to its children. Importing the
-          library does not instrument the host page. It preserves the source
-          preference key, <code>notebook-touch-feedback</code>, and respects
-          reduced motion.
+          library does not instrument the host page. This visual notebook mounts
+          one provider around the app, so its pages and navigation controls
+          share the same setting. It preserves the source preference key,{" "}
+          <code>notebook-touch-feedback</code>, and respects reduced motion.
         </p>
         <CodeBlock
           copy={copy}
