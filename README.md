@@ -192,6 +192,19 @@ export function NotebookPieces() {
 
 `PolaroidStack` now accepts any number of photos, with touch/pen flicking, a source-derived slide-and-tuck, arrows, keyboard navigation, and quiet/reduced motion. [Add photos and reuse the stack](docs/POLAROID-STACK.md).
 
+`PhotoSkeleton` reserves a photograph’s space with an original ink frame, sun, and hills. It draws gently, holds for most of its cycle, and uses the surrounding paper and theme tokens. It is decorative and noninteractive; the loading operation supplies its own status. Use it only for a real pending image, then replace it with that image or an error state.
+
+```tsx
+import { PhotoSkeleton } from "@domlee/ui";
+
+<div aria-busy="true" aria-label="Loading a photograph">
+  <PhotoSkeleton aspectRatio={4 / 3} />
+</div>
+<span role="status">Loading a photograph…</span>
+```
+
+The default ratio is `4 / 3`; `width` and `height` accept CSS values. Both can be `"100%"` when the caller already reserves the photo area. `quiet` and the device’s Reduce Motion setting show finished, static ink. The SVG geometry is stable during server rendering and hydration. [Photo skeleton examples](https://ui.dominicklee.net/#component/photo-skeleton).
+
 `Timeline` draws a fine ink line through each milestone, then letters in the next node and its content. It plays once as it enters view, supports explicit replay, and keeps the story readable throughout. [Animate a timeline](docs/TIMELINE.md).
 
 Ruled `Paper` gives text a steady rhythm with rules between rows or just beneath the ink. Larger lettering and mixed content get clear space, including through wrapping and font changes. [Text and writing rules](docs/PAPER-RHYTHM.md).

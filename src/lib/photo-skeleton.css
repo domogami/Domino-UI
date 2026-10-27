@@ -1,0 +1,86 @@
+.dm-photo-skeleton {
+  --dm-photo-skeleton-ink: color-mix(in srgb, var(--dm-ink, #252b2e) 25%, transparent);
+  --dm-photo-skeleton-guide: color-mix(in srgb, var(--dm-ink, #252b2e) 7%, transparent);
+  --dm-photo-skeleton-accent: color-mix(in srgb, var(--dm-accent, #0e7c79) 30%, transparent);
+  display: block;
+  position: relative;
+  box-sizing: border-box;
+  max-inline-size: 100%;
+  min-inline-size: 0;
+  flex-shrink: 0;
+  vertical-align: middle;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+  color: var(--dm-photo-skeleton-ink);
+}
+.dm-photo-skeleton__frame,
+.dm-photo-skeleton__drawing {
+  display: block;
+  position: absolute;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.dm-photo-skeleton__frame {
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+}
+.dm-photo-skeleton__drawing {
+  inset: 14%;
+  inline-size: 72%;
+  block-size: 72%;
+}
+.dm-photo-skeleton :is(.dm-photo-skeleton__frame, .dm-photo-skeleton__drawing) path {
+  stroke-width: 1.15px;
+  vector-effect: non-scaling-stroke;
+}
+.dm-photo-skeleton__guide { stroke: var(--dm-photo-skeleton-guide); }
+.dm-photo-skeleton__stroke {
+  stroke: currentColor;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  opacity: 0;
+  animation: dm-photo-skeleton-draw var(--dm-photo-skeleton-duration, 11s)
+    cubic-bezier(.32, .08, .38, 1)
+    calc(var(--dm-photo-skeleton-step, 0) * var(--dm-photo-skeleton-stagger, 140ms))
+    infinite both;
+}
+.dm-photo-skeleton__stroke--sun,
+.dm-photo-skeleton__stroke--rays,
+.dm-photo-skeleton__stroke--near-hill { stroke: var(--dm-photo-skeleton-accent); }
+.dm-photo-skeleton__frame-echo,
+.dm-photo-skeleton__stroke--echo { stroke: var(--dm-photo-skeleton-guide); }
+@keyframes dm-photo-skeleton-draw {
+  0%, 3% { stroke-dashoffset: 1; opacity: 0; }
+  4% { opacity: 1; }
+  18%, 86% { stroke-dashoffset: 0; opacity: 1; }
+  94%, 100% { stroke-dashoffset: 0; opacity: 0; }
+}
+.dm-photo-skeleton[data-quiet="true"] .dm-photo-skeleton__stroke {
+  animation: none;
+  stroke-dashoffset: 0;
+  opacity: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  .dm-photo-skeleton .dm-photo-skeleton__stroke {
+    animation: none;
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}
+@media (forced-colors: active) {
+  .dm-photo-skeleton {
+    --dm-photo-skeleton-ink: CanvasText;
+    --dm-photo-skeleton-guide: GrayText;
+    --dm-photo-skeleton-accent: CanvasText;
+  }
+}
+@media print {
+  .dm-photo-skeleton .dm-photo-skeleton__stroke {
+    animation: none;
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}

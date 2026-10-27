@@ -12,6 +12,7 @@ export * from "./haptics";
 export * from "./menu-toggle";
 
 export * from "./skeleton";
+export * from "./photo-skeleton";
 
 export * from "./task-checkbox";
 export * from "./sketch";

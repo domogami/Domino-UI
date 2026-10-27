@@ -533,10 +533,30 @@ export const entries: Entry[] = [
       ["variant", "handwritten | block", "handwritten"],
     ],
     guidance:
-      "Reserve the final content dimensions. Handwritten is the default: nonverbal pen marks draw gently, then pause. Use block for photos and larger solid areas. Each skeleton is hidden from assistive technology; mark the containing region busy and give the whole operation one readable loading status outside it. Reduced motion shows finished, static strokes.",
+      "Reserve the final content dimensions. Handwritten is the default: nonverbal pen marks draw gently, then pause. Use PhotoSkeleton for pictures, or block for plain solid areas. Each skeleton is hidden from assistive technology; mark the containing region busy and give the whole operation one readable loading status outside it. Reduced motion shows finished, static strokes.",
     origin: "Extended",
     usage:
       "Import the shown components from @domlee/ui. Standard className, style, aria-* and native element attributes are supported unless a narrower API is described here.",
+  },
+  {
+    id: "photo-skeleton",
+    name: "Photo skeleton",
+    group: "Feedback",
+    summary:
+      "A picture taking shape in ink: a sketched frame, soft hills, and a sun, with a long quiet pause.",
+    code: '<div aria-busy="true" aria-label="Loading a photograph">\n  <PhotoSkeleton aspectRatio={4 / 3} />\n</div>\n<span role="status">Loading a photograph…</span>\n\n{/* Fill an existing reserved frame instead: */}\n<PhotoSkeleton width="100%" height="100%" quiet />',
+    props: [
+      ["aspectRatio", "number; width divided by height", "4 / 3"],
+      ["width", "string | number; CSS width", "100%"],
+      ["height", "string | number; CSS height", "auto"],
+      ["quiet", "boolean; complete static drawing", "false"],
+      ["span attributes", "className, style, data-* and native span attributes", "—"],
+    ],
+    guidance:
+      "Use only while a real photograph is pending, and reserve the final image dimensions. The original drawing is decorative and noninteractive; its frame follows the available ratio while the sun and hills keep their proportions. It draws once, holds for most of the cycle, then fades before another pass. Quiet and reduced motion show the finished ink. Keep loaded images visible during refreshes; show errors and empty collections as their actual states.",
+    usage:
+      "Import PhotoSkeleton and styles.css from @domlee/ui. Its transparent surface inherits the caller’s paper, with muted ink and accent tokens in either theme. Supply aspectRatio for an independent frame, or width and height of 100% inside an already sized photo area. The placeholder is aria-hidden and inert; set aria-busy on the containing loading region and give that operation one readable status outside it. It never loads an image or invents a caption, author, or memory.",
+    origin: "Original",
   },
   {
     id: "empty-state",
