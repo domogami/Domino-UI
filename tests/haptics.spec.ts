@@ -504,7 +504,7 @@ test.describe("native switch targets in top-layer popovers", () => {
       );
     });
     const trigger = page.locator("#haptic-popover-trigger");
-    await nativeTap(page, trigger);
+    await trigger.tap();
     const popover = page.getByTestId("haptic-popover");
     await expect(popover).toHaveAttribute("data-state", "open");
     await expect(popover).toHaveCSS("opacity", "1");

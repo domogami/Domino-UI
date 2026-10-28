@@ -97,8 +97,22 @@ pass a changing navigationKey from the target router, and keep it optional.
 Use semantic feedback patterns and preserve visible/accessible outcomes.
 Safari has no general navigator.vibrate support: only a directly activated
 real native switch may provide a browser-managed tick on supported iPhones.
-Read HAPTICS.md for the provider's native targets, gesture opt-outs, and
-physical-device acceptance. Never claim felt haptics from browser emulation.
+Scroll safety takes priority over auxiliary native-switch feedback. Never
+cover summary/disclosure headings, controls inside summaries, or aria-expanded
+controls with auxiliary switch targets. Accordion supplies an opt-out boundary;
+put data-native-tap="none" on other reading or gesture-sensitive regions to
+exclude their whole subtree while preserving supported Android vibration and
+real visible InkSwitch settings. Existing controllers must import
+isNativeTapTargetEligible from @domlee/ui/native-tap-policy, which has no React
+or component-CSS dependency. Apply it before geometry reads and proxy creation,
+and remove stale proxies after collapse or other eligibility changes. WebKit
+can report nonzero boxes for closed-details content; retain checkVisibility()
+when available plus the shared explicit closed-details/hidden/inert checks.
+Read HAPTICS.md for the open native-switch pan bug and acceptance requirements.
+Test genuine pans starting on disclosure headings and their expanded bodies,
+with releases elsewhere, collapse, and reopen. Programmatic scrollTo() does not
+exercise this behavior. Desktop WebKit emulation proves neither physical iOS
+touch arbitration nor a felt pulse; report actual-device checks separately.
 
 If static assets are needed, npx --no-install domino-ui-assets ./public
 copies fonts and the theme-specific static sketches with license notices.

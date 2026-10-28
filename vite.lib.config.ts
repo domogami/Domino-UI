@@ -4,9 +4,12 @@ export default defineConfig({
   build: {
     outDir: "lib",
     lib: {
-      entry: "src/lib/index.ts",
+      entry: {
+        "domino-ui": "src/lib/index.ts",
+        "native-tap-policy": "src/lib/native-tap-policy.ts",
+      },
       formats: ["es"],
-      fileName: "domino-ui",
+      fileName: (_format, name) => `${name}.js`,
       cssFileName: "domino-ui",
     },
     rollupOptions: {

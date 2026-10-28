@@ -10,7 +10,7 @@ import {
 } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 const temporary = await mkdtemp(join(tmpdir(), "domino-consumer-"));
@@ -109,6 +109,14 @@ try {
   ]) {
     await readFile(join(installed, file));
   }
+  const policyFile = join(installed, "lib/native-tap-policy.js");
+  const policy = await import(pathToFileURL(policyFile).href);
+  assert.equal(typeof policy.isNativeTapTargetEligible, "function");
+  const policySource = await readFile(policyFile, "utf8");
+  assert(
+    !/from\s*["']react|import\s*["'][^"']*\.css/.test(policySource),
+    "Native adapters must not load React or CSS through the policy entry.",
+  );
   const fontCss = await readFile(join(installed, "lib/fonts.css"), "utf8");
   assert(
     !fontCss.includes('url("/fonts/'),
@@ -125,6 +133,8 @@ import { createRoot } from "react-dom/client";
 import { BookmarkDrawing, Button, Card, Chevron, Dialog, HairlineSketch, NotebookSketch, NotificationCard, NavTrail, Paper, PolaroidStack, Popover, Skeleton, RadioGroup, Checkbox, RibbonBanner, TaskCheckbox, ThemeProvider, ThemeToggle, Timeline, TouchFeedbackProvider, TripleBanner, createPageTransition, type DrawingProps, type PolaroidPhoto, type TimelineItem } from "@domlee/ui";
 import "@domlee/ui/styles.css";
 import "@domlee/ui/fonts.css";
+import { isNativeTapTargetEligible } from "@domlee/ui/native-tap-policy";
+void isNativeTapTargetEligible;
 function App() {
   const [open, setOpen] = useState(false);
   const [heading, setHeading] = useState("A shared notebook");

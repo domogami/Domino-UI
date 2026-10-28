@@ -2,19 +2,19 @@
 
 Touch feedback is part of the notebook's interaction language: a small tap for an action, a tick when a selection changes, and a quiet finish to an explicitly replayed drawing. It is an optional enhancement. Every action still needs its ordinary visual state, accessible name, keyboard behavior, and readable success or error message.
 
-The React implementation is captured in `src/lib/haptics.tsx`, `nativeTapTargets.ts`, and `haptics.css`. The visual notebook mounts one `TouchFeedbackProvider` around the application, so eligible buttons in its chrome, component pages, and layers share the same controller. The sidebar’s **Touch feedback** setting and the guide’s setting control one saved preference. Importing the library alone does not install a controller into another project; consumers mount their own provider. The **Touch & haptics** page provides examples and Safari instructions.
+The React implementation is captured in `src/lib/haptics.tsx`, `nativeTapTargets.ts`, and `haptics.css`. Auxiliary-target eligibility is owned by the shared `isNativeTapTargetEligible` policy. The visual notebook mounts one `TouchFeedbackProvider` around the application, so eligible buttons in its chrome, component pages, and layers share the same controller. The sidebar’s **Touch feedback** setting and the guide’s setting control one saved preference. Importing the library alone does not install a controller into another project; consumers mount their own provider. The **Touch & haptics** page provides examples and Safari instructions.
 
 ## Source and evidence
 
 Captured on October 22, 2026 from the personal website's local source:
 
-| Source in `dominicklee.net`                                | Behavior captured                                                                                                          |
-| ---------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| `app/components/TouchFeedback.tsx`                         | Named patterns, stored preference, trusted touch/pen gating, cancellation, animation finish cues, native settings switches |
-| `app/components/nativeTapTargets.ts`                       | Real native switch targets over eligible buttons and disclosure summaries, clipped and positioned in a separate layer      |
-| `app/styles/touch-feedback.css`                            | Hand-drawn switch fallback, native appearance, transparent rendered targets, pressed state                                 |
-| `docs/weather-journal.md`, “Touch feedback and pen arrows” | Notebook/weather/calculator intent, Safari findings, previous physical-phone report, test limits                           |
-| Notebook, weather, and calculator callers                  | Selection ticks, replay cues, calculator success/error, quiet ambient animation                                            |
+| Source in `dominicklee.net`                                | Behavior captured                                                                                                             |
+| ---------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `app/components/TouchFeedback.tsx`                         | Named patterns, stored preference, trusted touch/pen gating, cancellation, animation finish cues, native settings switches    |
+| `app/components/nativeTapTargets.ts`                       | Historical native switch targets over buttons and disclosure summaries; disclosure overlays are now excluded by shared policy |
+| `app/styles/touch-feedback.css`                            | Hand-drawn switch fallback, native appearance, transparent rendered targets, pressed state                                    |
+| `docs/weather-journal.md`, “Touch feedback and pen arrows” | Notebook/weather/calculator intent, Safari findings, previous physical-phone report, test limits                              |
+| Notebook, weather, and calculator callers                  | Selection ticks, replay cues, calculator success/error, quiet ambient animation                                               |
 
 The original capture records a successful direct-tap sample on Dom’s iPhone in Safari. On October 25, 2026, Dom also confirmed that this notebook’s live **Native switch example** produces a tick on his iPhone. That verifies the real switch sample on that device; automated browser tests establish event forwarding and coverage, not felt output from every enhanced button. The original platform references below were retrieved on October 22, 2026.
 
@@ -60,7 +60,7 @@ There is no general Safari `navigator.vibrate` permission or JavaScript call to 
 
 ## Coverage in the living notebook
 
-The provider stays mounted across routes. Ordinary buttons, theme controls, the navigation toggle, search, tabs, small replay controls, and eligible modal/popover actions receive the shared enhancement. The guide and layer examples reuse this same controller rather than mounting nested providers.
+The provider stays mounted across routes. Eligible small buttons, theme controls, search, tabs, replay controls, and modal/popover actions receive the shared enhancement. Disclosure and navigation controls with `aria-expanded` retain their native touch target; their supported Vibration API feedback remains available. The guide and layer examples reuse this same controller rather than mounting nested providers.
 
 Safari uses one direct native switch tick. It cannot play the Android duration patterns or a delayed drawing-completion pulse. Links and large swipe/scroll surfaces retain their native gestures; artwork replay surfaces opt out of a switch overlay while their separate replay buttons can still receive it. Native checkbox/radio behavior is preserved. Touch feedback defaults on, honors the saved preference, and stays quiet under reduced motion.
 
@@ -82,15 +82,45 @@ The smallest standalone example is a genuine on/off setting, with a label and th
 
 On an unsupported browser this remains a checkbox. On supported Safari, let the user activate the control directly. Keep native appearance for the native feedback path. The custom journal appearance is the fallback used when native feedback is unavailable or disabled. WebKit documents `accent-color` support and checkbox fallback for this markup. [WebKit: HTML switch](https://webkit.org/blog/15054/an-html-switch-control/).
 
-The production source additionally enhances eligible buttons and disclosure summaries. It feature-detects `"switch" in document.createElement("input")`, checks that the Vibration API is absent and a coarse pointer is available, and creates a transparent but rendered native switch target matching the visible control's geometry. The switch is a sibling in a separate layer, not an interactive child inside a button. Its real trusted tap toggles the switch; the handler then focuses and activates the original button once.
+The production source additionally enhances eligible buttons. Disclosure summaries, controls inside summaries, and controls with `aria-expanded` retain their native touch targets and receive no auxiliary switch overlay. It feature-detects `"switch" in document.createElement("input")`, checks that the Vibration API is absent and a coarse pointer is available, and creates a transparent but rendered native switch target matching the visible control's geometry. The switch is a sibling in a separate layer, not an interactive child inside a button. Its real trusted tap toggles the switch; the handler then focuses and activates the original button once.
 
 The real button retains its accessible name, role, keyboard handling, and focus. The auxiliary input is excluded from tab order and the accessibility tree. Layers account for scroll clipping, viewport changes, and open dialogs. These details are part of the implementation, so use the shared provider instead of copying only a transparent input into an app.
 
 This is a browser-dependent progressive enhancement, not a portable standard haptics API. In particular:
 
 - Never try to create custom Safari patterns with a hidden input, scripted `input.click()`, scripted `label.click()`, or a timer. WebKit's `fc1ef83` patch adds an explicit regression test that a scripted label click cannot generate feedback, even when called from another real click. Current switch code also checks event trust and active user-gesture processing. [WebKit patch](https://github.com/WebKit/WebKit/commit/fc1ef83), [current switch implementation](https://github.com/WebKit/WebKit/blob/main/Source/WebCore/html/CheckboxInputType.cpp).
-- Do not cover text links, swipe surfaces, draggable graphs, or controls whose default touch behavior must be retained. Use `data-native-tap="none"` on a control to exclude its native target while retaining any supported Vibration API behavior. Use `data-haptic="none"` to exclude both paths.
+- Do not cover text links, swipe surfaces, draggable graphs, or controls whose default touch behavior must be retained. Use `data-native-tap="none"` on a control or ancestor boundary to exclude auxiliary targets throughout that subtree while retaining any supported Vibration API behavior. Use `data-haptic="none"` to exclude both paths.
 - Test scroll gestures that begin directly over a target. WebKit bug 321591 reports switches swallowing a pan and toggling when released elsewhere on iPhone Safari 26.5.2. A fix is proposed in PR 71769; the retrieved evidence does not establish that it shipped. Clipping a layer to its scroll host fixes geometry, not this browser gesture behavior. Exclude affected controls when scrolling needs the original touch target. [WebKit bug 321591](https://bugs.webkit.org/show_bug.cgi?id=321591), [proposed change](https://github.com/WebKit/WebKit/pull/71769).
+
+## Scroll safety and disclosure policy
+
+Scroll safety takes priority over an auxiliary Safari switch tick. A large disclosure row is also a place where someone starts a page pan; putting a real switch over it changes the browser's gesture handling. The shared policy excludes `summary`, controls inside a summary, and controls with `aria-expanded`. `Accordion` also supplies a `data-native-tap="none"` boundary so its expanded content retains ordinary touch targets. Reading surfaces and other gesture-sensitive regions should set the same boundary explicitly:
+
+```tsx
+<main data-native-tap="none">
+  <details>
+    <summary>Read more</summary>
+    <p>The page remains a normal scrolling surface.</p>
+  </details>
+</main>
+```
+
+This opt-out concerns auxiliary switch overlays. It does not disable Android's supported Vibration API path or remove a real, visible `InkSwitch` used for an on/off setting.
+
+Eligibility must be checked before reading geometry or creating a proxy. Nonzero `getBoundingClientRect()` dimensions alone do not prove that a control is rendered: WebKit can retain nonzero boxes for content inside a closed disclosure. The policy uses `checkVisibility()` when available and explicitly rejects closed-details content and hidden, inert, or `aria-hidden` subtrees. Keep the closed-details check even when a browser exposes `checkVisibility()`. Existing proxies must be removed when a control becomes ineligible, including after collapse; a stale transparent proxy must not remain over unrelated visible content.
+
+Existing non-React controllers and adapters must consume the same policy rather than copying its conditions:
+
+```ts
+import { isNativeTapTargetEligible } from "@domlee/ui/native-tap-policy";
+
+// In the controller's candidate pass, before measuring or creating a proxy:
+if (!isNativeTapTargetEligible(control)) continue;
+```
+
+The helper is also exported from `@domlee/ui`. The `native-tap-policy` subpath imports neither React nor component CSS and does not install a controller. The adapter still owns its controller lifecycle and must remove proxies omitted from the eligible set.
+
+The October 28, 2026 voting-guide regression made both failure modes concrete: broad summary overlays could capture an attempted pan, and hidden disclosure content could leave misleading geometry for auxiliary targets. Fix the shared eligibility policy and adopt it in existing controllers; a page-specific CSS patch or pointer-movement threshold does not repair WebKit's native switch touch arbitration. The linked WebKit bug and proposed browser fix remain open as of that review.
 
 ## React integration
 
@@ -139,7 +169,7 @@ function ConfirmEntry() {
 }
 ```
 
-`TouchFeedbackProvider` accepts `nativeTapTargets={false}` to disable transparent Safari button targets independently of visible native switches. This is useful for affected scrolling or gesture-heavy pages.
+`TouchFeedbackProvider` accepts `nativeTapTargets={false}` to disable transparent Safari button targets independently of visible native switches. This is useful for affected scrolling or gesture-heavy pages; a smaller `data-native-tap="none"` ancestor boundary can protect one reading region without adding a second provider.
 
 `InkSwitch` takes normal React input props except `type`, which is fixed to `checkbox`. Use it for an actual on/off setting; `nativeSwitchProps` is also exported for adapters that need the native attribute. The named timing values are exported as `hapticPatterns`. Avoid embedding a second independently configured feedback controller in a destination that already mounts this provider.
 
@@ -166,7 +196,7 @@ Hybrid, Light, and Dark all use the same feedback vocabulary and preference. The
 
 The personal website can eventually replace its existing module with the shared React implementation, preserving the preference key, caller meanings, native switch behavior, and route cancellation. Quartz can reuse the vocabulary in its native runtime if a small JavaScript integration is deliberately added. Obsidian's snippet only carries visual styling; haptics would need a separately evaluated runtime/plugin path. The current CSS adapter bundles do not add that behavior.
 
-Automated tests can verify requested patterns, gesture gating, cancellation, preference persistence, single activation, focus, target positioning, disabled states, and fallback behavior. Mocking `navigator.vibrate`, emulating a coarse pointer, or running Playwright WebKit cannot establish a felt pulse on physical iPhone hardware.
+Automated tests can verify requested patterns, gesture gating, cancellation, preference persistence, single activation, focus, eligibility, stale-proxy removal after disclosure collapse, target positioning, disabled states, and fallback behavior. Mocking `navigator.vibrate`, emulating a coarse pointer, or running Playwright WebKit cannot establish a felt pulse on physical iPhone hardware.
 
 Before accepting a destination, record the device model, OS/browser version, URL or build, theme, motion setting, and feedback preference, then check:
 
@@ -174,8 +204,10 @@ Before accepting a destination, record the device model, OS/browser version, URL
 - Success/error patterns and drawing finish cues work on a physical Vibration API device; Safari gives only its direct native tick.
 - Turning feedback off and enabling reduced motion silence both paths; the preference survives reload.
 - Keyboard, mouse, screen-reader controls, focus restoration, text selection, links, graph dragging, calculator caret editing, and dialog controls remain usable.
-- A scroll or swipe beginning on top of a native target behaves correctly, including releases outside its bounds. Apply the native-target opt-out where required.
+- Perform genuine pans that start directly on a disclosure heading and on its expanded body, in both directions and with releases outside the starting control. Verify that the page or intended scroll panel moves and that a pan does not toggle the disclosure. Repeat after collapse and reopen; check that no hidden-content proxies remain. Also test any remaining auxiliary switch target. Programmatic `scrollTo()` does not exercise touch arbitration.
 - Navigation, blur, hidden/background state, interrupted animations, and rapid repeated input leave no delayed feedback.
 - Hybrid, Light, and Dark retain consistent visual feedback and readable states when no tactile output is available.
+
+Desktop WebKit with an iPhone viewport can verify structural eligibility, layout, and event routing. It does not run the same physical iOS touch arbitration and cannot establish that the switch pan bug is absent on an iPhone. Record a physical Safari pan check separately before claiming that behavior is verified.
 
 Physical acceptance for this new shared-library build remains to be recorded.

@@ -263,7 +263,7 @@ test.describe("notebook-wide touch feedback", () => {
       page.locator('.dm-native-tap-target[data-native-tap-label="Dark theme"]'),
     ).toHaveCount(1);
     const toggle = page.locator("#notebook-navigation-toggle");
-    await nativeTap(page, toggle);
+    await toggle.tap();
     await expect(toggle).toHaveAttribute("aria-expanded", "true");
     await expect(
       page.getByRole("dialog", { name: "Notebook navigation", exact: true }),

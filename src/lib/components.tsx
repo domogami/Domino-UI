@@ -846,7 +846,11 @@ export function Accordion({
   const prefix = useId();
   const [open, setOpen] = useState(defaultOpen);
   return (
-    <div {...props} className={cx("dm-accordion", className)}>
+    <div
+      data-native-tap="none"
+      {...props}
+      className={cx("dm-accordion", className)}
+    >
       {items.map((item) => {
         const expanded = open.includes(item.id);
         return (
@@ -1656,11 +1660,7 @@ export function Divider({
 }
 
 export type JournalEntryType =
-  | "task"
-  | "completed"
-  | "event"
-  | "note"
-  | "migrated";
+  "task" | "completed" | "event" | "note" | "migrated";
 export interface JournalEntry {
   id: string;
   type: JournalEntryType;

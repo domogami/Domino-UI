@@ -33,7 +33,11 @@
     "./adapters/portfolio.css": "./platforms/portfolio/domino-ui.css",
     "./adapters/quartz.css": "./platforms/quartz/domino-ui.css",
     "./adapters/obsidian.css": "./platforms/obsidian/domino-ui.css",
-    "./system-manifest.json": "./platforms/manifest.json"
+    "./system-manifest.json": "./platforms/manifest.json",
+    "./native-tap-policy": {
+      "types": "./lib/lib/native-tap-policy.d.ts",
+      "import": "./lib/native-tap-policy.js"
+    }
   },
   "files": [
     "lib",

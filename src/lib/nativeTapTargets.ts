@@ -1,3 +1,5 @@
+import { isNativeTapTargetEligible } from "./native-tap-policy";
+
 /**
  * The notebook's Safari enhancement: a directly touched native switch forwards
  * one activation to the original button. Targets are sibling layer controls,
@@ -14,7 +16,7 @@ export function nativeTapTargets(root: HTMLElement, preference: () => boolean) {
   const positions = new Map<HTMLElement, string>();
   let frame = 0;
   let destroyed = false;
-  const controlSelector = 'button, summary, [role="button"]';
+  const controlSelector = 'button, [role="button"]';
   let controls: HTMLElement[] = [];
   let controlsDirty = true;
   const active = () =>
@@ -68,7 +70,9 @@ export function nativeTapTargets(root: HTMLElement, preference: () => boolean) {
       return;
     }
     if (controlsDirty) {
-      controls = Array.from(root.querySelectorAll<HTMLElement>(controlSelector));
+      controls = Array.from(
+        root.querySelectorAll<HTMLElement>(controlSelector),
+      );
       controlsDirty = false;
     }
     const modal = document.querySelector<HTMLElement>("dialog[open]");
@@ -77,12 +81,18 @@ export function nativeTapTargets(root: HTMLElement, preference: () => boolean) {
     const boxes = new Map<HTMLElement, DOMRect>();
     const styleOf = (element: HTMLElement) => {
       let style = styles.get(element);
-      if (!style) { style = getComputedStyle(element); styles.set(element, style); }
+      if (!style) {
+        style = getComputedStyle(element);
+        styles.set(element, style);
+      }
       return style;
     };
     const boxOf = (element: HTMLElement) => {
       let box = boxes.get(element);
-      if (!box) { box = element.getBoundingClientRect(); boxes.set(element, box); }
+      if (!box) {
+        box = element.getBoundingClientRect();
+        boxes.set(element, box);
+      }
       return box;
     };
     const measured: {
@@ -98,16 +108,27 @@ export function nativeTapTargets(root: HTMLElement, preference: () => boolean) {
       if (
         !button.isConnected ||
         button.closest("[data-domino-haptics]") !== root ||
-        button.matches(
-          ':disabled, [aria-disabled="true"], [data-haptic="none"], [data-native-tap="none"]',
-        ) ||
-        button.closest('[hidden], [inert], [aria-hidden="true"]') ||
+        !isNativeTapTargetEligible(button) ||
         (modal && !modal.contains(button))
-      ) continue;
+      )
+        continue;
       const rect = boxOf(button);
-      if (!rect.width || !rect.height || rect.bottom <= 0 || rect.top >= innerHeight || rect.right <= 0 || rect.left >= innerWidth) continue;
+      if (
+        !rect.width ||
+        !rect.height ||
+        rect.bottom <= 0 ||
+        rect.top >= innerHeight ||
+        rect.right <= 0 ||
+        rect.left >= innerWidth
+      )
+        continue;
       const css = styleOf(button);
-      if (css.visibility !== "visible" || css.pointerEvents === "none" || Number(css.opacity) === 0) continue;
+      if (
+        css.visibility !== "visible" ||
+        css.pointerEvents === "none" ||
+        Number(css.opacity) === 0
+      )
+        continue;
       let left = Math.max(0, rect.left);
       let right = Math.min(innerWidth, rect.right);
       let top = Math.max(0, rect.top);
@@ -115,16 +136,33 @@ export function nativeTapTargets(root: HTMLElement, preference: () => boolean) {
       let visible = true;
       let scrollHost: HTMLElement | null = null;
       const popover = topLayerPopover(button);
-      for (let parent = button.parentElement; parent; parent = parent.parentElement) {
+      for (
+        let parent = button.parentElement;
+        parent;
+        parent = parent.parentElement
+      ) {
         const style = styleOf(parent);
-        if (Number(style.opacity) === 0 || style.visibility !== "visible") { visible = false; break; }
-        if (!scrollHost && /auto|scroll/.test(`${style.overflowX} ${style.overflowY}`)) scrollHost = parent;
+        if (Number(style.opacity) === 0 || style.visibility !== "visible") {
+          visible = false;
+          break;
+        }
+        if (
+          !scrollHost &&
+          /auto|scroll/.test(`${style.overflowX} ${style.overflowY}`)
+        )
+          scrollHost = parent;
         const clipX = /hidden|clip|auto|scroll/.test(style.overflowX);
         const clipY = /hidden|clip|auto|scroll/.test(style.overflowY);
         if (clipX || clipY) {
           const box = boxOf(parent);
-          if (clipX) { left = Math.max(left, box.left); right = Math.min(right, box.right); }
-          if (clipY) { top = Math.max(top, box.top); bottom = Math.min(bottom, box.bottom); }
+          if (clipX) {
+            left = Math.max(left, box.left);
+            right = Math.min(right, box.right);
+          }
+          if (clipY) {
+            top = Math.max(top, box.top);
+            bottom = Math.min(bottom, box.bottom);
+          }
         }
         // Popovers escape clipping above their own top-layer surface.
         if (parent === popover) break;
@@ -191,10 +229,7 @@ export function nativeTapTargets(root: HTMLElement, preference: () => boolean) {
             !trusted ||
             !active() ||
             !button.isConnected ||
-            button.matches(
-              ':disabled, [aria-disabled="true"], [data-haptic="none"], [data-native-tap="none"]',
-            ) ||
-            button.closest('[hidden], [inert], [aria-hidden="true"]')
+            !isNativeTapTargetEligible(button)
           ) {
             trusted = false;
             return;
@@ -236,11 +271,21 @@ export function nativeTapTargets(root: HTMLElement, preference: () => boolean) {
   }
   const resize = new ResizeObserver(refresh);
   const mutation = new MutationObserver((records) => {
-    const external = records.filter(record => !(record.target instanceof Element) || !record.target.closest(".dm-native-tap-layer"));
+    const external = records.filter(
+      (record) =>
+        !(record.target instanceof Element) ||
+        !record.target.closest(".dm-native-tap-layer"),
+    );
     if (!external.length) return;
     // Layout/eligibility may change on class/style mutations, but candidates
     // need rediscovery only when nodes or button roles actually change.
-    if (external.some(record => record.type === "childList" || record.attributeName === "role")) controlsDirty = true;
+    if (
+      external.some(
+        (record) =>
+          record.type === "childList" || record.attributeName === "role",
+      )
+    )
+      controlsDirty = true;
     refresh();
   });
   if (supported) {
@@ -256,6 +301,7 @@ export function nativeTapTargets(root: HTMLElement, preference: () => boolean) {
         "inert",
         "disabled",
         "aria-disabled",
+        "aria-expanded",
         "aria-label",
         "aria-hidden",
         "open",
