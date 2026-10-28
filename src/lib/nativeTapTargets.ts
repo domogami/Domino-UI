@@ -14,6 +14,9 @@ export function nativeTapTargets(root: HTMLElement, preference: () => boolean) {
   const positions = new Map<HTMLElement, string>();
   let frame = 0;
   let destroyed = false;
+  const controlSelector = 'button, summary, [role="button"]';
+  let controls: HTMLElement[] = [];
+  let controlsDirty = true;
   const active = () =>
     !destroyed &&
     root.isConnected &&
@@ -64,31 +67,47 @@ export function nativeTapTargets(root: HTMLElement, preference: () => boolean) {
       clear();
       return;
     }
+    if (controlsDirty) {
+      controls = Array.from(root.querySelectorAll<HTMLElement>(controlSelector));
+      controlsDirty = false;
+    }
     const modal = document.querySelector<HTMLElement>("dialog[open]");
     const keep = new Set<HTMLElement>();
-    const controls = root.querySelectorAll<HTMLElement>(
-      'button, summary, [role="button"]',
-    );
+    const styles = new Map<HTMLElement, CSSStyleDeclaration>();
+    const boxes = new Map<HTMLElement, DOMRect>();
+    const styleOf = (element: HTMLElement) => {
+      let style = styles.get(element);
+      if (!style) { style = getComputedStyle(element); styles.set(element, style); }
+      return style;
+    };
+    const boxOf = (element: HTMLElement) => {
+      let box = boxes.get(element);
+      if (!box) { box = element.getBoundingClientRect(); boxes.set(element, box); }
+      return box;
+    };
+    const measured: {
+      button: HTMLElement;
+      host: HTMLElement;
+      positionHost: boolean;
+      geometry: Record<string, string>;
+    }[] = [];
+    // Read the complete visible layout before changing any overlay geometry.
+    // A long notebook may contain hundreds of offscreen/hidden controls; those
+    // need no computed styles or repeated ancestor walks on every scroll frame.
     for (const button of controls) {
       if (
+        !button.isConnected ||
         button.closest("[data-domino-haptics]") !== root ||
         button.matches(
           ':disabled, [aria-disabled="true"], [data-haptic="none"], [data-native-tap="none"]',
         ) ||
         button.closest('[hidden], [inert], [aria-hidden="true"]') ||
         (modal && !modal.contains(button))
-      )
-        continue;
-      const rect = button.getBoundingClientRect();
-      const css = getComputedStyle(button);
-      if (
-        !rect.width ||
-        !rect.height ||
-        css.visibility !== "visible" ||
-        css.pointerEvents === "none" ||
-        Number(css.opacity) === 0
-      )
-        continue;
+      ) continue;
+      const rect = boxOf(button);
+      if (!rect.width || !rect.height || rect.bottom <= 0 || rect.top >= innerHeight || rect.right <= 0 || rect.left >= innerWidth) continue;
+      const css = styleOf(button);
+      if (css.visibility !== "visible" || css.pointerEvents === "none" || Number(css.opacity) === 0) continue;
       let left = Math.max(0, rect.left);
       let right = Math.min(innerWidth, rect.right);
       let top = Math.max(0, rect.top);
@@ -96,43 +115,43 @@ export function nativeTapTargets(root: HTMLElement, preference: () => boolean) {
       let visible = true;
       let scrollHost: HTMLElement | null = null;
       const popover = topLayerPopover(button);
-      // Clip to scroll panels as well as the viewport, so a scrolled-out target
-      // cannot intercept taps on navigation underneath the panel.
-      for (
-        let parent = button.parentElement;
-        parent;
-        parent = parent.parentElement
-      ) {
-        const style = getComputedStyle(parent);
-        if (Number(style.opacity) === 0 || style.visibility !== "visible") {
-          visible = false;
-          break;
+      for (let parent = button.parentElement; parent; parent = parent.parentElement) {
+        const style = styleOf(parent);
+        if (Number(style.opacity) === 0 || style.visibility !== "visible") { visible = false; break; }
+        if (!scrollHost && /auto|scroll/.test(`${style.overflowX} ${style.overflowY}`)) scrollHost = parent;
+        const clipX = /hidden|clip|auto|scroll/.test(style.overflowX);
+        const clipY = /hidden|clip|auto|scroll/.test(style.overflowY);
+        if (clipX || clipY) {
+          const box = boxOf(parent);
+          if (clipX) { left = Math.max(left, box.left); right = Math.min(right, box.right); }
+          if (clipY) { top = Math.max(top, box.top); bottom = Math.min(bottom, box.bottom); }
         }
-        const box = parent.getBoundingClientRect();
-        if (
-          !scrollHost &&
-          /auto|scroll/.test(`${style.overflowX} ${style.overflowY}`)
-        )
-          scrollHost = parent;
-        if (/hidden|clip|auto|scroll/.test(style.overflowX)) {
-          left = Math.max(left, box.left);
-          right = Math.min(right, box.right);
-        }
-        if (/hidden|clip|auto|scroll/.test(style.overflowY)) {
-          top = Math.max(top, box.top);
-          bottom = Math.min(bottom, box.bottom);
-        }
-        // A top-layer popover escapes the clipping of its original DOM ancestors.
-        // Its own overflow and scrolling content still constrain native targets.
+        // Popovers escape clipping above their own top-layer surface.
         if (parent === popover) break;
       }
       if (!visible || right <= left || bottom <= top) continue;
-      // Retain the original scrolling ancestor. Native switch pan behavior is
-      // browser-version dependent; hosts can opt out with data-native-tap=none.
       const host = scrollHost ?? popover ?? modal ?? document.body;
       const local = host !== document.body;
-      if (local && getComputedStyle(host).position === "static") {
-        if (!positions.has(host)) positions.set(host, host.style.position);
+      const origin = local ? boxOf(host) : null;
+      measured.push({
+        button,
+        host,
+        positionHost: local && styleOf(host).position === "static",
+        geometry: {
+          position: local ? "absolute" : "fixed",
+          left: `${origin ? rect.left - origin.left + host.scrollLeft - host.clientLeft : rect.left}px`,
+          top: `${origin ? rect.top - origin.top + host.scrollTop - host.clientTop : rect.top}px`,
+          width: `${rect.width}px`,
+          height: `${rect.height}px`,
+          clipPath: `inset(${top - rect.top}px ${rect.right - right}px ${rect.bottom - bottom}px ${left - rect.left}px round ${css.borderTopLeftRadius} ${css.borderTopRightRadius} ${css.borderBottomRightRadius} ${css.borderBottomLeftRadius})`,
+        },
+      });
+    }
+    // Keep native switch behavior and one trusted forwarding activation intact.
+    // No geometry/style reads occur after the first overlay write in this pass.
+    for (const { button, host, positionHost, geometry } of measured) {
+      if (positionHost && !positions.has(host)) {
+        positions.set(host, host.style.position);
         host.style.position = "relative";
       }
       let layer = layers.get(host);
@@ -197,15 +216,7 @@ export function nativeTapTargets(root: HTMLElement, preference: () => boolean) {
       input.dataset.nativeTapLabel =
         button.getAttribute("aria-label") ?? button.textContent?.trim() ?? "";
       if (input.parentElement !== layer) layer.append(input);
-      const origin = host.getBoundingClientRect();
-      Object.assign(input.style, {
-        position: local ? "absolute" : "fixed",
-        left: `${local ? rect.left - origin.left + host.scrollLeft - host.clientLeft : rect.left}px`,
-        top: `${local ? rect.top - origin.top + host.scrollTop - host.clientTop : rect.top}px`,
-        width: `${rect.width}px`,
-        height: `${rect.height}px`,
-        clipPath: `inset(${top - rect.top}px ${rect.right - right}px ${rect.bottom - bottom}px ${left - rect.left}px round ${css.borderTopLeftRadius} ${css.borderTopRightRadius} ${css.borderBottomRightRadius} ${css.borderBottomLeftRadius})`,
-      });
+      Object.assign(input.style, geometry);
       keep.add(button);
     }
     for (const [button, input] of targets) {
@@ -225,14 +236,12 @@ export function nativeTapTargets(root: HTMLElement, preference: () => boolean) {
   }
   const resize = new ResizeObserver(refresh);
   const mutation = new MutationObserver((records) => {
-    if (
-      records.some(
-        (record) =>
-          !(record.target instanceof Element) ||
-          !record.target.closest(".dm-native-tap-layer"),
-      )
-    )
-      refresh();
+    const external = records.filter(record => !(record.target instanceof Element) || !record.target.closest(".dm-native-tap-layer"));
+    if (!external.length) return;
+    // Layout/eligibility may change on class/style mutations, but candidates
+    // need rediscovery only when nodes or button roles actually change.
+    if (external.some(record => record.type === "childList" || record.attributeName === "role")) controlsDirty = true;
+    refresh();
   });
   if (supported) {
     mutation.observe(root, {
@@ -242,6 +251,7 @@ export function nativeTapTargets(root: HTMLElement, preference: () => boolean) {
       attributeFilter: [
         "class",
         "style",
+        "role",
         "hidden",
         "inert",
         "disabled",
