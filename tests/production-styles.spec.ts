@@ -41,6 +41,43 @@ async function tapNativeButton(page: Page, control: Locator) {
   await page.touchscreen.tap(point.x, point.y);
 }
 
+// Disclosure triggers retain their own native hit target; auxiliary switches
+// must never cover the surface where a scroll gesture can begin.
+async function tapDisclosureButton(page: Page, control: Locator) {
+  await control.scrollIntoViewIfNeeded();
+  const label = await control.evaluate(
+    (element) =>
+      element.getAttribute("aria-label") ?? element.textContent?.trim() ?? "",
+  );
+  await expect
+    .poll(() =>
+      page
+        .locator(".dm-native-tap-target")
+        .evaluateAll(
+          (inputs, name) =>
+            inputs.filter(
+              (input) => input.getAttribute("data-native-tap-label") === name,
+            ).length,
+          label,
+        ),
+    )
+    .toBe(0);
+  await expect
+    .poll(() =>
+      control.evaluate((element) => {
+        const box = element.getBoundingClientRect();
+        return element.contains(
+          document.elementFromPoint(
+            box.x + box.width / 2,
+            box.y + box.height / 2,
+          ),
+        );
+      }),
+    )
+    .toBe(true);
+  await control.tap();
+}
+
 interface ProductionRouteSnapshot {
   count: number;
   root: string;
@@ -1038,7 +1075,7 @@ test.describe("production top-layer touch targets", () => {
         .toBe(true);
       await page.touchscreen.tap(point.x, point.y);
     };
-    await tapEnhanced(trigger);
+    await tapDisclosureButton(page, trigger);
     const popover = page.getByRole("dialog", {
       name: "A thought in the margin",
       exact: true,
@@ -2075,7 +2112,7 @@ test.describe("production notebook-wide native feedback", () => {
     await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
 
     const menu = page.locator("#notebook-navigation-toggle");
-    await tapNativeButton(page, menu);
+    await tapDisclosureButton(page, menu);
     await expect(menu).toHaveAttribute("aria-expanded", "true");
     const setting = page.getByRole("checkbox", {
       name: "Site touch feedback",
@@ -2096,7 +2133,7 @@ test.describe("production notebook-wide native feedback", () => {
     await expect(setting).not.toBeChecked();
     await setting.tap();
     await expect(setting).toBeChecked();
-    await tapNativeButton(page, menu);
+    await tapDisclosureButton(page, menu);
 
     const currentScope = await page
       .locator("[data-domino-haptics]")
