@@ -23,6 +23,8 @@
 }
 .dm-polaroid-stack__surface {
   display: grid;
+  /* Keep every print full width even when a caller centers button content. */
+  grid-template-columns: minmax(0, 1fr);
   position: relative;
   isolation: isolate;
   width: 100%;
