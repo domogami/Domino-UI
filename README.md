@@ -205,6 +205,19 @@ import { PhotoSkeleton } from "@domlee/ui";
 
 The default ratio is `4 / 3`; `width` and `height` accept CSS values. Both can be `"100%"` when the caller already reserves the photo area. `quiet` and the device’s Reduce Motion setting show finished, static ink. The SVG geometry is stable during server rendering and hydration. [Photo skeleton examples](https://ui.dominicklee.net/#component/photo-skeleton).
 
+`VideoSkeleton` reserves a pending clip or video poster with an original film frame and hand-drawn play cue. It shares the photo placeholder’s quiet, reduced-motion, theme and decorative/inert behavior; its default ratio is `16 / 9`. Use the real clip’s ratio when known, or fill an existing player with `width="100%" height="100%"`. The play cue is not interactive and its ink animation does not claim measured progress.
+
+```tsx
+import { VideoSkeleton } from "@domlee/ui";
+
+<div aria-busy="true" aria-label="Loading a video">
+  <VideoSkeleton aspectRatio={16 / 9} />
+</div>
+<span role="status">Loading a video…</span>
+```
+
+Keep an already loaded poster visible while buffering; replace this placeholder with the actual media or an actionable error. [Video skeleton examples](https://ui.dominicklee.net/#component/video-skeleton).
+
 `Timeline` draws a fine ink line through each milestone, then letters in the next node and its content. It plays once as it enters view, supports explicit replay, and keeps the story readable throughout. [Animate a timeline](docs/TIMELINE.md).
 
 Ruled `Paper` gives text a steady rhythm with rules between rows or just beneath the ink. Larger lettering and mixed content get clear space, including through wrapping and font changes. [Text and writing rules](docs/PAPER-RHYTHM.md).

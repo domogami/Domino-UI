@@ -128,6 +128,24 @@ function PhotoSkeletonDemo({ compact, quiet }: { compact: boolean; quiet: boolea
   </div>;
 }
 
+function VideoSkeletonDemo({ compact, quiet }: { compact: boolean; quiet: boolean }) {
+  return <div className="video-skeleton-demo demo-stack" style={{ minWidth: 0, width: "100%" }}>
+    <div role="region" aria-label="Loading videos" aria-busy="true" style={{ minWidth: 0 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 180px), 1fr))", gap: 20 }}>
+        <div data-theme="light" style={{ minWidth: 0, padding: 16, background: "var(--dm-paper)", color: "var(--dm-muted)", border: "1px solid var(--dm-border)", borderRadius: "var(--dm-radius)" }}>
+          <UI.VideoSkeleton aspectRatio={16 / 9} quiet={quiet} data-example="landscape"/>
+          {!compact && <p className="small-muted" style={{ margin: "10px 0 0" }}>Light · landscape</p>}
+        </div>
+        {!compact && <div data-theme="dark" style={{ minWidth: 0, padding: 16, background: "var(--dm-paper)", color: "var(--dm-muted)", border: "1px solid var(--dm-border)", borderRadius: "var(--dm-radius)" }}>
+          <UI.VideoSkeleton aspectRatio={9 / 16} quiet={quiet} data-example="portrait"/>
+          <p className="small-muted" style={{ margin: "10px 0 0" }}>Dark · portrait</p>
+        </div>}
+      </div>
+    </div>
+    {!compact && <span role="status" className="small-muted">Loading videos…</span>}
+  </div>;
+}
+
 function NavTrailDemo({ quiet }: { quiet: boolean }) {
   const nav = useRef<HTMLElement>(null);
   const [selected, setSelected] = useState("notes");
@@ -821,6 +839,8 @@ export function Demo({
       );
     case "photo-skeleton":
       return <PhotoSkeletonDemo compact={compact} quiet={quiet}/>;
+    case "video-skeleton":
+      return <VideoSkeletonDemo compact={compact} quiet={quiet}/>;
     case "empty-state":
       return (
         <UI.EmptyState

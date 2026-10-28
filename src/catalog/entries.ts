@@ -533,7 +533,7 @@ export const entries: Entry[] = [
       ["variant", "handwritten | block", "handwritten"],
     ],
     guidance:
-      "Reserve the final content dimensions. Handwritten is the default: nonverbal pen marks draw gently, then pause. Use PhotoSkeleton for pictures, or block for plain solid areas. Each skeleton is hidden from assistive technology; mark the containing region busy and give the whole operation one readable loading status outside it. Reduced motion shows finished, static strokes.",
+      "Reserve the final content dimensions. Handwritten is the default: nonverbal pen marks draw gently, then pause. Use PhotoSkeleton for pictures, VideoSkeleton for clips, or block for plain solid areas. Each skeleton is hidden from assistive technology; mark the containing region busy and give the whole operation one readable loading status outside it. Reduced motion shows finished, static strokes.",
     origin: "Extended",
     usage:
       "Import the shown components from @domlee/ui. Standard className, style, aria-* and native element attributes are supported unless a narrower API is described here.",
@@ -556,6 +556,26 @@ export const entries: Entry[] = [
       "Use only while a real photograph is pending, and reserve the final image dimensions. The original drawing is decorative and noninteractive; its frame follows the available ratio while the sun and hills keep their proportions. It draws once, holds for most of the cycle, then fades before another pass. Quiet and reduced motion show the finished ink. Keep loaded images visible during refreshes; show errors and empty collections as their actual states.",
     usage:
       "Import PhotoSkeleton and styles.css from @domlee/ui. Its transparent surface inherits the caller’s paper, with muted ink and accent tokens in either theme. Supply aspectRatio for an independent frame, or width and height of 100% inside an already sized photo area. The placeholder is aria-hidden and inert; set aria-busy on the containing loading region and give that operation one readable status outside it. It never loads an image or invents a caption, author, or memory.",
+    origin: "Original",
+  },
+  {
+    id: "video-skeleton",
+    name: "Video skeleton",
+    group: "Feedback",
+    summary:
+      "A film frame drawn in ink, with a quiet play cue while a real clip takes shape.",
+    code: '<div aria-busy="true" aria-label="Loading a video">\n  <VideoSkeleton aspectRatio={16 / 9} />\n</div>\n<span role="status">Loading a video…</span>\n\n{/* Fill an existing reserved player instead: */}\n<VideoSkeleton width="100%" height="100%" quiet />',
+    props: [
+      ["aspectRatio", "number; width divided by height", "16 / 9"],
+      ["width", "string | number; CSS width", "100%"],
+      ["height", "string | number; CSS height", "auto"],
+      ["quiet", "boolean; complete static drawing", "false"],
+      ["span attributes", "className, style, data-* and native span attributes", "—"],
+    ],
+    guidance:
+      "Use while a real video or its preview frame is pending, reserving the final media dimensions. Original film perforations, a play mark and leader strokes draw gently, hold, then fade together for another pass. The play cue is decorative, not a button or a playback control. Quiet and reduced motion show completed ink. Keep a loaded poster visible while buffering; show playback errors as their actual state.",
+    usage:
+      "Import VideoSkeleton and styles.css from @domlee/ui. Its transparent surface inherits the surrounding paper and theme tokens. Set aspectRatio for a standalone placeholder, or width and height of 100% inside a reserved video area. It is aria-hidden, inert and noninteractive: put aria-busy and one readable status on the surrounding loading operation. It loads no image, video, audio or font and never implies measured loading progress.",
     origin: "Original",
   },
   {

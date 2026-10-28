@@ -127,7 +127,11 @@ async function touch(page: Page) {
     x: bounds.x + bounds.width / 2,
     y: bounds.y + bounds.height / 2,
   };
-  const base = Date.now() / 1000 - 1;
+  // CDP timestamps are epoch-based. Backdating can put a fast gesture before
+  // this document's time origin, clamping some events to zero and losing velocity.
+  const base = await page.evaluate(
+    () => (performance.timeOrigin + performance.now()) / 1000,
+  );
   const send = (
     type: "touchStart" | "touchMove" | "touchEnd" | "touchCancel",
     points: { x: number; y: number; id: number }[],

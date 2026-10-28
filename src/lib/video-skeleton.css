@@ -1,0 +1,85 @@
+.dm-video-skeleton {
+  --dm-video-skeleton-ink: color-mix(in srgb, var(--dm-ink, #252b2e) 25%, transparent);
+  --dm-video-skeleton-guide: color-mix(in srgb, var(--dm-ink, #252b2e) 7%, transparent);
+  --dm-video-skeleton-accent: color-mix(in srgb, var(--dm-accent, #0e7c79) 30%, transparent);
+  display: block;
+  position: relative;
+  box-sizing: border-box;
+  max-inline-size: 100%;
+  min-inline-size: 0;
+  flex-shrink: 0;
+  vertical-align: middle;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+  color: var(--dm-video-skeleton-ink);
+}
+.dm-video-skeleton__frame,
+.dm-video-skeleton__drawing {
+  display: block;
+  position: absolute;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.dm-video-skeleton__frame { inset: 0; inline-size: 100%; block-size: 100%; }
+.dm-video-skeleton__drawing { inset: 17% 15%; inline-size: 70%; block-size: 66%; }
+.dm-video-skeleton :is(.dm-video-skeleton__frame, .dm-video-skeleton__drawing) path {
+  stroke-width: 1.15px;
+  vector-effect: non-scaling-stroke;
+}
+.dm-video-skeleton__guide { stroke: var(--dm-video-skeleton-guide); }
+.dm-video-skeleton__stroke {
+  stroke: currentColor;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  opacity: 0;
+  animation: dm-video-skeleton-draw var(--dm-video-skeleton-duration, 11s)
+    cubic-bezier(.32, .08, .38, 1)
+    calc(var(--dm-video-skeleton-step, 0) * var(--dm-video-skeleton-stagger, 140ms))
+    infinite both;
+}
+.dm-video-skeleton__stroke--ring,
+.dm-video-skeleton__stroke--play { stroke: var(--dm-video-skeleton-accent); }
+.dm-video-skeleton__stroke--perforations,
+.dm-video-skeleton__stroke--ring-echo,
+.dm-video-skeleton__stroke--splice { stroke: var(--dm-video-skeleton-guide); }
+.dm-video-skeleton__play-fill {
+  stroke: none;
+  fill: var(--dm-video-skeleton-accent);
+  opacity: 0;
+  animation: dm-video-skeleton-fill var(--dm-video-skeleton-duration, 11s)
+    ease-in-out calc(5 * var(--dm-video-skeleton-stagger, 140ms)) infinite both;
+}
+@keyframes dm-video-skeleton-draw {
+  0%, 3% { stroke-dashoffset: 1; opacity: 0; }
+  4% { opacity: 1; }
+  18%, 86% { stroke-dashoffset: 0; opacity: 1; }
+  94%, 100% { stroke-dashoffset: 0; opacity: 0; }
+}
+@keyframes dm-video-skeleton-fill {
+  0%, 15% { opacity: 0; }
+  22%, 86% { opacity: .18; }
+  94%, 100% { opacity: 0; }
+}
+.dm-video-skeleton[data-quiet="true"] .dm-video-skeleton__stroke {
+  animation: none;
+  stroke-dashoffset: 0;
+  opacity: 1;
+}
+.dm-video-skeleton[data-quiet="true"] .dm-video-skeleton__play-fill { animation: none; opacity: .18; }
+@media (prefers-reduced-motion: reduce) {
+  .dm-video-skeleton .dm-video-skeleton__stroke { animation: none; stroke-dashoffset: 0; opacity: 1; }
+  .dm-video-skeleton .dm-video-skeleton__play-fill { animation: none; opacity: .18; }
+}
+@media (forced-colors: active) {
+  .dm-video-skeleton {
+    --dm-video-skeleton-ink: CanvasText;
+    --dm-video-skeleton-guide: GrayText;
+    --dm-video-skeleton-accent: CanvasText;
+  }
+}
+@media print {
+  .dm-video-skeleton .dm-video-skeleton__stroke { animation: none; stroke-dashoffset: 0; opacity: 1; }
+  .dm-video-skeleton .dm-video-skeleton__play-fill { animation: none; opacity: .18; }
+}
