@@ -686,7 +686,7 @@ export const entries: Entry[] = [
     code: 'import { useState } from \'react\';\n\nfunction Example() {\n  const [open, setOpen] = useState(false);\n  return <>\n    <Button onClick={() => setOpen(true)}>Open note</Button>\n    <Dialog open={open} onClose={() => setOpen(false)}\n      title="A thought worth keeping"\n      description="A small space for a focused thought."\n      footer={<Button onClick={() => setOpen(false)}>Done</Button>}>\n      <p>You can always revisit it.</p>\n    </Dialog>\n  </>;\n}',
     props: [
       ["open", "boolean; controlled", "required"],
-      ["onClose", "() => void; update open state", "required"],
+      ["onClose", "() => void | false; update open state or return false to cancel", "required"],
       ["title", "ReactNode", "required"],
       ["description / footer", "ReactNode", "—"],
       ["eyebrow / icon", "ReactNode; compact context / decorative mark", "—"],
@@ -702,7 +702,7 @@ export const entries: Entry[] = [
       ],
     ],
     guidance:
-      'The native modal contains focus, supports Escape and returns focus when closed. One connected note arrives softly from the right with a shared 160ms fade during its 360ms unfolding motion. Its header stays flat and follows the same movement and opacity; the attached body/footer fold is gentle. Closing begins immediately with a rightward slide and 200ms tuck, alongside a 40ms opacity hold then 200ms whole-note fade, finishing in 240ms. There is no stationary rear plate or duplicate content. Use motion="settle" for a utility such as search. Keep it mounted while open changes so motion can reverse; modality persists through the full exit. Reduced motion skips movement. onClose must update open state. Supply a concise title and a visible close action.',
+      'The native modal contains focus, supports Escape and returns focus when closed. One connected note arrives softly from the right with a shared 160ms fade during its 360ms unfolding motion. Its header stays flat and follows the same movement and opacity; the attached body/footer fold is gentle. Closing begins immediately with a rightward slide and 200ms tuck, alongside a 40ms opacity hold then 200ms whole-note fade, finishing in 240ms. There is no stationary rear plate or duplicate content. Use motion="settle" for a utility such as search. Keep it mounted while open changes so motion can reverse; modality persists through the full exit. Reduced motion skips movement. onClose must update open state, or return false synchronously to cancel dismissal and allow a later retry. Supply a concise title and a visible close action.',
     origin: "Extended",
     usage:
       "Import Dialog and Button from @domlee/ui. The example defines open state and its opener. Native dialog attributes are supported; the component owns its DOM ref and open/showModal synchronization.",
@@ -717,7 +717,7 @@ export const entries: Entry[] = [
     props: [
       ["side", "left | right", "right"],
       ["open", "boolean; controlled", "required"],
-      ["onClose", "() => void; update open state", "required"],
+      ["onClose", "() => void | false; update open state or return false to cancel", "required"],
       ["title", "ReactNode", "required"],
       ["description / footer", "ReactNode", "—"],
       [
@@ -738,7 +738,7 @@ export const entries: Entry[] = [
       "Use for supporting tasks that benefit from more room. Drawer uses Dialog behavior, including Escape, backdrop dismissal and focus restoration.",
     origin: "Extended",
     usage:
-      "Import Drawer and Button from @domlee/ui. The example defines open state. Drawer accepts Dialog content and behavior props plus side, and preserves its edge slide rather than accepting motion. onClose must update open state.",
+      "Import Drawer and Button from @domlee/ui. The example defines open state. Drawer accepts Dialog content and behavior props plus side, and preserves its edge slide rather than accepting motion. onClose must update open state, or return false synchronously to cancel dismissal and allow a later retry.",
   },
   {
     id: "nav-trail",
