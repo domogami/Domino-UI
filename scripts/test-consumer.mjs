@@ -11,6 +11,7 @@ import {
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { createRequire } from "node:module";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 const temporary = await mkdtemp(join(tmpdir(), "domino-consumer-"));
@@ -109,6 +110,16 @@ try {
   ]) {
     await readFile(join(installed, file));
   }
+  const consumerRequire = createRequire(join(temporary, "package.json"));
+  const { createElement } = consumerRequire("react");
+  const { renderToString } = consumerRequire("react-dom/server");
+  const { Waveform } = await import(pathToFileURL(join(installed, "lib/domino-ui.js")).href);
+  assert.equal(typeof Waveform, "function", "Waveform must be a public package export.");
+  const waveformMarkup = renderToString(createElement(Waveform, { playing: true }));
+  assert.equal(waveformMarkup, renderToString(createElement(Waveform, { playing: true })), "Waveform geometry must be deterministic during SSR.");
+  assert(waveformMarkup.includes('aria-hidden="true"') && !waveformMarkup.includes('role="img"'), "The default waveform must remain decorative.");
+  const measuredMarkup = renderToString(createElement(Waveform, { samples: [-1, NaN, Infinity, 2], decorative: false, label: "Amplitude envelope" }));
+  assert(measuredMarkup.includes('role="img"') && measuredMarkup.includes('aria-label="Amplitude envelope"') && !/NaN|Infinity/.test(measuredMarkup), "Named supplied samples must render finite accessible geometry.");
   const policyFile = join(installed, "lib/native-tap-policy.js");
   const policy = await import(pathToFileURL(policyFile).href);
   assert.equal(typeof policy.isNativeTapTargetEligible, "function");
@@ -130,7 +141,7 @@ try {
     `import { useMemo, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import { createRoot } from "react-dom/client";
-import { BookmarkDrawing, Button, Card, Chevron, Dialog, HairlineSketch, NotebookSketch, NotificationCard, NavTrail, Paper, PolaroidStack, Popover, Skeleton, RadioGroup, Checkbox, RibbonBanner, TaskCheckbox, ThemeProvider, ThemeToggle, Timeline, TouchFeedbackProvider, TripleBanner, createPageTransition, type DrawingProps, type PolaroidPhoto, type TimelineItem } from "@domlee/ui";
+import { BookmarkDrawing, Button, Card, Chevron, Dialog, HairlineSketch, NotebookSketch, NotificationCard, NavTrail, Paper, PolaroidStack, Popover, Skeleton, RadioGroup, Checkbox, RibbonBanner, TaskCheckbox, ThemeProvider, ThemeToggle, Timeline, TouchFeedbackProvider, TripleBanner, Waveform, createPageTransition, type DrawingProps, type PolaroidPhoto, type TimelineItem } from "@domlee/ui";
 import "@domlee/ui/styles.css";
 import "@domlee/ui/fonts.css";
 import { isNativeTapTargetEligible } from "@domlee/ui/native-tap-policy";
@@ -151,7 +162,7 @@ function App() {
   ];
   const drawing: DrawingProps = { animate: true, quiet: false, speed: 1, replayKey: 0 };
   const pageTransition = useMemo(() => createPageTransition(), []);
-  return <ThemeProvider><TouchFeedbackProvider><ThemeToggle /><Card title={heading} className="dm-page-transition"><Button ref={returnFocusRef} trailingIcon={<Chevron />} onClick={() => setOpen(true)}>Keep going</Button><Button variant="secondary" onClick={() => { void pageTransition.run(() => flushSync(() => setHeading("A new notebook page"))); }}>Turn page</Button><TaskCheckbox label="A little progress" /><NotebookSketch variant="flight" replayOnClick /><HairlineSketch variant="branches" /><Skeleton width="70%" />
+  return <ThemeProvider><TouchFeedbackProvider><ThemeToggle /><Card title={heading} className="dm-page-transition"><Button ref={returnFocusRef} trailingIcon={<Chevron />} onClick={() => setOpen(true)}>Keep going</Button><Button variant="secondary" onClick={() => { void pageTransition.run(() => flushSync(() => setHeading("A new notebook page"))); }}>Turn page</Button><TaskCheckbox label="A little progress" /><NotebookSketch variant="flight" replayOnClick /><HairlineSketch variant="branches" /><Skeleton width="70%" /><Waveform playing samples={[0, .8, .2, .6, 0]} decorative={false} label="Package amplitude envelope" />
     <PolaroidStack photos={photos} label="Package photo stack" quiet aspectRatio={16 / 9} onIndexChange={(index, photo) => void [index, photo.id]} />
     <Timeline items={milestones} label="Package milestones" animate quiet={false} replayKey={heading} start={2} data-consumer="timeline" />
     <Paper pattern="lined" ruleAlign="between" padding="sm" data-consumer="ruled-paper"><h2>Room for the words</h2><p>Guides stay clear when the paragraph wraps.</p></Paper>
@@ -208,6 +219,8 @@ createRoot(document.getElementById("root")!).render(<App />);
   for (const rule of [
     ".dm-button",
     ".dm-skeleton",
+    ".dm-waveform",
+    "dm-waveform-ink-flow",
     ".dm-task-checkbox",
     ".dm-menu-toggle",
     ".dm-notebook-sketch",

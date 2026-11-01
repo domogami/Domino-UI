@@ -218,6 +218,25 @@ import { VideoSkeleton } from "@domlee/ui";
 
 Keep an already loaded poster visible while buffering; replace this placeholder with the actual media or an actionable error. [Video skeleton examples](https://ui.dominicklee.net/#component/video-skeleton).
 
+`Waveform` adds a fine ink trace to a player or recording interface. Pass the player's confirmed playback state to `playing`; its accent moves only while playing. The complete drawing stays visible when paused. The default is an original decorative sketch, not measured audio.
+
+```tsx
+import { Waveform } from "@domlee/ui";
+import "@domlee/ui/styles.css";
+
+<Waveform playing={playerState === "playing"} />
+
+// Optional amplitudes supplied by your application:
+<Waveform
+  samples={[0.1, 0.6, 0.3, 0.9, 0.2]}
+  decorative={false}
+  label="Recording amplitude envelope"
+  quiet
+/>
+```
+
+`samples` accepts normalized amplitudes: values clamp to `0–1`, non-finite values become zero, and large arrays are sampled deterministically to at most 128 points. The component never fetches, records, or analyzes audio. Keep the default decorative for illustrations; meaningful data requires `decorative={false}` and a clear `label`. `quiet`, Reduce Motion, and print show static ink. Width defaults to `100%`, height to `32px`; CSS classes, `style`, `width` and `height` can size the mark. Theme overrides are `--dm-waveform-ink`, `--dm-waveform-accent` and `--dm-waveform-duration`. [Waveform examples](https://ui.dominicklee.net/#component/waveform).
+
 `Timeline` draws a fine ink line through each milestone, then letters in the next node and its content. It plays once as it enters view, supports explicit replay, and keeps the story readable throughout. [Animate a timeline](docs/TIMELINE.md).
 
 Ruled `Paper` gives text a steady rhythm with rules between rows or just beneath the ink. Larger lettering and mixed content get clear space, including through wrapping and font changes. [Text and writing rules](docs/PAPER-RHYTHM.md).
