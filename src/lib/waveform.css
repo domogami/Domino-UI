@@ -1,0 +1,46 @@
+.dm-waveform {
+  --dm-waveform-ink: color-mix(in srgb, var(--dm-ink, #252b2e) 48%, transparent);
+  --dm-waveform-accent: var(--dm-accent, #0e7c79);
+  display: block;
+  inline-size: 100%;
+  block-size: 32px;
+  max-inline-size: 100%;
+  min-inline-size: 0;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+  color: var(--dm-waveform-accent);
+}
+.dm-waveform > svg {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  fill: none;
+}
+.dm-waveform path {
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+.dm-waveform__baseline { stroke: var(--dm-waveform-ink); stroke-width: .7px; opacity: .2; }
+.dm-waveform__ink { stroke: var(--dm-waveform-ink); stroke-width: 1.15px; }
+.dm-waveform__trace {
+  stroke: currentColor;
+  stroke-width: 1.35px;
+  stroke-dasharray: 58 32;
+  opacity: 0;
+  animation: dm-waveform-ink-flow var(--dm-waveform-duration, 3.6s) linear infinite;
+  animation-play-state: paused;
+}
+.dm-waveform[data-playing="true"] .dm-waveform__trace { opacity: .9; animation-play-state: running; }
+.dm-waveform[data-quiet="true"] .dm-waveform__trace { animation: none; opacity: 0; }
+@keyframes dm-waveform-ink-flow { to { stroke-dashoffset: -90; } }
+@media (prefers-reduced-motion: reduce) {
+  .dm-waveform[data-playing] .dm-waveform__trace { animation: none; opacity: 0; }
+}
+@media (forced-colors: active) {
+  .dm-waveform { --dm-waveform-ink: CanvasText; --dm-waveform-accent: Highlight; }
+}
+@media print {
+  .dm-waveform[data-playing] .dm-waveform__trace { animation: none; opacity: 0; }
+}

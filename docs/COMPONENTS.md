@@ -11,6 +11,7 @@ This inventory defines the scope of Domino UI and the states its visual website 
 | `src/lib/theme.tsx`             | Theme context, persisted preference state, and theme controls                            |
 | `src/lib/brand.tsx`             | Exact name/brand drawings and reusable illustration patterns                             |
 | `src/lib/nav-trail.tsx`         | Persistent moving selection surface and finite SVG gestures; original links stay native  |
+| `src/lib/waveform.tsx`          | Decorative playback ink or caller-supplied amplitudes; no audio loading or analysis       |
 | `src/lib/journal-art.tsx`       | Original three-face ribbon and notched/pointed bookmark drawings                         |
 | `src/lib/patterns.tsx`          | Annotations and flower progress; compatibility re-exports for Timeline and PolaroidStack |
 | `src/lib/timeline.tsx`          | Semantic ordered milestones, viewport ink drawing, quiet/reduced motion, and replay      |
@@ -29,7 +30,7 @@ The package root is `@domlee/ui`. Its shared CSS and fonts are separate assets; 
 
 Each component implementation imports the CSS required to render it; `components.tsx` also imports its switch motion. Do not put required component CSS only in the `index.ts` re-export barrel: production tree-shaking can discard the barrel’s side effects while preserving its named component exports. Verify both development and built-site previews with `npm test` and `npm run test:production`.
 
-The implemented public catalogue has **57 components**. The inventory below also records source patterns and composition goals; a table entry does not imply an additional exported component. For example, reading mode, a table of contents, quote composition, and graph panels remain source-pattern references. They are not documented as public React exports.
+The implemented public catalogue has **58 components**. The inventory below also records source patterns and composition goals; a table entry does not imply an additional exported component. For example, reading mode, a table of contents, quote composition, and graph panels remain source-pattern references. They are not documented as public React exports.
 
 `NotebookSketch` adds six original notebook scenes; `HairlineSketch` adapts three upstream Hairline figures to semantic paper and ink. Both have a dedicated catalog page and appear together in The sketchbook, with quiet/reduced motion, touch behavior, and attribution. `RibbonBanner` (also named `TripleBanner`) and `BookmarkDrawing` provide dedicated journal-art components: equal-width, wrapping three-face ribbons with staged ink/color/text motion and notched/pointed bookmarks. `NavTrail` exposes the notebook’s moving selection surface for native navigation. [Sketch APIs and native SVG companions](SKETCHES.md).
 

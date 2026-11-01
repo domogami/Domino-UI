@@ -14,6 +14,7 @@ export * from "./menu-toggle";
 export * from "./skeleton";
 export * from "./photo-skeleton";
 export * from "./video-skeleton";
+export * from "./waveform";
 
 export * from "./task-checkbox";
 export * from "./sketch";

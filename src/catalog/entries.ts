@@ -579,6 +579,23 @@ export const entries: Entry[] = [
     origin: "Original",
   },
   {
+    id: "waveform",
+    name: "Waveform",
+    group: "Display",
+    summary: "A fine ink waveform with a moving accent trace, controlled by the caller’s playback state.",
+    code: 'function PlaybackInk({ playing }: { playing: boolean }) {\n  return <Waveform playing={playing} />;\n}\n\n{/* Caller-supplied amplitudes, with a meaningful name: */}\n<Waveform samples={[0.1, 0.6, 0.3, 0.9, 0.2]}\n  decorative={false} label="Recording amplitude envelope" quiet />',
+    props: [
+      ["playing", "boolean; animate only for confirmed playback", "false"],
+      ["samples", "readonly number[]; normalized amplitudes from 0 to 1", "original sketch"],
+      ["decorative / label", "boolean / string; meaningful graphics require decorative=false and a label", "true / —"],
+      ["quiet", "boolean; keep the complete drawing still", "false"],
+      ["width / height", "CSS dimensions; className and style also supported", "100% / 32px"],
+    ],
+    guidance: "Drive playing from the real player’s playback state, not its Play button. Pause, buffering, errors and teardown should stop the trace. The default sketch is an illustration, not measured sound. Use supplied samples only when the caller has valid data and permission to display it. Values clamp to 0–1, non-finite values become zero, and long arrays are sampled deterministically to at most 128 points. Quiet, reduced motion and print show complete static ink.",
+    usage: "Import Waveform and styles.css from @domlee/ui. It uses ink and accent tokens on the caller’s surface, with optional --dm-waveform-ink, --dm-waveform-accent and --dm-waveform-duration overrides. It is noninteractive and hidden from assistive technology by default. Set decorative={false} and a clear label for meaningful data; without a label it remains hidden. No audio, microphone, network requests, timers or analysis are created by this component.",
+    origin: "Original",
+  },
+  {
     id: "empty-state",
     name: "Empty state",
     group: "Feedback",

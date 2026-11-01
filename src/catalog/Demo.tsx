@@ -110,6 +110,27 @@ function PaperDemo({ compact }: { compact: boolean }) {
   );
 }
 
+function WaveformDemo({ compact, quiet }: { compact: boolean; quiet: boolean }) {
+  const [playing, setPlaying] = useState(false);
+  const exampleSamples = [.04, .11, .28, .18, .63, .89, .36, .14, .43, .72, .27, .11, .38, .81, .54, .23, .06];
+  const surface = { minWidth: 0, padding: 20, background: "var(--dm-paper)", border: "1px solid var(--dm-border)", borderRadius: "var(--dm-radius)" };
+  return <div className="waveform-demo demo-stack" style={{ minWidth: 0, width: "100%" }}>
+    <div style={surface}>
+      <div className="demo-row" style={{ justifyContent: "space-between" }}><span className="hand-small">A line in motion.</span><UI.Badge>{playing ? "Moving" : "Still"}</UI.Badge></div>
+      <UI.Waveform playing={playing} quiet={quiet} height={48} data-example="original"/>
+      <UI.Button variant="secondary" size="sm" aria-label="Toggle waveform motion" aria-pressed={playing} onClick={() => setPlaying(value => !value)}>{playing ? "Pause the ink" : "Move the ink"}</UI.Button>
+    </div>
+    {!compact && <>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 180px), 1fr))", gap: 16 }}>
+        <div data-theme="light" style={surface}><p className="small-muted">Light · supplied example samples</p><UI.Waveform playing={playing} quiet={quiet} samples={exampleSamples} decorative={false} label="Illustrative amplitude envelope" data-example="samples-light"/></div>
+        <div data-theme="dark" style={surface}><p className="small-muted">Dark · the same samples</p><UI.Waveform playing={playing} quiet={quiet} samples={exampleSamples} decorative={false} label="Illustrative amplitude envelope" data-example="samples-dark"/></div>
+      </div>
+      <div style={surface}><p className="small-muted">Quiet · finished ink</p><UI.Waveform playing quiet data-example="quiet"/></div>
+      <p className="small-muted">The default is a decorative drawing. Supplied samples come from the caller; this component never loads or analyzes audio.</p>
+    </>}
+  </div>;
+}
+
 function PhotoSkeletonDemo({ compact, quiet }: { compact: boolean; quiet: boolean }) {
   return <div className="photo-skeleton-demo demo-stack" style={{ minWidth: 0, width: "100%" }}>
     <div role="region" aria-label="Loading photographs" aria-busy="true" style={{ minWidth: 0 }}>
@@ -841,6 +862,8 @@ export function Demo({
       return <PhotoSkeletonDemo compact={compact} quiet={quiet}/>;
     case "video-skeleton":
       return <VideoSkeletonDemo compact={compact} quiet={quiet}/>;
+    case "waveform":
+      return <WaveformDemo compact={compact} quiet={quiet}/>;
     case "empty-state":
       return (
         <UI.EmptyState
