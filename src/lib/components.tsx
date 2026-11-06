@@ -897,7 +897,8 @@ export interface DialogProps extends Omit<
   "title" | "onClose"
 > {
   open: boolean;
-  onClose: () => void;
+  /** Update open state to close, or return false to cancel this request. */
+  onClose: () => void | false;
   title: ReactNode;
   description?: ReactNode;
   footer?: ReactNode;
@@ -948,7 +949,7 @@ export function Dialog({
   const requestClose = () => {
     if (!openRef.current || closeRequested.current) return;
     closeRequested.current = true;
-    onCloseRef.current();
+    if (onCloseRef.current() === false) closeRequested.current = false;
   };
   useEffect(() => {
     const dialog = ref.current;
