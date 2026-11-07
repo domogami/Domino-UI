@@ -4,9 +4,12 @@ export default defineConfig({
   build: {
     outDir: "lib",
     lib: {
-      entry: "src/lib/index.ts",
+      entry: {
+        "domino-ui": "src/lib/index.ts",
+        "story-tools": "src/lib/story-tools.tsx",
+      },
       formats: ["es"],
-      fileName: "domino-ui",
+      fileName: (_format, name) => `${name}.js`,
       cssFileName: "domino-ui",
     },
     rollupOptions: {

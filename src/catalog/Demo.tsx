@@ -438,6 +438,27 @@ function PolaroidStackDemo({
   );
 }
 
+function ActionMenuDemo() {
+  const [highlighted, setHighlighted] = useState(false), [notice, setNotice] = useState("Choose an entry action.");
+  return <div className="demo-stack"><div className="demo-row"><strong>Field notes</strong><UI.ActionMenu label="Actions for Field notes" compact={false} items={[
+    { id: "edit", label: "Edit", onSelect: () => setNotice("Edit selected after the menu closed.") },
+    { id: "highlight", label: highlighted ? "Remove highlight" : "Highlight", checked: highlighted, onSelect: () => { setHighlighted(value => !value); setNotice("Highlight changed."); } },
+    { id: "export", label: "Export", separatorBefore: true, onSelect: () => setNotice("Export selected.") },
+    { id: "history", label: "Version history", onSelect: () => setNotice("Version history selected.") },
+    { id: "archive", label: "Archive", danger: true, separatorBefore: true, onSelect: () => setNotice("Archive selected; a product would confirm or offer Undo.") },
+  ]}/></div><p role="status">{notice}</p></div>;
+}
+function CommandPaletteDemo() {
+  const [open, setOpen] = useState(false), [query, setQuery] = useState(""), [notice, setNotice] = useState("Search stays in this example.");
+  const pending = useRef<string | null>(null);
+  const items = [{ id: "notes", label: "Field notes", description: "Notes from a walk beside the river.", group: "Writing" }, { id: "plants", label: "Garden sketches", description: "Drawings and observations.", group: "Writing" }, { id: "settings", label: "Reading settings", description: "Size, quiet view and font preferences.", group: "Settings" }].filter(item => (item.label + " " + item.description).toLowerCase().includes(query.toLowerCase()));
+  return <div className="demo-stack"><UI.Button variant="secondary" onClick={() => setOpen(true)}>Search the example</UI.Button><p role="status">{notice}</p><UI.CommandPalette open={open} onOpenChange={next => { pending.current = null; setOpen(next); }} query={query} onQueryChange={setQuery} items={items} onSelect={id => { pending.current = items.find(item => item.id === id)?.label || null; setOpen(false); }} onAfterClose={() => { if (pending.current) { setNotice(`Opened ${pending.current}.`); pending.current = null; } }}/></div>;
+}
+function ReadingControlsDemo() {
+  const [size, setSize] = useState(100), [quiet, setQuiet] = useState(false);
+  return <div className="demo-stack"><UI.ReadingControls value={size} onValueChange={setSize} quiet={quiet} onQuietChange={setQuiet}/><article style={{ fontSize: `${size}%`, lineHeight: 1.85, maxWidth: "60ch" }}><h3>Field notes</h3><p>The path follows the river, then turns through the trees. Leave enough space for the words to be comfortable to read.</p>{!quiet && <UI.HandwrittenNote>A note in the margin.</UI.HandwrittenNote>}</article></div>;
+}
+
 export function Demo({
   id,
   compact = false,
@@ -532,6 +553,9 @@ export function Demo({
           </UI.IconButton>
         </div>
       );
+    case "action-menu": return <ActionMenuDemo/>;
+    case "command-palette": return <CommandPaletteDemo/>;
+    case "reading-controls": return <ReadingControlsDemo/>;
     case "dropdown-menu":
       return (
         <div className="demo-stack">

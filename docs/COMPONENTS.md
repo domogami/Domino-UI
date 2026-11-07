@@ -2,6 +2,8 @@
 
 This inventory defines the scope of Domino UI and the states its visual website should make inspectable. It is not a list of verified release guarantees. The actual exports and TypeScript declarations are the API authority; do not infer prop names from the pattern names below.
 
+`ActionMenu`, `CommandPalette` and `ReadingControls` have live catalog examples. [Consistent action menus](ACTION-MENUS.md) standardizes action order, labels, state and destructive confirmation. [Search and reading tools](STORY-TOOLS.md) documents controlled APIs, keyboard behavior, persistence boundaries and the additive package build.
+
 ## Source map
 
 | Location                        | Responsibility                                                                           |

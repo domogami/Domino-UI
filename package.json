@@ -33,7 +33,12 @@
     "./adapters/portfolio.css": "./platforms/portfolio/domino-ui.css",
     "./adapters/quartz.css": "./platforms/quartz/domino-ui.css",
     "./adapters/obsidian.css": "./platforms/obsidian/domino-ui.css",
-    "./system-manifest.json": "./platforms/manifest.json"
+    "./system-manifest.json": "./platforms/manifest.json",
+    "./story-tools": {
+      "types": "./lib/lib/story-tools.d.ts",
+      "import": "./lib/story-tools.js"
+    },
+    "./story-tools.css": "./lib/domino-ui.css"
   },
   "files": [
     "lib",
@@ -62,7 +67,8 @@
     "prebuild": "npm run build:system",
     "prebuild:lib": "npm run build:system",
     "prepare": "npm run build:lib",
-    "pretest": "npm run build:system"
+    "pretest": "npm run build:system",
+    "build:story-tools-package": "node scripts/build-story-tools-package.mjs"
   },
   "peerDependencies": {
     "react": ">=18",

@@ -22,6 +22,30 @@ export type Entry = {
 // Stateful examples define their hooks and callbacks; collection APIs document stable identities.
 export const entries: Entry[] = [
   {
+    id: "action-menu", name: "Action menu", group: "Actions", origin: "Extended",
+    summary: "One predictable, viewport-fitting action list for an entry, wherever it appears.",
+    code: '<ActionMenu label="Actions for Field notes" items={[\n  {id: "edit", label: "Edit", onSelect: edit},\n  {id: "highlight", label: "Highlight", checked: highlighted, onSelect: toggleHighlight},\n  {id: "history", label: "Version history", separatorBefore: true, onSelect: history}\n]} />',
+    props: [["label", "string; accessible entry-specific name", "required"], ["items", "ActionMenuItem[]; stable id, label, onSelect", "required"], ["icon / checked / disabled / danger", "per-item optional state", "—"], ["separatorBefore / shortcut", "per-item grouping and displayed hint", "—"], ["compact / align", "boolean / start | end", "true / end"]],
+    guidance: "Use the same action labels, icons and order on every view of an entry. Edit first, organize next, take a copy, inspect history, then destructive actions after a separator. Keep the primary task visible. Icons never replace labels; disabled actions are skipped by arrow navigation. Follow docs/ACTION-MENUS.md for copy and confirmation rules.",
+    usage: "Import ActionMenu from @domlee/ui/story-tools and story-tools.css. The panel fits the visual viewport, closes on outside interaction, and keeps Escape inside the current layer. Selection runs after its retained exit before opening another dialog. Apps own authorization and data mutations.",
+  },
+  {
+    id: "command-palette", name: "Command palette", group: "Navigation", origin: "Extended",
+    summary: "A quiet search dialog with grouped results, keyboard browsing and clear partial-loading states.",
+    code: '<CommandPalette open={open} onOpenChange={setOpen}\n  query={query} onQueryChange={setQuery}\n  items={results} onSelect={queueSelection}\n  onAfterClose={openQueuedResult} />',
+    props: [["open / onOpenChange", "boolean / (open) => void", "required"], ["query / onQueryChange", "string / (query) => void", "required"], ["items / onSelect", "CommandPaletteItem[] / (id) => void", "required"], ["onAfterClose", "() => void after native modality releases", "—"], ["loading / status / filters / emptyState", "optional progress and content slots", "—"]],
+    guidance: "Keep search local when the app already holds the content. State indexing scope and partial failures honestly. Never index another account's drafts or hidden administrative content. Cmd/Ctrl+K belongs in the app, with rich-editor shortcuts and IME composition preserved.",
+    usage: "Import CommandPalette from @domlee/ui/story-tools and story-tools.css. Available results remain selectable while another source loads. Keep focus in the input and use arrow keys/Enter to choose. Queue navigation until onAfterClose to preserve underlying editor focus and drafts.",
+  },
+  {
+    id: "reading-controls", name: "Reading controls", group: "Notebook", origin: "Extended",
+    summary: "Comfortable text sizing and quiet view, with explicit state and no content changes.",
+    code: '<ReadingControls value={size} onValueChange={setSize}\n  quiet={quiet} onQuietChange={setQuiet}\n  min={90} max={150} step={10} />',
+    props: [["value / onValueChange", "number percent / (value) => void", "required"], ["quiet / onQuietChange", "boolean / (quiet) => void", "required"], ["min / max / step", "number", "90 / 150 / 10"], ["label / className", "accessible group name / string", "Reading controls / —"]],
+    guidance: "Reading preferences belong to the reader. Enlarge prose rather than the whole navigation interface, preserve font preferences, and leave a reachable exit. Quiet view calms decoration without silently changing writing or audio playback.",
+    usage: "Import ReadingControls from @domlee/ui/story-tools and story-tools.css. The app owns persistence and reading styles; the primitive clamps sizes, resets to 100% within bounds, exposes current percentage and provides labeled 44px controls.",
+  },
+  {
     id: "chevron",
     name: "Chevron",
     group: "Navigation",

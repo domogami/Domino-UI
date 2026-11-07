@@ -124,10 +124,13 @@ import { flushSync } from "react-dom";
 import { createRoot } from "react-dom/client";
 import { BookmarkDrawing, Button, Card, Chevron, Dialog, HairlineSketch, NotebookSketch, NotificationCard, NavTrail, Paper, PolaroidStack, Popover, Skeleton, RadioGroup, Checkbox, RibbonBanner, TaskCheckbox, ThemeProvider, ThemeToggle, Timeline, TouchFeedbackProvider, TripleBanner, createPageTransition, type DrawingProps, type PolaroidPhoto, type TimelineItem } from "@domlee/ui";
 import "@domlee/ui/styles.css";
+import { ActionMenu, CommandPalette, ReadingControls } from "@domlee/ui/story-tools";
+import "@domlee/ui/story-tools.css";
 import "@domlee/ui/fonts.css";
 function App() {
   const [open, setOpen] = useState(false);
   const [heading, setHeading] = useState("A shared notebook");
+  const [readingSize, setReadingSize] = useState(100), [quietReading, setQuietReading] = useState(false);
   const returnFocusRef = useRef<HTMLButtonElement>(null);
   const navRef = useRef<HTMLElement>(null);
   const photos: readonly PolaroidPhoto[] = [
@@ -142,6 +145,9 @@ function App() {
   const drawing: DrawingProps = { animate: true, quiet: false, speed: 1, replayKey: 0 };
   const pageTransition = useMemo(() => createPageTransition(), []);
   return <ThemeProvider><TouchFeedbackProvider><ThemeToggle /><Card title={heading} className="dm-page-transition"><Button ref={returnFocusRef} trailingIcon={<Chevron />} onClick={() => setOpen(true)}>Keep going</Button><Button variant="secondary" onClick={() => { void pageTransition.run(() => flushSync(() => setHeading("A new notebook page"))); }}>Turn page</Button><TaskCheckbox label="A little progress" /><NotebookSketch variant="flight" replayOnClick /><HairlineSketch variant="branches" /><Skeleton width="70%" />
+    <ActionMenu label="Actions for package note" items={[{id:"edit",label:"Edit",onSelect:()=>setHeading("Edited note")},{id:"highlight",label:"Highlight",checked:true,onSelect:()=>{}}]} />
+    <ReadingControls value={readingSize} onValueChange={setReadingSize} quiet={quietReading} onQuietChange={setQuietReading} />
+    <CommandPalette open={false} onOpenChange={()=>{}} query="" onQueryChange={()=>{}} items={[]} onSelect={()=>{}} onAfterClose={()=>{}} />
     <PolaroidStack photos={photos} label="Package photo stack" quiet aspectRatio={16 / 9} onIndexChange={(index, photo) => void [index, photo.id]} />
     <Timeline items={milestones} label="Package milestones" animate quiet={false} replayKey={heading} start={2} data-consumer="timeline" />
     <Paper pattern="lined" ruleAlign="between" padding="sm" data-consumer="ruled-paper"><h2>Room for the words</h2><p>Guides stay clear when the paragraph wraps.</p></Paper>
@@ -196,6 +202,9 @@ createRoot(document.getElementById("root")!).render(<App />);
     )
   ).join("\n");
   for (const rule of [
+    ".dm-action-menu__panel",
+    ".dm-command-palette__results",
+    ".dm-reading-controls",
     ".dm-button",
     ".dm-skeleton",
     ".dm-task-checkbox",

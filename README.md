@@ -11,7 +11,8 @@
   <a href="docs/ADOPTION.md">Start building</a> ·
   <a href="docs/AGENT-PROMPT.md">Agent handoff</a> ·
   <a href="DESIGN.md">Design language</a> ·
-  <a href="docs/COMPONENTS.md">Components</a>
+  <a href="docs/COMPONENTS.md">Components</a> ·
+  <a href="docs/ACTION-MENUS.md">Action menu guide</a>
 </p>
 
 <p align="center">
